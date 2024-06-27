@@ -1,0 +1,45 @@
+extend type Query {
+    "Find a product by its ID."
+    product(id: ID): Product
+    "Find all products."
+    products(first: Int): [Product]!
+}
+
+type Mutation {
+    "Create a new product."
+    addProduct(input: ProductInput!): Product
+    "Update an existing product."
+    updateProduct(id: ID!, input: ProductInput!): Product
+    "Delete a product."
+    deleteProduct(id: ID!): ID!
+}
+
+type Product implements Node {
+    id: ID!
+    createdAt: DateTime!
+    description: JsonString
+    """
+    The slug is a uniquely generated URI friendly identifier for a product.
+    It is generated from the title of the product. A number is appended
+    to the end of the slug if a product with the same slug already exists.
+    """
+    slug: String!
+    "Public URI to the product's media."
+    media: [URL!]
+    price: Money
+    tags: [String!]
+    title: String!
+    updatedAt: DateTime!
+}
+
+input ProductInput {
+    description: String
+    price: Decimal
+    tags: [String!]
+    title: String!
+}
+
+enum ProductStatus {
+    DRAFT
+    PUBLISHED
+}

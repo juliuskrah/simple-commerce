@@ -1,0 +1,15 @@
+extend type Mutation {
+    addDigitalContent(productId: ID!): DigitalContent
+}
+
+extend type Product {
+    digitalContent: DigitalContent
+}
+
+type DigitalContent implements Node {
+    id: ID!
+    createdAt: DateTime!
+    downloadUrl: URL!
+    product: Product!
+    updatedAt: DateTime!
+}

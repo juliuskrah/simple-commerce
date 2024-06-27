@@ -1,0 +1,40 @@
+type Query {
+    "Query a node by its global ID."
+    node(id: ID!): Node
+}
+
+type Money {
+    amount: Decimal!
+    currency: Currency!
+}
+
+interface Node {
+    "The global ID of the object."
+    id: ID!
+}
+
+scalar Currency
+    @specifiedBy(url:
+        "https://en.wikipedia.org/wiki/ISO_4217"
+    )
+
+scalar DateTime
+    @specifiedBy(url:
+        "https://scalars.graphql.org/andimarek/date-time.html"
+    )
+
+"A scalar which represents java.math.BigDecimal."
+scalar Decimal
+
+"A json formatted String."
+scalar JsonString
+
+scalar URL
+    @specifiedBy(url:
+        "https://www.w3.org/Addressing/URL/url-spec.txt"
+    )
+
+schema {
+    query: Query
+    mutation: Mutation
+}

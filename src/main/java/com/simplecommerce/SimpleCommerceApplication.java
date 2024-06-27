@@ -9,7 +9,11 @@ import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.RouterFunctions;
 import org.springframework.web.servlet.function.ServerResponse;
 
-@SpringBootApplication
+/**
+ * @since 1.0
+ * @author julius.krah
+ */
+@SpringBootApplication(proxyBeanMethods = false)
 public class SimpleCommerceApplication {
 
     public static void main(String[] args) {
