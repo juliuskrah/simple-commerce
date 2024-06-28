@@ -1,4 +1,4 @@
-package com.simplecommerce.shared;
+package com.simplecommerce.node;
 
 import java.util.Map;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -18,7 +18,7 @@ class NodeController {
   }
 
   @QueryMapping
-  public Node node(@Argument String id) {
+  Node node(@Argument String id) {
     return nodeServices.get("Product").node(id);
   }
 }

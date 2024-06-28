@@ -1,0 +1,10 @@
+mutation {
+    updateProduct(input: {title: "Product 1", price: 100.0, description: "Description 1"}, id: "123654"){
+        id
+        title
+        price {
+            amount
+        }
+        description
+    }
+}

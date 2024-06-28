@@ -1,0 +1,10 @@
+mutation {
+    addProduct(input: {title: "Product 1", price: 100.0, description: "Description 1"}) {
+        id
+        title
+        price {
+            amount
+        }
+        description
+    }
+}

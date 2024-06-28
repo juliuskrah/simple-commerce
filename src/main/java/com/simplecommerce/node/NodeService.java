@@ -1,4 +1,4 @@
-package com.simplecommerce.shared;
+package com.simplecommerce.node;
 
 /**
  * Implementations of this interface are represented managed node types that participate in

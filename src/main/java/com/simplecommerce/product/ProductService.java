@@ -1,7 +1,7 @@
 package com.simplecommerce.product;
 
-import com.simplecommerce.shared.Node;
-import com.simplecommerce.shared.NodeService;
+import com.simplecommerce.node.Node;
+import com.simplecommerce.node.NodeService;
 import java.time.OffsetDateTime;
 import org.springframework.stereotype.Service;
 

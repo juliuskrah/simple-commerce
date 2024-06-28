@@ -7,9 +7,9 @@ import static graphql.Scalars.GraphQLString;
 import static graphql.scalars.ExtendedScalars.Url;
 
 import graphql.scalars.ExtendedScalars;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import graphql.schema.idl.RuntimeWiring.Builder;
 import org.springframework.graphql.execution.RuntimeWiringConfigurer;
+import org.springframework.stereotype.Component;
 
 /**
  * Configuration for GraphQL.
@@ -17,17 +17,15 @@ import org.springframework.graphql.execution.RuntimeWiringConfigurer;
  * @author julius.krah
  * @since 1.0
  */
-@Configuration(proxyBeanMethods = false)
-class GraphQLConfiguration {
+@Component
+class ScalarsRuntimeWiringConfigurer implements RuntimeWiringConfigurer {
 
   /**
    * Register custom scalars.
-   *
-   * @return RuntimeWiringConfigurer
    */
-  @Bean
-  public RuntimeWiringConfigurer runtimeWiringConfigurer() {
-    return wiringBuilder -> wiringBuilder.scalar(DateTime)
+  @Override
+  public void configure(Builder builder) {
+    builder.scalar(DateTime)
         .scalar(Currency)
         .scalar(ExtendedScalars.newAliasedScalar("Decimal")
             .aliasedScalar(GraphQLBigDecimal)
