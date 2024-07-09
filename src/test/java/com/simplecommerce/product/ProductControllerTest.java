@@ -2,12 +2,17 @@ package com.simplecommerce.product;
 
 import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
+import java.util.Map;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.graphql.test.tester.GraphQlTester;
 
 /**
@@ -19,6 +24,8 @@ import org.springframework.graphql.test.tester.GraphQlTester;
 class ProductControllerTest {
   @Autowired
   private GraphQlTester graphQlTester;
+  @MockBean
+  private ProductService productService;
 
   @Test
   @DisplayName("Should fetch product by ID")
@@ -42,21 +49,26 @@ class ProductControllerTest {
         .execute()
         .path("products").entityList(Product.class)
         .satisfies(products -> {
-            assertThat(products).isNotEmpty();
-            assertThat(products).hasSize(2);
-            assertThat(products).extracting(Product::title).contains("Product 1", "Product 2");
+            assertThat(products).isNotEmpty()
+                .hasSize(2)
+                .extracting(Product::title).contains("Product 1", "Product 2");
         });
   }
 
   @Test
   @DisplayName("Should add a product")
   void shouldAddProduct() {
+    when(productService.createProduct(any(ProductInput.class)))
+        .thenReturn(new Product("1", "Product 1", "product-1",
+            null, null, null, null));
     graphQlTester.documentName("addProduct")
+        .variable("input", Map.of("title", "Product 1"))
         .execute()
         .path("addProduct").entity(Product.class)
         .satisfies(product -> {
             assertThat(product).isNotNull();
-            assertThat(product).extracting(Product::title).isEqualTo("Product 1");
+            assertThat(product).extracting(Product::title, Product::slug)
+                .containsExactly("Product 1", "product-1");
         });
   }
 
@@ -75,9 +87,11 @@ class ProductControllerTest {
   @Test
   @DisplayName("Should delete a product by ID")
   void shouldDeleteProduct() {
+    when(productService.deleteProduct(anyString())).thenReturn("12345");
     graphQlTester.documentName("deleteProduct")
+        .variable("id", "12345")
         .execute()
         .path("deleteProduct").entity(String.class)
-        .isEqualTo("Product deleted");
+        .isEqualTo("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvUHJvZHVjdC8xMjM0NQ==");
   }
 }

@@ -1,5 +1,7 @@
 package com.simplecommerce.product;
 
+import static com.simplecommerce.product.SimpleProductService.NODE_PRODUCT;
+
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.Money;
 import java.math.BigDecimal;
@@ -25,7 +27,12 @@ import org.springframework.stereotype.Controller;
  */
 @Controller
 class ProductController {
-    private static final Logger log = LoggerFactory.getLogger(ProductController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ProductController.class);
+    private final ProductService productService;
+
+    ProductController(ProductService productService) {
+      this.productService = productService;
+    }
 
     @QueryMapping
     Product product(@Argument String id) {
@@ -42,7 +49,7 @@ class ProductController {
 
     @QueryMapping
     List<Product> products(@Argument ArgumentValue<Integer> first) {
-        log.info("Fetching {} products", first.value());
+        LOG.info("Fetching {} products", first.value());
         return List.of(
             new Product(
                 "1",
@@ -67,7 +74,7 @@ class ProductController {
 
     @SchemaMapping(typeName = "Product")
     String id(Product source) {
-        return new GlobalId("Product", source.id()).encode();
+        return new GlobalId(NODE_PRODUCT, source.id()).encode();
     }
 
     @SchemaMapping
@@ -82,7 +89,8 @@ class ProductController {
 
     @MutationMapping
     String deleteProduct(@Argument String id) {
-        return "Product deleted";
+        var deletedId = productService.deleteProduct(id);
+        return new GlobalId(NODE_PRODUCT, deletedId).encode();
     }
 
     @MutationMapping
@@ -100,14 +108,6 @@ class ProductController {
 
     @MutationMapping
     Product addProduct(@Argument ProductInput input) {
-        return new Product(
-            "3",
-            input.title(),
-            input.title().replace(" ", "-"),
-            OffsetDateTime.now(),
-            input.description(),
-            input.tags(),
-            OffsetDateTime.now()
-        );
+        return productService.createProduct(input);
     }
 }

@@ -1,26 +1,28 @@
 package com.simplecommerce.product;
 
-import com.simplecommerce.node.Node;
-import com.simplecommerce.node.NodeService;
-import java.time.OffsetDateTime;
-import org.springframework.stereotype.Service;
-
 /**
  * @author julius.krah
  */
-@Service("Product")
-public class ProductService implements NodeService {
+interface ProductService {
+  /**
+   * Delete a product by its ID. This method is idempotent.
+   * @param id The ID of the product.
+   * @return The product.
+   */
+  String deleteProduct(String id);
 
-  @Override
-  public Node node(String id) {
-    return new Product(
-        id,
-        "Product",
-        "product",
-        OffsetDateTime.now(),
-        "Product description",
-        null,
-        OffsetDateTime.now()
-    );
-  }
+  /**
+   * Create a new product.
+   * @param product The product to create.
+   * @return The created product.
+   */
+  Product createProduct(ProductInput product);
+
+  /**
+   * Update an existing product.
+   * @param productId The ID of the product.
+   * @param product The product to update.
+   * @return The updated product.
+   */
+  Product updateProduct(String productId, ProductInput product);
 }

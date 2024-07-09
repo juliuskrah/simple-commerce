@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  * @since 1.0
  */
 @Component
-class ScalarsRuntimeWiringConfigurer implements RuntimeWiringConfigurer {
+class AdditionalScalarsConfigurer implements RuntimeWiringConfigurer {
 
   /**
    * Register custom scalars.

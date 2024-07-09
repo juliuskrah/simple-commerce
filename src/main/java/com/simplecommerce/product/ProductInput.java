@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * @author julius.krah
  */
-public record ProductInput(
+record ProductInput(
     String description,
     BigDecimal price,
     List<String> tags,
