@@ -23,12 +23,16 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-graphql")
 	implementation("com.graphql-java:graphql-java-extended-scalars:22.0")
 	implementation("org.springframework.modulith:spring-modulith-starter-core")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.springframework.modulith:spring-modulith-starter-jpa")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
+	runtimeOnly("org.postgresql:postgresql")
 	testImplementation("org.springframework.boot:spring-boot-starter-webflux")
 	testImplementation("org.springframework.modulith:spring-modulith-starter-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.graphql:spring-graphql-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	testAndDevelopmentOnly("org.springframework.boot:spring-boot-docker-compose")
 }
 dependencyManagement {
 	imports {

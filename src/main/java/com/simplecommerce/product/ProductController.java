@@ -36,15 +36,7 @@ class ProductController {
 
     @QueryMapping
     Product product(@Argument String id) {
-        return new Product(
-            id,
-            "Product",
-            "product",
-            OffsetDateTime.now(),
-            "Product description",
-            null,
-            OffsetDateTime.now()
-        );
+        return productService.findProduct(id);
     }
 
     @QueryMapping

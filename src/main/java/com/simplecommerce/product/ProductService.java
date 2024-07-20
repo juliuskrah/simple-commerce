@@ -1,11 +1,27 @@
 package com.simplecommerce.product;
 
+import java.util.List;
+
 /**
  * @author julius.krah
  */
 interface ProductService {
+
   /**
-   * Delete a product by its ID. This method is idempotent.
+   * Find a product by its ID.
+   * @param id The ID of the product.
+   * @return The product.
+   */
+  Product findProduct(String id);
+
+  /**
+   * Find a list of products.
+   * @param limit The maximum number of products to return.
+   * @return The list of products.
+   */
+  List<Product> findProducts(int limit);
+  /**
+   * Delete a product by its ID. Deletion is idempotent.
    * @param id The ID of the product.
    * @return The product.
    */

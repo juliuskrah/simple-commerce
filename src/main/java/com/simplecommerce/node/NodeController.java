@@ -1,5 +1,6 @@
 package com.simplecommerce.node;
 
+import com.simplecommerce.shared.GlobalId;
 import java.util.Map;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -19,6 +20,7 @@ class NodeController {
 
   @QueryMapping
   Node node(@Argument String id) {
-    return nodeServices.get("Product").node(id);
+    var gid = GlobalId.decode(id);
+    return nodeServices.get(gid.node()).node(id);
   }
 }

@@ -8,7 +8,7 @@ import org.springframework.modulith.core.ApplicationModules;
  * @author julius.krah
  * @since 1.0
  */
-@SpringBootTest
+@SpringBootTest(properties = "spring.docker.compose.skip.in-tests=false")
 class SimpleCommerceApplicationTests {
 
 	@Test

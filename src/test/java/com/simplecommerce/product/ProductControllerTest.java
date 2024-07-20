@@ -30,14 +30,17 @@ class ProductControllerTest {
   @Test
   @DisplayName("Should fetch product by ID")
   void shouldFetchProduct() {
+    when(productService.findProduct(anyString()))
+        .thenReturn(new Product("18d25652-5870-4555-8146-5166fec97c3f", "Product", "product",
+            null, null, null, null));
     graphQlTester.documentName("productDetails")
-       .variable("id", "12345")
+       .variable("id", "gid://SimpleCommerce/Product/some-random-id-1234567")
         .execute()
         .path("product").entity(Product.class)
         .satisfies( product -> {
             assertThat(product).isNotNull()
                 .extracting(Product::id, as(InstanceOfAssertFactories.STRING)).isBase64()
-                .isEqualTo("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvUHJvZHVjdC8xMjM0NQ==");
+                .isEqualTo("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvUHJvZHVjdC8xOGQyNTY1Mi01ODcwLTQ1NTUtODE0Ni01MTY2ZmVjOTdjM2Y=");
             assertThat(product).extracting(Product::title).isEqualTo("Product");
         });
   }
@@ -48,11 +51,9 @@ class ProductControllerTest {
     graphQlTester.documentName("products")
         .execute()
         .path("products").entityList(Product.class)
-        .satisfies(products -> {
-            assertThat(products).isNotEmpty()
-                .hasSize(2)
-                .extracting(Product::title).contains("Product 1", "Product 2");
-        });
+        .satisfies(products -> assertThat(products).isNotEmpty()
+            .hasSize(2)
+            .extracting(Product::title).contains("Product 1", "Product 2"));
   }
 
   @Test
