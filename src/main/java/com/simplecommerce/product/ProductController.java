@@ -1,6 +1,6 @@
 package com.simplecommerce.product;
 
-import static com.simplecommerce.product.SimpleProductService.NODE_PRODUCT;
+import static com.simplecommerce.product.ProductManagement.NODE_PRODUCT;
 
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.Money;

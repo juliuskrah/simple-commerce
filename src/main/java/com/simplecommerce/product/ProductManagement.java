@@ -1,6 +1,6 @@
 package com.simplecommerce.product;
 
-import static com.simplecommerce.product.SimpleProductService.NODE_PRODUCT;
+import static com.simplecommerce.product.ProductManagement.NODE_PRODUCT;
 
 import com.simplecommerce.node.NodeService;
 import com.simplecommerce.shared.GlobalId;
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service(NODE_PRODUCT)
 @Transactional
-class SimpleProductService implements ProductService, NodeService {
+class ProductManagement implements ProductService, NodeService {
   static final String NODE_PRODUCT = "Product";
 
   @Transactional(readOnly = true)

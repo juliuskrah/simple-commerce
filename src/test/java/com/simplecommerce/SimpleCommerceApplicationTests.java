@@ -8,7 +8,7 @@ import org.springframework.modulith.core.ApplicationModules;
  * @author julius.krah
  * @since 1.0
  */
-@SpringBootTest(properties = "spring.docker.compose.skip.in-tests=false")
+@SpringBootTest(properties = "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration")
 class SimpleCommerceApplicationTests {
 
 	@Test

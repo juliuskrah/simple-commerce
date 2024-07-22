@@ -18,8 +18,4 @@ record Product(
     OffsetDateTime updatedAt
 ) implements Node {
 
-  @Override
-  public String id() {
-    return id;
-  }
 }

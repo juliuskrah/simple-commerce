@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 /**
  * @author julius.krah
  */
-class SimpleProductServiceTest {
-  final SimpleProductService productService = new SimpleProductService();
+class ProductManagementTest {
+  final ProductManagement productService = new ProductManagement();
 
   @Test
   void shouldResolveNode() {
