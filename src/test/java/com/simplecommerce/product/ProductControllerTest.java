@@ -32,7 +32,7 @@ class ProductControllerTest {
   void shouldFetchProduct() {
     when(productService.findProduct(anyString()))
         .thenReturn(new Product("18d25652-5870-4555-8146-5166fec97c3f", "Product", "product",
-            null, null, null, null));
+            null, null, null));
     graphQlTester.documentName("productDetails")
        .variable("id", "gid://SimpleCommerce/Product/some-random-id-1234567")
         .execute()
@@ -61,7 +61,7 @@ class ProductControllerTest {
   void shouldAddProduct() {
     when(productService.createProduct(any(ProductInput.class)))
         .thenReturn(new Product("1", "Product 1", "product-1",
-            null, null, null, null));
+            null, null, null));
     graphQlTester.documentName("addProduct")
         .variable("input", Map.of("title", "Product 1"))
         .execute()
@@ -94,5 +94,11 @@ class ProductControllerTest {
         .execute()
         .path("deleteProduct").entity(String.class)
         .isEqualTo("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvUHJvZHVjdC8xMjM0NQ==");
+  }
+
+  @Test
+  @DisplayName("Should fetch tags by product ID")
+  void shouldFetchProductTags() {
+
   }
 }

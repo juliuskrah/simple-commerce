@@ -2,7 +2,6 @@ package com.simplecommerce.product;
 
 import com.simplecommerce.node.Node;
 import java.time.OffsetDateTime;
-import java.util.List;
 
 /**
  * Represents a product.
@@ -14,7 +13,6 @@ record Product(
     String slug,
     OffsetDateTime createdAt,
     String description,
-    List<String> tags,
     OffsetDateTime updatedAt
 ) implements Node {
 

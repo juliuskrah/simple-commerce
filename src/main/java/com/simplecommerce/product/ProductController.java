@@ -49,7 +49,6 @@ class ProductController {
                 "product-1",
                 OffsetDateTime.now(),
                 "Product 1 description",
-                List.of("tag1", "tag2"),
                 OffsetDateTime.now()
             ),
             new Product(
@@ -58,7 +57,6 @@ class ProductController {
                 "product-2",
                 OffsetDateTime.now(),
                 "Product 2 description",
-                List.of("tag1", "tag2"),
                 OffsetDateTime.now()
             )
         );
@@ -67,6 +65,11 @@ class ProductController {
     @SchemaMapping(typeName = "Product")
     String id(Product source) {
         return new GlobalId(NODE_PRODUCT, source.id()).encode();
+    }
+
+    @SchemaMapping
+    List<String> tags(Product product) {
+        return productService.findTags(product.id());
     }
 
     @SchemaMapping
@@ -93,7 +96,6 @@ class ProductController {
             input.title().replace(" ", "-"),
             OffsetDateTime.now(),
             input.description(),
-            input.tags(),
             OffsetDateTime.now()
         );
     }

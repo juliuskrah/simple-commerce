@@ -4,6 +4,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.1.5"
 }
 val springModulithVersion by extra("1.2.1")
+val enablePreview = "--enable-preview"
 
 group = "com.simplecommerce"
 version = "1.0.0"
@@ -22,8 +23,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-graphql")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-//	implementation("org.springframework.modulith:spring-modulith-starter-core")
-//	implementation("org.springframework.modulith:spring-modulith-starter-jpa")
+	implementation("org.springframework.modulith:spring-modulith-starter-core")
+	implementation("org.springframework.modulith:spring-modulith-starter-jpa")
 	implementation("com.graphql-java:graphql-java-extended-scalars:22.0")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("org.postgresql:postgresql")
@@ -45,4 +46,15 @@ dependencyManagement {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	jvmArgs(enablePreview)
+}
+
+tasks.withType<JavaCompile> {
+	options.compilerArgs.add(enablePreview)
+	options.compilerArgs.add("-Xlint:preview")
+	options.release.set(21)
+}
+
+tasks.withType<JavaExec> {
+	jvmArgs(enablePreview)
 }
