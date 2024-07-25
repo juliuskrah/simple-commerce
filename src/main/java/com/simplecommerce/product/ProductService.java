@@ -19,9 +19,10 @@ interface ProductService {
   /**
    * Find tags given a product ID.
    * @param productId the id of the product
+   * @param limit the maximum number of tags to return
    * @return tags of the product
    */
-  List<String> findTags(String productId);
+  List<String> findTags(String productId, int limit);
 
   /**
    * Find a list of products.

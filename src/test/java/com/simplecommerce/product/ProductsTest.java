@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.data.domain.Limit;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -47,8 +48,7 @@ class ProductsTest {
     var product = new ProductEntity();
     product.setTitle("DataWave");
     product.setSlug("data-wave");
-    product.addTag("technology");
-    product.addTags("software", "cloud_computing");
+    product.addTags("technology", "software", "cloud_computing");
     product.publishProductCreatedEvent();
     var entity = productRepository.saveAndFlush(product);
     assertThat(entity).isNotNull().hasNoNullFieldsOrPropertiesExcept("description")
@@ -67,6 +67,22 @@ class ProductsTest {
         .hasFieldOrPropertyWithValue("slug", "data-dynamo")
         .extracting("tags")
         .asInstanceOf(InstanceOfAssertFactories.LIST).contains("big-data", "integration", "enterprise-solutions");
+  }
+
+  @Test
+  void shouldFindProductTags() {
+    var tags = productRepository.findTags(
+        UUID.fromString("2d02b402-570f-4c4b-932a-d5a42eae4c34"), Limit.of(5));
+    assertThat(tags).isNotEmpty()
+        .hasSize(5).contains("web-application", "user-experience", "ecommerce");
+  }
+
+  @Test
+  void shouldFindProducts() {
+    var products = productRepository.findBy(Limit.of(10));
+    assertThat(products).isNotEmpty()
+        .hasSize(10).extractingResultOf("getTitle")
+        .contains("Data Dynamo", "Pixel Pro", "Quantum Desk");
   }
 
   @Test

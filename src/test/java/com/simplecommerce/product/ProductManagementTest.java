@@ -2,9 +2,12 @@ package com.simplecommerce.product;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -13,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Limit;
 
 /**
  * @author julius.krah
@@ -52,13 +56,29 @@ class ProductManagementTest {
 
   @Test
   void shouldFindProducts() {
-    var products = productService.findProducts(10);
-    assertThat(products).isNotNull().isEmpty();
+    var entity = new ProductEntity();
+    entity.setId(UUID.randomUUID());
+    entity.setTitle("Opti Core");
+    when(productRepository.findBy(any(Limit.class))).thenReturn(List.of(entity));
+    var products = productService.findProducts(1);
+
+    var expected = new Product(null, "Opti Core", null, null, null, null);
+    assertThat(products).isNotNull().hasSize(1)
+        .usingRecursiveComparison().comparingOnlyFields("title")
+        .isEqualTo(List.of(expected));
   }
 
   @Test
   void shouldFindTags() {
-
+    var spyTags = spy(new ArrayList<String>());
+    spyTags.add("security");
+    spyTags.add("collaboration");
+    final var limit = 10;
+    doReturn(limit).when(spyTags).size();
+    when(productRepository.findTags(any(UUID.class), any(Limit.class))).thenReturn(spyTags);
+    var tags = productService.findTags("7004ebbc-e71c-45f3-8d23-1ba2c37f2f1c", limit);
+    assertThat(tags).isNotNull().isNotEmpty().hasSize(limit)
+        .contains("security", "collaboration");
   }
 
   @Test

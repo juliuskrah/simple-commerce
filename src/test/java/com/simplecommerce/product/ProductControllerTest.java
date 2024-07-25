@@ -3,10 +3,13 @@ package com.simplecommerce.product;
 import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,12 +51,15 @@ class ProductControllerTest {
   @Test
   @DisplayName("Should fetch products")
   void shouldFetchProducts() {
+    var entities = List.of(new Product(UUID.randomUUID().toString(), "Cyberdyne Rover", "cyberdyne-rover",
+        null, null, null));
+    when(productService.findProducts(anyInt())).thenReturn(entities);
     graphQlTester.documentName("products")
         .execute()
         .path("products").entityList(Product.class)
         .satisfies(products -> assertThat(products).isNotEmpty()
-            .hasSize(2)
-            .extracting(Product::title).contains("Product 1", "Product 2"));
+            .hasSize(1)
+            .extracting(Product::title).contains("Cyberdyne Rover"));
   }
 
   @Test

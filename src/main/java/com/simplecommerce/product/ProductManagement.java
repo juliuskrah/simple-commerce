@@ -11,8 +11,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.StructuredTaskScope.ShutdownOnFailure;
-import java.util.function.Supplier;
+import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,10 +30,10 @@ class ProductManagement implements ProductService, NodeService {
     this.productRepository = productRepository;
   }
 
-  <E> void runInScope(Supplier<E> supplier) {
-    try (var scope = new ShutdownOnFailure()) {
-      scope.fork(supplier::get);
-      scope.join().throwIfFailed();
+  void runInScope(Runnable run) {
+    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+      var task = executor.submit(run);
+      task.get();
     } catch (ExecutionException e) {
       throw new RuntimeException(e);
     } catch (InterruptedException e) {
@@ -41,9 +42,9 @@ class ProductManagement implements ProductService, NodeService {
     }
   }
 
-  <R> R callInScope(Callable<R> callable) {
+  <R> R callInScope(Callable<R> call) {
     try (var scope = new ShutdownOnFailure()) {
-      var task = scope.fork(callable);
+      var task = scope.fork(call);
       scope.join().throwIfFailed();
       return task.get();
     } catch (ExecutionException e) {
@@ -98,8 +99,8 @@ class ProductManagement implements ProductService, NodeService {
    * {@inheritDoc}
    */
   @Override
-  public List<String> findTags(String productId) {
-    return callInScope(() -> productRepository.findTags(UUID.fromString(productId)));
+  public List<String> findTags(String productId, int limit) {
+    return callInScope(() -> productRepository.findTags(UUID.fromString(productId), Limit.of(limit)));
   }
 
   /**
@@ -108,7 +109,7 @@ class ProductManagement implements ProductService, NodeService {
   @Transactional(readOnly = true)
   @Override
   public List<Product> findProducts(int limit) {
-    return List.of();
+    return productRepository.findBy(Limit.of(limit)).stream().map(this::fromEntity).toList();
   }
 
   /**
@@ -117,10 +118,7 @@ class ProductManagement implements ProductService, NodeService {
   @Override
   public String deleteProduct(String id) {
     var gid = GlobalId.decode(id);
-    runInScope(() -> {
-      productRepository.deleteById(UUID.fromString(gid.id()));
-      return null;
-    });
+    runInScope(() -> productRepository.deleteById(UUID.fromString(gid.id())));
     return gid.id();
   }
 

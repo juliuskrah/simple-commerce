@@ -56,12 +56,8 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> {
     this.tags.addAll(Arrays.stream(tags).toList());
   }
 
-  void addTag(String tag) {
-    tags.add(tag);
-  }
-
-  void removeTag(String tag) {
-    tags.remove(tag);
+  void removeTags(String... tags) {
+    this.tags.removeAll(Arrays.stream(tags).toList());
   }
 
   public UUID getId() {
@@ -100,16 +96,8 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> {
     return createdAt;
   }
 
-  public void setCreatedAt(OffsetDateTime createdAt) {
-    this.createdAt = createdAt;
-  }
-
   public OffsetDateTime getUpdatedAt() {
     return updatedAt;
-  }
-
-  public void setUpdatedAt(OffsetDateTime updatedAt) {
-    this.updatedAt = updatedAt;
   }
 
   public List<String> getTags() {

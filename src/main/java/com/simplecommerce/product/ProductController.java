@@ -41,25 +41,9 @@ class ProductController {
 
     @QueryMapping
     List<Product> products(@Argument ArgumentValue<Integer> first) {
-        LOG.info("Fetching {} products", first.value());
-        return List.of(
-            new Product(
-                "1",
-                "Product 1",
-                "product-1",
-                OffsetDateTime.now(),
-                "Product 1 description",
-                OffsetDateTime.now()
-            ),
-            new Product(
-                "2",
-                "Product 2",
-                "product-2",
-                OffsetDateTime.now(),
-                "Product 2 description",
-                OffsetDateTime.now()
-            )
-        );
+        var limit = first.asOptional().orElse(100);
+        LOG.info("Fetching {} products", limit);
+        return productService.findProducts(limit);
     }
 
     @SchemaMapping(typeName = "Product")
@@ -68,8 +52,8 @@ class ProductController {
     }
 
     @SchemaMapping
-    List<String> tags(Product product) {
-        return productService.findTags(product.id());
+    List<String> tags(Product product, @Argument int first) {
+        return productService.findTags(product.id(), first);
     }
 
     @SchemaMapping
@@ -79,7 +63,7 @@ class ProductController {
 
     @SchemaMapping
     List<URL> media(Product product) throws MalformedURLException {
-        return List.of(URL.of(URI.create("https://example.com/image.jpg"), null));
+        return List.of(URI.create("https://example.com/image.jpg").toURL());
     }
 
     @MutationMapping
