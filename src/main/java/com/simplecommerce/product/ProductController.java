@@ -10,6 +10,11 @@ import java.net.URI;
 import java.net.URL;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import static java.util.stream.Collectors.*;
+
+import org.dataloader.DataLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.graphql.data.ArgumentValue;
@@ -17,7 +22,9 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.graphql.execution.BatchLoaderRegistry;
 import org.springframework.stereotype.Controller;
+import reactor.core.publisher.Mono;
 
 /**
  * Controller for products.
@@ -30,8 +37,17 @@ class ProductController {
     private static final Logger LOG = LoggerFactory.getLogger(ProductController.class);
     private final ProductService productService;
 
-    ProductController(ProductService productService) {
+    ProductController(ProductService productService, BatchLoaderRegistry registry) {
       this.productService = productService;
+
+      registry.<String, List<String>>forName("tagsDataLoader")
+          .registerMappedBatchLoader((productIds, env) -> {
+              var ketContexts = env.getKeyContexts();
+              LOG.info("Fetching tags for {} product(s)", productIds.size());
+              return Mono.fromSupplier(() -> productIds.stream().collect(
+              toMap(Function.identity(), productId ->
+                  productService.findTags(productId, (Integer) ketContexts.get(productId)))));
+      });
     }
 
     @QueryMapping
@@ -52,8 +68,10 @@ class ProductController {
     }
 
     @SchemaMapping
-    List<String> tags(Product product, @Argument int first) {
-        return productService.findTags(product.id(), first);
+    CompletableFuture<List<String>> tags(
+        Product product, @Argument int first, DataLoader<String, List<String>> tagsDataLoader) {
+        LOG.info("Deferring fetching {} tag(s) for product: {}", first, product.id());
+        return tagsDataLoader.load(product.id(), first);
     }
 
     @SchemaMapping

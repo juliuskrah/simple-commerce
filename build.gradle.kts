@@ -9,6 +9,8 @@ val enablePreview = "--enable-preview"
 group = "com.simplecommerce"
 version = "1.0.0"
 
+// extra["hibernate.version"] = "6.4.9.Final"
+
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(21)
