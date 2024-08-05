@@ -2,6 +2,7 @@ package com.simplecommerce.product;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -10,9 +11,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -79,6 +82,32 @@ class ProductManagementTest {
     var tags = productService.findTags("7004ebbc-e71c-45f3-8d23-1ba2c37f2f1c", limit);
     assertThat(tags).isNotNull().isNotEmpty().hasSize(limit)
         .contains("security", "collaboration");
+  }
+
+  @Test
+  void shouldFindTagsForMultipleProducts() {
+    List<ProductWithTags> productWithTags = List.of(
+        new ProductWithTags() {
+          @Override
+          public UUID getId() {
+            return UUID.randomUUID();
+          }
+
+          @Override
+          public List<String> getTags() {
+            return List.of("security");
+          }
+        }
+    );
+    ArgumentCaptor<Set<UUID>> productIds = ArgumentCaptor.captor();
+    when(productRepository.findTags(anyInt(), productIds.capture())).thenReturn(productWithTags);
+    var tags = productService.findTags(Set.of("7004ebbc-e71c-45f3-8d23-1ba2c37f2f1c", "6fd0dada-c095-4e88-b8d7-7916a97e7958"), 2);
+    assertThat(tags).isNotNull().isNotEmpty().hasSize(1)
+        .extracting(ProductWithTags::getTags).contains(List.of("security"));
+
+    Set<UUID> capturedProductIds = productIds.getValue();
+    assertThat(capturedProductIds).isNotNull().hasSize(2)
+        .contains(UUID.fromString("7004ebbc-e71c-45f3-8d23-1ba2c37f2f1c"), UUID.fromString("6fd0dada-c095-4e88-b8d7-7916a97e7958"));
   }
 
   @Test

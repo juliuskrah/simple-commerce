@@ -27,7 +27,7 @@ type Product implements Node {
     "Public URI to the product's media."
     media: [URL!]
     price: Money
-    tags(first: Int!): [String!]
+    tags(limit: Int!): [String!]
     title: String!
     updatedAt: DateTime!
 }

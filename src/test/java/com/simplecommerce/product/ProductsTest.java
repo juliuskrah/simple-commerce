@@ -1,8 +1,11 @@
 package com.simplecommerce.product;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.AfterAll;
@@ -75,6 +78,20 @@ class ProductsTest {
         UUID.fromString("2d02b402-570f-4c4b-932a-d5a42eae4c34"), Limit.of(5));
     assertThat(tags).isNotEmpty()
         .hasSize(5).contains("web-application", "user-experience", "ecommerce");
+  }
+
+  @Test
+  void shouldFindProductWithTags() {
+    var tags = productRepository.findTags(2, Set.of(
+        UUID.fromString("2d02b402-570f-4c4b-932a-d5a42eae4c34"),
+        UUID.fromString("632a34d9-13fb-47f7-a324-d0e6ee160858")));
+    assertThat(tags).isNotEmpty().hasSize(2)
+        .extracting("id", "tags")
+        .contains(
+            tuple(UUID.fromString("2d02b402-570f-4c4b-932a-d5a42eae4c34"),
+                List.of("productivity", "digital-transformation")),
+            tuple(UUID.fromString("632a34d9-13fb-47f7-a324-d0e6ee160858"),
+                List.of("integration", "enterprise-solutions")));
   }
 
   @Test

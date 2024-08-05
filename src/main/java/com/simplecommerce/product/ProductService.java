@@ -1,6 +1,7 @@
 package com.simplecommerce.product;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author julius.krah
@@ -18,11 +19,19 @@ interface ProductService {
 
   /**
    * Find tags given a product ID.
-   * @param productId the id of the product
-   * @param limit the maximum number of tags to return
+   * @param productId the id of the product.
+   * @param limit the maximum number of tags to return.
    * @return tags of the product
    */
   List<String> findTags(String productId, int limit);
+
+  /**
+   * Find tags for a list of products.
+   * @param productIds The list of product IDs.
+   * @param limit The number of tags to return.
+   * @return A list of products with tags.
+   */
+  List<ProductWithTags> findTags(Set<String> productIds, int limit);
 
   /**
    * Find a list of products.

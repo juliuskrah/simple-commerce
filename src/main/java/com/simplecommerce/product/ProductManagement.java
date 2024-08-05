@@ -8,11 +8,13 @@ import com.simplecommerce.shared.NotFoundException;
 import com.simplecommerce.shared.Slug;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.StructuredTaskScope.ShutdownOnFailure;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -101,6 +103,12 @@ class ProductManagement implements ProductService, NodeService {
   @Override
   public List<String> findTags(String productId, int limit) {
     return callInScope(() -> productRepository.findTags(UUID.fromString(productId), Limit.of(limit)));
+  }
+
+  @Override
+  public List<ProductWithTags> findTags(Set<String> productIds, int limit) {
+    var ids = productIds.stream().map(UUID::fromString).collect(Collectors.toSet());
+    return callInScope(() -> productRepository.findTags(limit, ids));
   }
 
   /**

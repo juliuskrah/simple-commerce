@@ -1,28 +1,33 @@
 package com.simplecommerce.product;
 
 import static com.simplecommerce.product.ProductManagement.NODE_PRODUCT;
+import static java.util.stream.Collectors.toMap;
 
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.Money;
+import com.simplecommerce.shared.NotFoundException;
+import graphql.GraphQLError;
+import graphql.schema.DataFetchingEnvironment;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
-import static java.util.stream.Collectors.*;
-
 import org.dataloader.DataLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.graphql.data.ArgumentValue;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandler;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.graphql.execution.BatchLoaderRegistry;
+import org.springframework.graphql.execution.ErrorType;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Mono;
 
@@ -42,11 +47,13 @@ class ProductController {
 
       registry.<String, List<String>>forName("tagsDataLoader")
           .registerMappedBatchLoader((productIds, env) -> {
-              var ketContexts = env.getKeyContexts();
-              LOG.info("Fetching tags for {} product(s)", productIds.size());
-              return Mono.fromSupplier(() -> productIds.stream().collect(
-              toMap(Function.identity(), productId ->
-                  productService.findTags(productId, (Integer) ketContexts.get(productId)))));
+              var ketContext = env.getKeyContextsList().getFirst();
+              LOG.info("Fetching tags for {} product(s): {}", productIds.size(), productIds);
+              return Mono.fromSupplier(() -> productService.findTags(productIds, (Integer) ketContext)
+                  .stream().map(productWithTags -> Map.entry(
+                      productWithTags.getId().toString(), productWithTags.getTags()))
+                  .collect(toMap(Entry::getKey, Entry::getValue))
+              );
       });
     }
 
@@ -56,7 +63,7 @@ class ProductController {
     }
 
     @QueryMapping
-    List<Product> products(@Argument ArgumentValue<Integer> first) {
+    List<Product> products(ArgumentValue<Integer> first) {
         var limit = first.asOptional().orElse(100);
         LOG.info("Fetching {} products", limit);
         return productService.findProducts(limit);
@@ -69,9 +76,9 @@ class ProductController {
 
     @SchemaMapping
     CompletableFuture<List<String>> tags(
-        Product product, @Argument int first, DataLoader<String, List<String>> tagsDataLoader) {
-        LOG.info("Deferring fetching {} tag(s) for product: {}", first, product.id());
-        return tagsDataLoader.load(product.id(), first);
+        Product product, @Argument int limit, DataLoader<String, List<String>> tagsDataLoader) {
+        LOG.info("Deferring fetching {} tag(s) for product: {}", limit, product.id());
+        return tagsDataLoader.load(product.id(), limit);
     }
 
     @SchemaMapping
@@ -105,5 +112,14 @@ class ProductController {
     @MutationMapping
     Product addProduct(@Argument ProductInput input) {
         return productService.createProduct(input);
+    }
+
+    @GraphQlExceptionHandler(NotFoundException.class)
+    GraphQLError handleNotFound(DataFetchingEnvironment env) {
+        return GraphQLError.newError().message("Product not found")
+            .errorType(ErrorType.NOT_FOUND)
+            .path(env.getExecutionStepInfo().getPath())
+            .location(env.getMergedField().getSingleField().getSourceLocation())
+            .build();
     }
 }

@@ -1,4 +1,4 @@
-{
+query fetchProducts {
     products {
         id
         title

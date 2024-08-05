@@ -10,3 +10,10 @@ query productDetails($id: ID!) {
       description
   }
 }
+
+query productWithTags($id: ID!, $first: Int!) {
+  product(id: $id){
+      id
+      tags(limit: $first)
+  }
+}
