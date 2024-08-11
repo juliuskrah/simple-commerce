@@ -1,10 +1,7 @@
-mutation {
-    updateProduct(input: {title: "Product 1", price: 100.0, description: "Description 1"}, id: "123654"){
+mutation editProduct($input: ProductInput!, $id: ID!) {
+    updateProduct(input: $input, id: $id){
         id
         title
-        price {
-            amount
-        }
-        description
+        slug
     }
 }

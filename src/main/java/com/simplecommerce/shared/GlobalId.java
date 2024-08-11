@@ -38,7 +38,7 @@ public record GlobalId(String node, String id) {
     byte[] bytes = Base64.getDecoder().decode(base64String);
     var uri = URI.create(new String(bytes)); // gid://SimpleCommerce/{node}/{id}
     var gid = switch (uri) {
-      case URI url when !url.isAbsolute() -> throw new IllegalArgumentException("Invalid global identifier");
+      case URI url when !url.isAbsolute() -> throw new IllegalArgumentException("Invalid global identifier: " + base64String);
       case URI url when Objects.equals(url.getScheme(), "gid") -> {
         var path = uri.getRawPath().split("/"); // path[0] = , path[1] = {node}, path[2] = {id}
         yield new GlobalId(path[1], path[2]);

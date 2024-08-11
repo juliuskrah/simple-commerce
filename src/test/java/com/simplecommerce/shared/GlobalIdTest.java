@@ -46,6 +46,6 @@ class GlobalIdTest {
     // //SimpleCommerce/Product/2df22cbb-e78e-41cb-b708-5d8ad95474ed
     var invalidGid = "Ly9TaW1wbGVDb21tZXJjZS9Qcm9kdWN0LzJkZjIyY2JiLWU3OGUtNDFjYi1iNzA4LTVkOGFkOTU0NzRlZA==";
     assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> GlobalId.decode(invalidGid))
-        .withMessage("Invalid global identifier");
+        .withMessageContaining("Invalid global identifier");
   }
 }

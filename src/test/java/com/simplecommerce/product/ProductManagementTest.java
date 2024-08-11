@@ -145,6 +145,12 @@ class ProductManagementTest {
 
   @Test
   void shouldUpdateProduct() {
+    var entity = new ProductEntity();
+    var id = "6fd0dada-c095-4e88-b8d7-7916a97e7958";
+    entity.setId(UUID.fromString(id));
+    ArgumentCaptor<UUID> idCaptor = ArgumentCaptor.forClass(UUID.class);
+    when(productRepository.findById(idCaptor.capture())).thenReturn(Optional.of(entity));
+
     var productInput = new ProductInput("""
         InnoGrid is a revolutionary digital platform designed to power innovation and
         streamline complex workflows for businesses of all sizes. At its core, InnoGrid
@@ -158,7 +164,9 @@ class ProductManagementTest {
         """, new BigDecimal("123.90"), List.of(), "InnoGrid");
     Product product = productService.updateProduct("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvUHJvZHVjdC82ZmQwZGFkYS1jMDk1LTRlODgtYjhkNy03OTE2YTk3ZTc5NTg=", productInput);
     assertThat(product).isNotNull()
-        .hasFieldOrPropertyWithValue("id", "6fd0dada-c095-4e88-b8d7-7916a97e7958")
+        .hasFieldOrPropertyWithValue("id", id)
         .hasFieldOrPropertyWithValue("title", "InnoGrid");
+
+    assertThat(idCaptor.getValue()).isEqualTo(UUID.fromString(id));
   }
 }

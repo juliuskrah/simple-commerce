@@ -4,6 +4,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.1.5"
 }
 val springModulithVersion by extra("1.2.1")
+val springInstrument: Configuration by configurations.creating
 val enablePreview = "--enable-preview"
 
 group = "com.simplecommerce"
@@ -29,6 +30,9 @@ dependencies {
 	implementation("org.springframework.modulith:spring-modulith-starter-jpa")
 	implementation("com.graphql-java:graphql-java-extended-scalars:22.0")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
+	springInstrument("org.springframework:spring-instrument") {
+		because("Required for Spring Load-Time Weaving")
+	}
 	runtimeOnly("org.postgresql:postgresql")
 	testImplementation("org.springframework.boot:spring-boot-starter-webflux")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -58,5 +62,5 @@ tasks.withType<JavaCompile> {
 }
 
 tasks.withType<JavaExec> {
-	jvmArgs(enablePreview)
+	jvmArgs(enablePreview, "-javaagent:${configurations["springInstrument"].singleFile}")
 }

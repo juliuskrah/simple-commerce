@@ -1,38 +1,38 @@
 package com.simplecommerce.product;
 
-import static com.simplecommerce.product.ProductManagement.NODE_PRODUCT;
-
 import com.simplecommerce.node.NodeService;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.NotFoundException;
 import com.simplecommerce.shared.Slug;
-import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.StructuredTaskScope.ShutdownOnFailure;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowire;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.data.domain.Limit;
-import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author julius.krah
  */
-@Service(NODE_PRODUCT)
 @Transactional
+@Configurable(autowire = Autowire.BY_TYPE)
 class ProductManagement implements ProductService, NodeService {
-  static final String NODE_PRODUCT = "Product";
-  private final Products productRepository;
-
-  ProductManagement(Products productRepository) {
-    this.productRepository = productRepository;
-  }
+  private final ReentrantLock lock = new ReentrantLock();
+  @Autowired
+  private Products productRepository;
 
   void runInScope(Runnable run) {
+    lock.lock();
     try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
       var task = executor.submit(run);
       task.get();
@@ -41,10 +41,13 @@ class ProductManagement implements ProductService, NodeService {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new RuntimeException(e);
+    } finally {
+      lock.unlock();
     }
   }
 
   <R> R callInScope(Callable<R> call) {
+    lock.lock();
     try (var scope = new ShutdownOnFailure()) {
       var task = scope.fork(call);
       scope.join().throwIfFailed();
@@ -54,6 +57,8 @@ class ProductManagement implements ProductService, NodeService {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new RuntimeException(e);
+    } finally {
+      lock.unlock();
     }
   }
 
@@ -75,6 +80,18 @@ class ProductManagement implements ProductService, NodeService {
         entity.getDescription(),
         entity.getUpdatedAt()
     );
+  }
+
+  @Transactional(propagation = Propagation.NESTED)
+  private Optional<ProductEntity> updateProduct(ProductInput product, String productId) {
+    var gid = GlobalId.decode(productId);
+    return productRepository.findById(UUID.fromString(gid.id()))
+        .map(productEntity -> {
+          productEntity.setTitle(product.title());
+          productEntity.setDescription(product.description());
+          productEntity.setTags(product.tags());
+          return productEntity;
+        });
   }
 
   /**
@@ -146,16 +163,8 @@ class ProductManagement implements ProductService, NodeService {
    */
   @Override
   public Product updateProduct(String productId, ProductInput product) {
-    var gid = GlobalId.decode(productId);
-    // run in scope
-    productRepository.existsById(UUID.fromString(gid.id()));
-    // Fetch product by ID. When not found, throw an exception
-    return new Product(
-        gid.id(),
-        product.title(),
-        null,
-        OffsetDateTime.now(),
-        product.description(),
-        OffsetDateTime.now());
+    return callInScope(() -> updateProduct(product, productId))
+        .map(this::fromEntity)
+        .orElseThrow(NotFoundException::new);
   }
 }

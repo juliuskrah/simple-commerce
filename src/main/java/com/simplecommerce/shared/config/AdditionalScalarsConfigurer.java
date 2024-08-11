@@ -1,4 +1,4 @@
-package com.simplecommerce;
+package com.simplecommerce.shared.config;
 
 import static graphql.scalars.ExtendedScalars.Currency;
 import static graphql.scalars.ExtendedScalars.DateTime;

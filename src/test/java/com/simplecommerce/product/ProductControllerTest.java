@@ -122,12 +122,19 @@ class ProductControllerTest {
   @Test
   @DisplayName("Should update a product by ID")
   void shouldUpdateProduct() {
+    when(productService.updateProduct(anyString(), any(ProductInput.class)))
+        .thenReturn(new Product("1", "Neu Garne", "neu-garne",
+            null, null, null));
     graphQlTester.documentName("updateProduct")
+        .variable("id", "1")
+        .variable("input", Map.of("title", "Neu Garne"))
         .execute()
         .path("updateProduct").entity(Product.class)
         .satisfies(product -> {
             assertThat(product).isNotNull();
-            assertThat(product).extracting(Product::title).isEqualTo("Product 1");
+            assertThat(product)
+                .extracting(Product::title, Product::slug)
+                .containsExactly("Neu Garne", "neu-garne");
         });
   }
 
