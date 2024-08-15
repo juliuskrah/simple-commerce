@@ -3,6 +3,7 @@ package com.simplecommerce.product;
 import static com.simplecommerce.shared.Types.NODE_PRODUCT;
 import static java.util.stream.Collectors.toMap;
 
+import com.simplecommerce.file.DigitalContent;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.Money;
 import graphql.ErrorClassification;
@@ -100,6 +101,11 @@ class ProductController {
         return List.of(URI.create("https://example.com/image.jpg").toURL());
     }
 
+    @SchemaMapping
+    DigitalContent digitalContent(Product product) {
+        return new DigitalContent();
+    }
+
     @MutationMapping
     String deleteProduct(@Argument String id) {
         var deletedId = productServiceSupplier.get().deleteProduct(id);
@@ -114,6 +120,11 @@ class ProductController {
     @MutationMapping
     Product addProduct(@Argument ProductInput input) {
         return productServiceSupplier.get().createProduct(input);
+    }
+
+    @MutationMapping
+    DigitalContent addDigitalContent(@Argument Object file, @Argument String productId) {
+        return new DigitalContent();
     }
 
     @GraphQlExceptionHandler(DataIntegrityViolationException.class)

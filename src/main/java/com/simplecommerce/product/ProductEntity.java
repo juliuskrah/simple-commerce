@@ -45,7 +45,7 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> {
   private OffsetDateTime updatedAt;
 
   @ElementCollection
-  @CollectionTable(name = "tags", joinColumns = @JoinColumn(name = "type_id"))
+  @CollectionTable(name = "product_tag", joinColumns = @JoinColumn(name = "product_id"))
   private List<String> tags = new ArrayList<>();
 
   void publishProductCreatedEvent() {

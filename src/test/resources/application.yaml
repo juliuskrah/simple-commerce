@@ -1,9 +1,9 @@
 spring:
   sql:
     init:
-      mode: always
+      mode: never
   jpa:
-    defer-datasource-initialization: true
+    defer-datasource-initialization: false
     properties:
       jakarta.persistence.sql-load-script-source: /import.sql
 logging:

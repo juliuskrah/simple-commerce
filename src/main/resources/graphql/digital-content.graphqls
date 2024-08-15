@@ -1,15 +1,60 @@
 extend type Mutation {
-    addDigitalContent(productId: ID!): DigitalContent
+    "Add digital content to a product."
+    addDigitalContent(file: FileInput!, productId: ID!): DigitalContent
+    "Add media to a product."
+    addProductMedia(file: FileInput, productId: ID!): MediaFile
+    """
+    Create a presigned URL for uploading a file to a cloud storage service. This is the first
+    step in the upload process.
+    """
+    stagedUpload(input: StagedUploadInput!): StagedUpload
 }
 
 extend type Product {
     digitalContent: DigitalContent
+    "Public URI to the product's media."
+    media: [MediaFile!]
 }
 
-type DigitalContent implements Node {
+interface File {
+    createdAt: DateTime!
+    updatedAt: DateTime!
+}
+
+input StagedUploadInput {
+    filename: String!
+    "The HTTP method to use when uploading the file. Defaults to `PUT`."
+    httpMethod: HttpMethod
+    contentType: String
+}
+
+input FileInput {
+    filename: String!
+    mimetype: String!
+}
+
+type DigitalContent implements Node & File {
     id: ID!
     createdAt: DateTime!
-    downloadUrl: URL!
     product: Product!
     updatedAt: DateTime!
+    url: URL!
+}
+
+type MediaFile implements Node & File {
+    id: ID!
+    createdAt: DateTime!
+    contentType: String!
+    updatedAt: DateTime!
+    url: URL!
+}
+
+type StagedUpload {
+    presignedUrl: URL
+    resourceUrl: URL
+}
+
+enum HttpMethod {
+    POST
+    PUT
 }

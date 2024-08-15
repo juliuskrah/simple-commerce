@@ -23,9 +23,9 @@ interface Products extends Repository<ProductEntity, UUID> {
    * @return A list of products with tags.
    */
   @Query(value = """
-    SELECT DISTINCT type_id AS id,
+    SELECT DISTINCT product_id AS id,
     (array_agg(tags))[:?1] AS tags
-    FROM tags WHERE type_id IN ?2 GROUP BY type_id
+    FROM product_tag WHERE product_id IN ?2 GROUP BY product_id
     """, nativeQuery = true)
   List<ProductWithTags> findTags(int limitTags, Set<UUID> ids);
 

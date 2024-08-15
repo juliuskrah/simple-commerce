@@ -24,8 +24,6 @@ type Product implements Node {
     to the end of the slug if a product with the same slug already exists.
     """
     slug: String!
-    "Public URI to the product's media."
-    media: [URL!]
     price: Money
     tags(limit: Int!): [String!]
     title: String!

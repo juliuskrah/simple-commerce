@@ -1,0 +1,6 @@
+MINIO_ROOT_USER=simple_commerce
+MINIO_ROOT_PASSWORD=simple_commerce
+
+MINIO_VOLUMES="/mnt/data"
+
+MINIO_OPTS="--console-address :9001"

@@ -16,10 +16,11 @@ import org.springframework.transaction.config.TransactionManagementConfigUtils;
 @EnableLoadTimeWeaving
 @EnableSpringConfigured
 @Configuration(proxyBeanMethods = false)
-public class TransactionConfiguration {
+class TransactionConfiguration {
+
   @Bean(name = TransactionManagementConfigUtils.TRANSACTION_ASPECT_BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public AnnotationTransactionAspect transactionAspect(TransactionManager txManager) {
+  AnnotationTransactionAspect transactionAspect(TransactionManager txManager) {
     AnnotationTransactionAspect txAspect = AnnotationTransactionAspect.aspectOf();
     txAspect.setTransactionManager(txManager);
     return txAspect;

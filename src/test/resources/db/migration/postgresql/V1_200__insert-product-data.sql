@@ -22,7 +22,7 @@ insert into products (id, title, slug, description, created_at, updated_at) valu
     ('28f1e509-0648-45e2-9cda-a92b20b0ae45', 'Pixel Forge', 'pixel-forge', '', '2024-07-25 21:00:00 +02:00', '2024-07-25 21:00:00 +02:00');
 
 -- Tag Data
-insert into tags (type_id, tags) values
+insert into product_tag (product_id, tags) values
     ('632a34d9-13fb-47f7-a324-d0e6ee160858', 'big-data'),
     ('632a34d9-13fb-47f7-a324-d0e6ee160858', 'integration'),
     ('632a34d9-13fb-47f7-a324-d0e6ee160858', 'enterprise-solutions'),

@@ -29,11 +29,14 @@ dependencies {
 	implementation("org.springframework.modulith:spring-modulith-starter-core")
 	implementation("org.springframework.modulith:spring-modulith-starter-jpa")
 	implementation("com.graphql-java:graphql-java-extended-scalars:22.0")
+	implementation("org.flywaydb:flyway-core")
+	implementation("io.minio:minio:8.5.11")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	springInstrument("org.springframework:spring-instrument") {
 		because("Required for Spring Load-Time Weaving")
 	}
 	runtimeOnly("org.postgresql:postgresql")
+	runtimeOnly("org.flywaydb:flyway-database-postgresql")
 	testImplementation("org.springframework.boot:spring-boot-starter-webflux")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.boot:spring-boot-testcontainers")
