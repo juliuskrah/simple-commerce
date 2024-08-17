@@ -1,0 +1,9 @@
+mutation addMediaToProduct($id: ID!, $file: FileInput!) {
+  addProductMedia(file: $file, productId: $id) {
+      id
+      createdAt
+      updatedAt
+      contentType
+      url
+  }
+}

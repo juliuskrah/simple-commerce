@@ -10,5 +10,6 @@ import java.net.URL;
  */
 record StagedUpload(
     URL presignedUrl,
-    URL resourceUrl
+    URL resourceUrl,
+    String contentType
 ) {}

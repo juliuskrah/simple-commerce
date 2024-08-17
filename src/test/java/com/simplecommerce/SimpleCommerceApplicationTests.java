@@ -2,7 +2,6 @@ package com.simplecommerce;
 
 import com.tngtech.archunit.base.DescribedPredicate;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.modulith.core.ApplicationModules;
 
 /**

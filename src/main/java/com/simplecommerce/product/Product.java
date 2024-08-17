@@ -7,7 +7,7 @@ import java.time.OffsetDateTime;
  * Represents a product.
  * @author julius.krah
  */
-record Product(
+public record Product(
     String id,
     String title,
     String slug,

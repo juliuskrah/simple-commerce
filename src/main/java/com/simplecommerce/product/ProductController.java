@@ -3,16 +3,9 @@ package com.simplecommerce.product;
 import static com.simplecommerce.shared.Types.NODE_PRODUCT;
 import static java.util.stream.Collectors.toMap;
 
-import com.simplecommerce.file.DigitalContent;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.Money;
-import graphql.ErrorClassification;
-import graphql.GraphQLError;
-import graphql.schema.DataFetchingEnvironment;
 import java.math.BigDecimal;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,10 +15,8 @@ import org.dataloader.DataLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.graphql.data.ArgumentValue;
 import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandler;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
@@ -96,16 +87,6 @@ class ProductController {
         return new Money("USD", new BigDecimal("100.00"));
     }
 
-    @SchemaMapping
-    List<URL> media(Product product) throws MalformedURLException {
-        return List.of(URI.create("https://example.com/image.jpg").toURL());
-    }
-
-    @SchemaMapping
-    DigitalContent digitalContent(Product product) {
-        return new DigitalContent();
-    }
-
     @MutationMapping
     String deleteProduct(@Argument String id) {
         var deletedId = productServiceSupplier.get().deleteProduct(id);
@@ -122,17 +103,4 @@ class ProductController {
         return productServiceSupplier.get().createProduct(input);
     }
 
-    @MutationMapping
-    DigitalContent addDigitalContent(@Argument Object file, @Argument String productId) {
-        return new DigitalContent();
-    }
-
-    @GraphQlExceptionHandler(DataIntegrityViolationException.class)
-    GraphQLError handleDuplicate(DataFetchingEnvironment env) {
-        return GraphQLError.newError().message("Product is a duplicate")
-            .errorType(ErrorClassification.errorClassification("DUPLICATE"))
-            .path(env.getExecutionStepInfo().getPath())
-            .location(env.getMergedField().getSingleField().getSourceLocation())
-            .build();
-    }
 }

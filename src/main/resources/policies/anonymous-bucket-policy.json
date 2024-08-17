@@ -1,0 +1,31 @@
+{
+  "Statement": [
+    {
+      "Action": "s3:GetBucketLocation",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "*"
+        ]
+      },
+      "Resource": [
+        "arn:aws:s3:::simple-commerce"
+      ]
+    },
+    {
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "*"
+        ]
+      },
+      "Resource": [
+        "arn:aws:s3:::simple-commerce/media/*"
+      ]
+    }
+  ],
+  "Version": "2012-10-17"
+}

@@ -1,5 +1,5 @@
 -- Product Data
-insert into products (id, title, slug, description, created_at, updated_at) values
+INSERT INTO products (id, title, slug, description, created_at, updated_at) VALUES
     ('2d02b402-570f-4c4b-932a-d5a42eae4c34', 'Pixel Pro', 'pixel-pro', '', '2024-07-24 15:01:00 +02:00', '2024-07-24 15:01:00 +02:00'),
     ('632a34d9-13fb-47f7-a324-d0e6ee160858', 'Data Dynamo', 'data-dynamo', '', '2024-07-24 15:01:00 +02:00', '2024-07-24 15:01:00 +02:00'),
     ('8a293c02-33f9-4bdb-96b9-3e7d4f753666', 'Virtual Vault', 'virtual-vault', '', '2024-07-24 15:01:00 +02:00', '2024-07-24 15:01:00 +02:00'),
@@ -22,7 +22,7 @@ insert into products (id, title, slug, description, created_at, updated_at) valu
     ('28f1e509-0648-45e2-9cda-a92b20b0ae45', 'Pixel Forge', 'pixel-forge', '', '2024-07-25 21:00:00 +02:00', '2024-07-25 21:00:00 +02:00');
 
 -- Tag Data
-insert into product_tag (product_id, tags) values
+INSERT INTO product_tag (product_id, tags) VALUES
     ('632a34d9-13fb-47f7-a324-d0e6ee160858', 'big-data'),
     ('632a34d9-13fb-47f7-a324-d0e6ee160858', 'integration'),
     ('632a34d9-13fb-47f7-a324-d0e6ee160858', 'enterprise-solutions'),

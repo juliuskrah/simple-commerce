@@ -1,5 +1,8 @@
 package com.simplecommerce.product;
 
+import static com.simplecommerce.shared.VirtualThreadHelper.callInScope;
+import static com.simplecommerce.shared.VirtualThreadHelper.runInScope;
+
 import com.simplecommerce.node.NodeService;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.NotFoundException;
@@ -8,10 +11,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.StructuredTaskScope.ShutdownOnFailure;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowire;
@@ -30,37 +29,6 @@ class ProductManagement implements ProductService, NodeService {
   private final ReentrantLock lock = new ReentrantLock();
   @Autowired
   private Products productRepository;
-
-  void runInScope(Runnable run) {
-    lock.lock();
-    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-      var task = executor.submit(run);
-      task.get();
-    } catch (ExecutionException e) {
-      throw new RuntimeException(e);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new RuntimeException(e);
-    } finally {
-      lock.unlock();
-    }
-  }
-
-  <R> R callInScope(Callable<R> call) {
-    lock.lock();
-    try (var scope = new ShutdownOnFailure()) {
-      var task = scope.fork(call);
-      scope.join().throwIfFailed();
-      return task.get();
-    } catch (ExecutionException e) {
-      throw new RuntimeException(e);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new RuntimeException(e);
-    } finally {
-      lock.unlock();
-    }
-  }
 
   private ProductEntity toEntity(ProductInput product) {
     var entity = new ProductEntity();
@@ -134,7 +102,8 @@ class ProductManagement implements ProductService, NodeService {
   @Transactional(readOnly = true)
   @Override
   public List<Product> findProducts(int limit) {
-    return productRepository.findBy(Limit.of(limit)).stream().map(this::fromEntity).toList();
+    return callInScope( () -> productRepository.findBy(Limit.of(limit)))
+        .stream().map(this::fromEntity).toList();
   }
 
   /**

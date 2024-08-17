@@ -1,6 +1,5 @@
 package com.simplecommerce.file;
 
-import com.simplecommerce.node.Node;
 import java.net.URL;
 import java.time.OffsetDateTime;
 
@@ -16,6 +15,7 @@ import java.time.OffsetDateTime;
 record MediaFile(
     String id,
     OffsetDateTime createdAt,
+    String contentType,
     URL url,
     OffsetDateTime updatedAt
 ) implements File { }

@@ -56,10 +56,6 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> {
     this.tags.addAll(Arrays.stream(tags).toList());
   }
 
-  void removeTags(String... tags) {
-    this.tags.removeAll(Arrays.stream(tags).toList());
-  }
-
   public UUID getId() {
     return id;
   }

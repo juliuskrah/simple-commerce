@@ -2,5 +2,6 @@ mutation stagedUpload($input: StagedUploadInput!) {
   stagedUpload(input: $input) {
     presignedUrl
     resourceUrl
+    contentType
   }
 }

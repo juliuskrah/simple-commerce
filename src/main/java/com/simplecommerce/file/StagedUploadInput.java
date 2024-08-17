@@ -1,14 +1,11 @@
 package com.simplecommerce.file;
 
-import org.springframework.graphql.data.ArgumentValue;
-
+/**
+ * Represents a media file.
+ * @param filename
+ * @param contentType
+ */
 record StagedUploadInput(
     String filename,
-    String contentType,
-    ArgumentValue<HttpMethod> httpMethod
-) {
-  enum HttpMethod {
-    PUT,
-    POST
-  }
-}
+    String contentType
+) { }
