@@ -1,0 +1,34 @@
+issuer: http://127.0.0.1:5556/dex
+storage:
+  type: postgres
+  config:
+    host: postgres
+    port: 5432
+    database: dex
+    user: dex_user
+    password: yVweto4e
+    ssl:
+      mode: disable
+
+web:
+  http: 0.0.0.0:5556
+
+grpc:
+  addr: 0.0.0.0:5557
+  reflection: true
+
+staticClients:
+  - id: simple-commerce
+    redirectURIs:
+      - "http://127.0.0.1:8080/callback"
+      - "https://oauth.pstmn.io/v1/callback"
+    name: "Simple Commerce"
+    secret: "Zm9vYmFy"
+
+enablePasswordDB: true
+staticPasswords:
+  - email: "julius.krah@example.com"
+    # password: simple_commerce
+    hash: "$2a$12$.EoexsiydIigTXvbC3S06.hs7FVM6d.6yryz2mtoqNFSQz/Hh3qBS"
+    username: "simple_commerce"
+    userID: "1f1de938-6c08-4435-8ef1-068f7b9c7f16"

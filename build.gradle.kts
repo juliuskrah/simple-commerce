@@ -31,6 +31,7 @@ dependencies {
 	implementation("com.graphql-java:graphql-java-extended-scalars:22.0")
 	implementation("org.flywaydb:flyway-core")
 	implementation("io.minio:minio:8.5.11")
+	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	springInstrument("org.springframework:spring-instrument") {
 		because("Required for Spring Load-Time Weaving")

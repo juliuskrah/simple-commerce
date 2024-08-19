@@ -3,12 +3,20 @@ name: "simple-commerce"
 services:
   postgres:
     image: postgres:16.3-alpine
+    hostname: postgres
     environment:
       POSTGRES_DB: simple_commerce
       POSTGRES_USER: simple_commerce
       POSTGRES_PASSWORD: simple_commerce
+    volumes:
+      - ./postgresql/init-dex-db.sh:/docker-entrypoint-initdb.d/init-dex-db.sh
     ports:
       - "5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "dex"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
   objectStore:
     image: quay.io/minio/minio:RELEASE.2024-08-03T04-33-23Z-cpuv1
     command: ["server", "--console-address", ":9001"]
@@ -20,6 +28,17 @@ services:
     ports:
       - "9001:9001"
       - "9000:9000"
+  oidc:
+    image: ghcr.io/dexidp/dex:v2.41.1-distroless
+    command: ["dex", "serve", "/etc/dex.yaml"]
+    volumes:
+      - ./dex/config.yaml:/etc/dex.yaml
+    ports:
+      - "5556:5556"
+      - "5557:5557"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   objectStoreData:
