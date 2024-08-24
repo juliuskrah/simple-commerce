@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.tuple;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.assertj.core.api.InstanceOfAssertFactories;
@@ -18,6 +19,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.data.domain.Limit;
+import org.springframework.data.domain.ScrollPosition;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -99,7 +101,45 @@ class ProductsTest {
     var products = productRepository.findBy(Limit.of(10));
     assertThat(products).isNotEmpty()
         .hasSize(10).extractingResultOf("getTitle")
-        .contains("Data Dynamo", "Pixel Pro", "Quantum Desk");
+        .contains("Data Dynamo", "Pixel Pro", "Virtual Vault");
+  }
+
+  @Test
+  void shouldFindProductsByScrolling() {
+    var window = productRepository.findBy(Limit.of(10), ScrollPosition.keyset());
+    assertThat(window).isNotEmpty()
+        .hasSize(10).extractingResultOf("getTitle")
+        .contains(
+            "Sync Fusion",
+            "Pixel Forge",
+            "Alpha Stream",
+            "Pixel Pro",
+            "Nex Tech",
+            "Data Dynamo",
+            "Code Pulse",
+            "Logic Flow",
+            "Tech Verse",
+            "Virtual Vault");
+  }
+
+  @Test
+  void shouldFindProductsByScrollingAfterKeys() {
+    var window = productRepository.findBy(Limit.of(10), ScrollPosition.forward(Map.of(
+        "title", "Virtual Vault", "id", UUID.fromString("8a293c02-33f9-4bdb-96b9-3e7d4f753666"))
+    ));
+    assertThat(window).isNotEmpty()
+        .hasSize(10).extractingResultOf("getTitle")
+        .contains(
+            "Virtu Sync",
+            "Data Haven",
+            "Code Craft",
+            "Super Vault",
+            "Vertex Cloud",
+            "Data Pro",
+            "Cyber Sphere",
+            "Quantum Desk",
+            "Byte Wave",
+            "Opti Core");
   }
 
   @Test

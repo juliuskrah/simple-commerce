@@ -3,20 +3,17 @@ package com.simplecommerce.product;
 import com.simplecommerce.node.NodeService;
 import com.simplecommerce.node.NodeServiceSupplier;
 import com.simplecommerce.shared.Types;
+import org.springframework.util.function.SingletonSupplier;
 
 /**
  * @author julius.krah
  */
 public class ProductNodeServiceSupplier implements NodeServiceSupplier {
-  private NodeService productNodeService;
+  private final SingletonSupplier<NodeService> productNodeService = SingletonSupplier.of(ProductManagement::new);
 
   @Override
   public NodeService getNodeService() {
-    if (productNodeService != null) {
-      return productNodeService;
-    }
-    productNodeService = new ProductManagement();
-    return productNodeService;
+    return productNodeService.obtain();
   }
 
   @Override

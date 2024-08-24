@@ -15,11 +15,14 @@ import org.dataloader.DataLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.graphql.data.ArgumentValue;
+import org.springframework.data.domain.ScrollPosition;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Window;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.graphql.data.query.ScrollSubrange;
 import org.springframework.graphql.execution.BatchLoaderRegistry;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Mono;
@@ -64,10 +67,12 @@ class ProductController {
     }
 
     @QueryMapping
-    List<Product> products(ArgumentValue<Integer> first) {
-        var limit = first.asOptional().orElse(100);
-        LOG.info("Fetching {} products", limit);
-        return productServiceSupplier.get().findProducts(limit);
+    Window<Product> products(ScrollSubrange subrange, Sort sort) {
+        var limit = subrange.count().orElse(100);
+        var scroll = subrange.position().orElse(ScrollPosition.keyset());
+        LOG.info("Fetching {} products with scroll {}", limit, scroll);
+        LOG.debug("Sorting with: {{}}", sort);
+        return productServiceSupplier.get().findProducts(limit, scroll);
     }
 
     @SchemaMapping(typeName = "Product")

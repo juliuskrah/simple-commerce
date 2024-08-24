@@ -2,7 +2,9 @@ extend type Query {
     "Find a product by its ID."
     product(id: ID): Product
     "Find all products."
-    products(first: Int): [Product]!
+    products(first: Int @Positive, after: String, last: Int @Positive, before: String,
+        orderBy: [ProductOrderField], orderDirection: OrderDirection = ASC):
+        ProductConnection! @Expression(value : "${args.containsOneOf('first','last')}")
 }
 
 type Mutation {
@@ -40,4 +42,10 @@ input ProductInput {
 enum ProductStatus {
     DRAFT
     PUBLISHED
+}
+
+enum ProductOrderField {
+    id
+    createdAt
+    updatedAt
 }

@@ -24,7 +24,7 @@ import org.springframework.context.annotation.DependsOn;
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(ObjectStoreProperties.class)
 class MinioConfiguration {
-  private static final Logger log = LoggerFactory.getLogger(MinioConfiguration.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MinioConfiguration.class);
   @Value("${minio.endpoint}")
   private String endpoint;
   @Value("${minio.access-key}")
@@ -44,7 +44,7 @@ class MinioConfiguration {
   @Bean
   @ConditionalOnProperty(prefix = "objectstore.options", name = "default-bucket", havingValue = "true")
   ApplicationRunner createDefaultBucket(MinioClient client, ObjectStoreProperties properties) {
-    log.debug("Creating default bucket: {}", properties.bucketName());
+    LOG.debug("Creating default bucket: {}", properties.bucketName());
     return args -> {
       var existsArgs = BucketExistsArgs.builder().bucket(properties.bucketName()).build();
       var makeArgs = MakeBucketArgs.builder().bucket(properties.bucketName()).build();
@@ -58,7 +58,7 @@ class MinioConfiguration {
   @DependsOn("createDefaultBucket")
   @ConditionalOnResource(resources = "classpath:policies/anonymous-bucket-policy.json")
   ApplicationRunner createAnonymousBucketPolicy(MinioClient client, ObjectStoreProperties properties) {
-    log.debug("Applying anonymous bucket policy to bucket: {}", properties.bucketName());
+    LOG.debug("Applying anonymous bucket policy to bucket: {}", properties.bucketName());
     return args -> {
       var existsArgs = BucketExistsArgs.builder().bucket(properties.bucketName()).build();
       if (client.bucketExists(existsArgs)) {

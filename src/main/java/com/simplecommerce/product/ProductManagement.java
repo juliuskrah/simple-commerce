@@ -11,12 +11,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.data.domain.Limit;
+import org.springframework.data.domain.ScrollPosition;
+import org.springframework.data.domain.Window;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Configurable(autowire = Autowire.BY_TYPE)
 class ProductManagement implements ProductService, NodeService {
-  private final ReentrantLock lock = new ReentrantLock();
+
   @Autowired
   private Products productRepository;
 
@@ -101,9 +102,9 @@ class ProductManagement implements ProductService, NodeService {
    */
   @Transactional(readOnly = true)
   @Override
-  public List<Product> findProducts(int limit) {
-    return callInScope( () -> productRepository.findBy(Limit.of(limit)))
-        .stream().map(this::fromEntity).toList();
+  public Window<Product> findProducts(int limit, ScrollPosition scroll) {
+    return callInScope( () -> productRepository.findBy(Limit.of(limit), scroll))
+        .map(this::fromEntity);
   }
 
   /**

@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import com.simplecommerce.shared.config.Sorting;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -18,6 +19,9 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.ScrollPosition;
+import org.springframework.data.domain.Window;
 import org.springframework.graphql.test.tester.GraphQlTester;
 
 /**
@@ -25,6 +29,7 @@ import org.springframework.graphql.test.tester.GraphQlTester;
  * @author julius.krah
  * @since 1.0
  */
+@Import(Sorting.class)
 @GraphQlTest(ProductController.class)
 class ProductControllerTest {
   @Autowired
@@ -93,10 +98,12 @@ class ProductControllerTest {
   void shouldFetchProducts() {
     var entities = List.of(new Product(UUID.randomUUID().toString(), "Cyberdyne Rover", "cyberdyne-rover",
         null, null, null));
-    when(productService.findProducts(anyInt())).thenReturn(entities);
+    when(productService.findProducts(anyInt(), any(ScrollPosition.class)))
+        .thenReturn(Window.from(entities, limit -> ScrollPosition.keyset()));
     graphQlTester.documentName("products")
+        .variable("first", 10)
         .execute()
-        .path("products").entityList(Product.class)
+        .path("products.edges[*].node").entityList(Product.class)
         .satisfies(products -> assertThat(products).isNotEmpty()
             .hasSize(1)
             .extracting(Product::title).contains("Cyberdyne Rover"));

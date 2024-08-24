@@ -1,5 +1,34 @@
 type Query {
-    "Query a node by its global ID."
+    """
+    Query a node by its global ID.
+    e.g.
+
+    ```graphql
+    query nodeDetails($id: ID!) {
+        node(id: $id) {
+            id
+            ...on Product {
+                __typename
+                title
+                slug
+                createdAt
+                updatedAt
+                price {
+                    amount
+                    currency
+                }
+            }
+            ...on MediaFile {
+                __typename
+                url
+                contentType
+                createdAt
+                updatedAt
+            }
+        }
+    }
+    ```
+    """
     node(id: ID!): Node
 }
 
@@ -11,6 +40,13 @@ type Money {
 interface Node {
     "The global ID of the object."
     id: ID!
+}
+
+enum OrderDirection {
+    "Specifies an ascending order for a given `orderBy` argument."
+    ASC
+    "Specifies a descending order for a given `orderBy` argument."
+    DESC
 }
 
 scalar Currency
@@ -38,3 +74,9 @@ schema {
     query: Query
     mutation: Mutation
 }
+
+directive @Expression(value : String!, message : String = "graphql.validation.Expression.message")
+    on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @Positive(message : String = "graphql.validation.Positive.message")
+    on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION

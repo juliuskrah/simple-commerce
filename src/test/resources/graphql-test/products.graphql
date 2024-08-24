@@ -1,6 +1,10 @@
-query fetchProducts {
-    products {
-        id
-        title
+query fetchProducts($first: Int) {
+    products(first: $first) {
+        edges {
+            node {
+                id
+                title
+            }
+        }
     }
 }
