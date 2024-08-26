@@ -102,7 +102,9 @@ class FileManagement implements FileService, NodeService {
   public MediaFile addMediaToProduct(String productId, FileInput file) {
     var gid = GlobalId.decode(productId);
     var media = toEntity(gid.id(), file);
-    runInScope(() -> mediaRepository.saveAndFlush(media));
+    runInScope(() -> {
+      mediaRepository.saveAndFlush(media);
+    });
     return fromEntity(media);
   }
 

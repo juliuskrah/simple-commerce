@@ -4,6 +4,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.StructuredTaskScope.ShutdownOnFailure;
 import java.util.concurrent.locks.ReentrantLock;
+import org.springframework.security.concurrent.DelegatingSecurityContextCallable;
+import org.springframework.security.concurrent.DelegatingSecurityContextExecutorService;
 
 /**
  * @author julius.krah
@@ -19,7 +21,8 @@ public final class VirtualThreadHelper {
   public static void runInScope(Runnable run) {
     lock.lock();
     try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-      var task = executor.submit(run);
+      DelegatingSecurityContextExecutorService delegate = new DelegatingSecurityContextExecutorService(executor);
+      var task = delegate.submit(run);
       task.get();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -34,7 +37,8 @@ public final class VirtualThreadHelper {
   public static <R> R callInScope(Callable<R> call) {
     lock.lock();
     try (var scope = new ShutdownOnFailure()) {
-      var task = scope.fork(call);
+      DelegatingSecurityContextCallable<R> delegate = new DelegatingSecurityContextCallable<>(call);
+      var task = scope.fork(delegate);
       scope.join().throwIfFailed();
       return task.get();
     } catch (InterruptedException e) {

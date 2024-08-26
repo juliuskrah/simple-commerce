@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Window;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -110,6 +111,7 @@ class ProductManagement implements ProductService, NodeService {
   /**
    * {@inheritDoc}
    */
+  @PreAuthorize("denyAll()")
   @Override
   public String deleteProduct(String id) {
     var gid = GlobalId.decode(id);

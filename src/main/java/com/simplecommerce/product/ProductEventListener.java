@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 class ProductEventListener {
-  private static final Logger log = LoggerFactory.getLogger(ProductEventListener.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProductEventListener.class);
 
   @ApplicationModuleListener
   void on(ProductCreated event) {
-    log.info("Product created: {}", event.product());
+    LOG.info("Product created: {}", event.product());
   }
 }
