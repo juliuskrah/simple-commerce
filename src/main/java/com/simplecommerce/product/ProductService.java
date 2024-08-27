@@ -3,6 +3,7 @@ package com.simplecommerce.product;
 import java.util.List;
 import java.util.Set;
 import org.springframework.data.domain.ScrollPosition;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
 
 /**
@@ -38,10 +39,11 @@ interface ProductService {
   /**
    * Find a list of products using cursor-based pagination.
    * @param limit The maximum number of products to return.
+   * @param sort The sort order.
    * @param scroll The scroll position.
    * @return The slice of products.
    */
-  Window<Product> findProducts(int limit, ScrollPosition scroll);
+  Window<Product> findProducts(int limit, Sort sort, ScrollPosition scroll);
 
   /**
    * Delete a product by its ID. Deletion is idempotent.

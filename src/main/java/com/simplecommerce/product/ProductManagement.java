@@ -12,11 +12,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowire;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.ScrollPosition;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Propagation;
@@ -29,7 +30,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Configurable(autowire = Autowire.BY_TYPE)
 class ProductManagement implements ProductService, NodeService {
 
-  @Autowired
+  public void setProductRepository(ObjectFactory<Products> productRepository) {
+    this.productRepository = productRepository.getObject();
+  }
+
   private Products productRepository;
 
   private ProductEntity toEntity(ProductInput product) {
@@ -103,8 +107,8 @@ class ProductManagement implements ProductService, NodeService {
    */
   @Transactional(readOnly = true)
   @Override
-  public Window<Product> findProducts(int limit, ScrollPosition scroll) {
-    return callInScope( () -> productRepository.findBy(Limit.of(limit), scroll))
+  public Window<Product> findProducts(int limit, Sort sort, ScrollPosition scroll) {
+    return callInScope( () -> productRepository.findBy(Limit.of(limit), sort, scroll))
         .map(this::fromEntity);
   }
 

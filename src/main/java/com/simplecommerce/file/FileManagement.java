@@ -21,8 +21,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowire;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,9 +33,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @Configurable(autowire = Autowire.BY_TYPE)
 class FileManagement implements FileService, NodeService {
-  @Autowired private MinioClient client;
-  @Autowired private ObjectStoreProperties properties;
-  @Autowired private Media mediaRepository;
+  private MinioClient client;
+  private ObjectStoreProperties properties;
+  private Media mediaRepository;
+
+  public void setClient(ObjectFactory<MinioClient> client) {
+    this.client = client.getObject();
+  }
+
+  public void setProperties(ObjectFactory<ObjectStoreProperties> properties) {
+    this.properties = properties.getObject();
+  }
+
+  public void setMediaRepository(ObjectFactory<Media> mediaRepository) {
+    this.mediaRepository = mediaRepository.getObject();
+  }
 
   private MediaEntity toEntity(String productId, FileInput mediaFile) {
     var entity = new MediaEntity();
@@ -102,9 +114,7 @@ class FileManagement implements FileService, NodeService {
   public MediaFile addMediaToProduct(String productId, FileInput file) {
     var gid = GlobalId.decode(productId);
     var media = toEntity(gid.id(), file);
-    runInScope(() -> {
-      mediaRepository.saveAndFlush(media);
-    });
+    runInScope(() -> mediaRepository.saveAndFlush(media));
     return fromEntity(media);
   }
 

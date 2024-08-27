@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.ScrollPosition;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
 
 /**
@@ -64,9 +65,9 @@ class ProductManagementTest {
     var entity = new ProductEntity();
     entity.setId(UUID.randomUUID());
     entity.setTitle("Opti Core");
-    when(productRepository.findBy(any(Limit.class), any(ScrollPosition.class)))
+    when(productRepository.findBy(any(Limit.class), any(Sort.class), any(ScrollPosition.class)))
         .thenReturn(Window.from(List.of(entity), (limit) -> null));
-    var products = productService.findProducts(1, ScrollPosition.keyset());
+    var products = productService.findProducts(1, Sort.unsorted(), ScrollPosition.keyset());
 
     var expected = new Product(null, "Opti Core", null, null, null, null);
     assertThat(products).isNotEmpty().hasSize(1)

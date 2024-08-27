@@ -57,6 +57,7 @@ public class UserEventListener {
     }
   }
 
+  @Async
   @EventListener
   void on(AuthenticationFailureBadCredentialsEvent event) {
     LOG.info("Authentication failure: {}", event.getAuthentication());

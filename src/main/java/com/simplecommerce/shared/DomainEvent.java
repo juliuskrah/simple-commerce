@@ -28,4 +28,7 @@ package com.simplecommerce.shared;
  * @see <a href="https://domainlanguage.com/wp-content/uploads/2016/05/DDD_Reference_2015-03.pdf">Domain-Driven Design
  *      Reference (Evans) - Domain Events</a>
  */
-public interface DomainEvent { }
+public interface DomainEvent<T, E extends Enum<E>> {
+  T source();
+  E eventType();
+}

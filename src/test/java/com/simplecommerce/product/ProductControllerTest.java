@@ -21,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.ScrollPosition;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
 import org.springframework.graphql.test.tester.GraphQlTester;
 
@@ -98,7 +99,7 @@ class ProductControllerTest {
   void shouldFetchProducts() {
     var entities = List.of(new Product(UUID.randomUUID().toString(), "Cyberdyne Rover", "cyberdyne-rover",
         null, null, null));
-    when(productService.findProducts(anyInt(), any(ScrollPosition.class)))
+    when(productService.findProducts(anyInt(), any(Sort.class), any(ScrollPosition.class)))
         .thenReturn(Window.from(entities, limit -> ScrollPosition.keyset()));
     graphQlTester.documentName("products")
         .variable("first", 10)

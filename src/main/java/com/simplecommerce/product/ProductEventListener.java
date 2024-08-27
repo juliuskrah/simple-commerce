@@ -13,7 +13,7 @@ class ProductEventListener {
   private static final Logger LOG = LoggerFactory.getLogger(ProductEventListener.class);
 
   @ApplicationModuleListener
-  void on(ProductCreated event) {
-    LOG.info("Product created: {}", event.product());
+  void on(ProductEvent event) {
+    LOG.info("Product {}}: {}", event.eventType(), event.source());
   }
 }

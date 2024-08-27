@@ -20,6 +20,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.ScrollPosition;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -56,10 +57,11 @@ class ProductsTest {
     product.addTags("technology", "software", "cloud_computing");
     product.publishProductCreatedEvent();
     var entity = productRepository.saveAndFlush(product);
-    assertThat(entity).isNotNull().hasNoNullFieldsOrPropertiesExcept("description")
+    assertThat(entity).isNotNull()
+        .hasNoNullFieldsOrPropertiesExcept("description", "createdBy", "updatedBy")
         .extracting(ProductEntity::getTags)
         .asInstanceOf(InstanceOfAssertFactories. LIST).contains("technology", "software", "cloud_computing");
-    var firedEvent = events.stream(ProductCreated.class).map(ProductCreated::product).findFirst();
+    var firedEvent = events.stream(ProductEvent.class).map(ProductEvent::source).findFirst();
     assertThat(firedEvent).isPresent()
         .get().isSameAs(product);
   }
@@ -106,7 +108,7 @@ class ProductsTest {
 
   @Test
   void shouldFindProductsByScrolling() {
-    var window = productRepository.findBy(Limit.of(10), ScrollPosition.keyset());
+    var window = productRepository.findBy(Limit.of(10), Sort.unsorted(), ScrollPosition.keyset());
     assertThat(window).isNotEmpty()
         .hasSize(10).extractingResultOf("getTitle")
         .contains(
@@ -124,7 +126,7 @@ class ProductsTest {
 
   @Test
   void shouldFindProductsByScrollingAfterKeys() {
-    var window = productRepository.findBy(Limit.of(10), ScrollPosition.forward(Map.of(
+    var window = productRepository.findBy(Limit.of(10), Sort.unsorted(), ScrollPosition.forward(Map.of(
         "title", "Virtual Vault", "id", UUID.fromString("8a293c02-33f9-4bdb-96b9-3e7d4f753666"))
     ));
     assertThat(window).isNotEmpty()

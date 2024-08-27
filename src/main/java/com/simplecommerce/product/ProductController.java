@@ -72,7 +72,7 @@ class ProductController {
         var scroll = subrange.position().orElse(ScrollPosition.keyset());
         LOG.info("Fetching {} products with scroll {}", limit, scroll);
         LOG.debug("Sorting with: {{}}", sort);
-        return productServiceSupplier.get().findProducts(limit, scroll);
+        return productServiceSupplier.get().findProducts(limit, sort, scroll);
     }
 
     @SchemaMapping(typeName = "Product")

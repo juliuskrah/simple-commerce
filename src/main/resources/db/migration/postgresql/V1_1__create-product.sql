@@ -1,6 +1,8 @@
 CREATE TABLE IF NOT EXISTS products (
     created_at TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    created_by VARCHAR(250),
+    updated_by VARCHAR(250),
     id UUID NOT NULL,
     description TEXT,
     slug VARCHAR(503) NOT NULL UNIQUE,

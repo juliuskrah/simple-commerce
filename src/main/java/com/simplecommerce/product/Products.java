@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.ScrollPosition;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
@@ -36,7 +37,7 @@ interface Products extends Repository<ProductEntity, UUID> {
   @Query("SELECT p FROM Product p")
   List<ProductEntity> findBy(Limit limit);
 
-  Window<ProductEntity> findBy(Limit limit, ScrollPosition scroll);
+  Window<ProductEntity> findBy(Limit limit, Sort sort, ScrollPosition scroll);
 
   ProductEntity saveAndFlush(ProductEntity product);
 

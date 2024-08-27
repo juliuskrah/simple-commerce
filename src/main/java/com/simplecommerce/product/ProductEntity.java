@@ -1,5 +1,6 @@
 package com.simplecommerce.product;
 
+import com.simplecommerce.product.ProductEvent.ProductEventType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -44,12 +45,15 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> {
   @Column(nullable = false)
   private OffsetDateTime updatedAt;
 
+  private String createdBy;
+  private String updatedBy;
+
   @ElementCollection
   @CollectionTable(name = "product_tag", joinColumns = @JoinColumn(name = "product_id"))
   private List<String> tags = new ArrayList<>();
 
   void publishProductCreatedEvent() {
-    registerEvent(new ProductCreated(this));
+    registerEvent(new ProductEvent(this, ProductEventType.CREATED));
   }
 
   void addTags(String... tags) {
@@ -126,8 +130,11 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> {
         "id=" + id +
         ", title='" + title + '\'' +
         ", slug='" + slug + '\'' +
+        ", description='" + description + '\'' +
         ", createdAt=" + createdAt +
         ", updatedAt=" + updatedAt +
+        ", createdBy='" + createdBy + '\'' +
+        ", updatedBy='" + updatedBy + '\'' +
         '}';
   }
 }
