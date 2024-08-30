@@ -1,0 +1,12 @@
+[
+  {
+    "productId": "4e8343d7-8dbe-408f-bd82-3732d6c3793d",
+    "optionName": "quality",
+    "optionValues": ["720p", "1080p", "4k"]
+  },
+  {
+    "productId": "4e8343d7-8dbe-408f-bd82-3732d6c3793d",
+    "optionName": "language",
+    "optionValues": ["english", "spanish", "french"]
+  }
+]

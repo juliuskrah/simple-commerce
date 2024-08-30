@@ -1,0 +1,22 @@
+[
+  {
+    "productId": "4e8343d7-8dbe-408f-bd82-3732d6c3793d",
+    "mediaLocations": [
+      "media/doom-part-one-1.jpg",
+      "media/doom-part-one-2.jpg",
+      "media/doom-part-one-3.jpg",
+      "media/doom-part-one-4.jpg",
+      "media/doom-part-one-5.jpg"
+    ]
+  },
+  {
+    "productId": "512af1f2-acc0-4464-a6fb-71236b12ff43",
+    "mediaLocations": [
+      "media/doom-part-two-1.jpg",
+      "media/doom-part-two-2.jpg",
+      "media/doom-part-two-3.jpg",
+      "media/doom-part-two-4.jpg",
+      "media/doom-part-two-5.jpg"
+    ]
+  }
+]

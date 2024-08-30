@@ -15,5 +15,5 @@ This code is made available under a Apache-2.0 license. See the LICENSE file.
 You can start up Simple Commerce locally using `gradle` and `java`:
 
 ```bash
-./gradlew bootRun
+SPRING_PROFILES_ACTIVE=oidc-auth ./gradlew bootRun
 ```

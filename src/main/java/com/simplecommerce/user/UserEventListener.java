@@ -11,7 +11,9 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
+import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.stereotype.Component;
 
 /**
@@ -63,4 +65,9 @@ public class UserEventListener {
     LOG.info("Authentication failure: {}", event.getAuthentication());
   }
 
+  @Async
+  @EventListener
+  void on(AuthorizationDeniedEvent<SecurityContextHolderAwareRequestWrapper> event) {
+    LOG.info("Catch all authorization failure: {}", event.getSource());
+  }
 }

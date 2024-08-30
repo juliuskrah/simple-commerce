@@ -1,0 +1,77 @@
+[
+  {
+    "id": "ae39c685-caa6-4a36-9a2f-3080cd7679ee",
+    "title": "Software and Apps",
+    "description": "Includes computer programs, mobile apps, SaaS (Software as a Service) platforms, and plugins."
+  },
+  {
+    "id": "eb9fe912-1930-40e7-9ec5-35bc3eb0f646",
+    "title": "E-books and Written Content",
+    "description": "Digital books, reports, guides, research papers, and articles available in formats like PDF, EPUB, or MOBI."
+  },
+  {
+    "id": "4d3c128d-cf28-4fa7-bf72-dbf7745202f9",
+    "title": "Music, Audio, and Podcasts",
+    "description": "Digital downloads of music tracks, audiobooks, sound effects, loops, beats, and podcasts."
+  },
+  {
+    "id": "7822a5bc-e768-4ccf-bcef-820d0a7148c5",
+    "title": "Graphics and Digital Art",
+    "description": "Stock photos, illustrations, icons, logos, design templates, wallpapers, and digital paintings."
+  },
+  {
+    "id": "33641e2a-b9d6-4d5c-9ac9-69aad459bca0",
+    "title": "Online Courses and Tutorials",
+    "description": "Educational content such as video courses, webinars, workshops, and coaching programs."
+  },
+  {
+    "id": "dee70375-dee1-4fea-941e-c4e1ef2e91e6",
+    "title": "Video Content",
+    "description": "Stock videos, animations, video tutorials, and virtual backgrounds."
+  },
+  {
+    "id": "269e08c0-cdc9-4eba-95cd-5af31135892d",
+    "title": "Fonts and Typography",
+    "description": "Custom fonts, typefaces, and typography packs."
+  },
+  {
+    "id": "c046c1a2-e1f8-4378-89cd-f8ee3d034b0b",
+    "title": "Templates and Documents",
+    "description": "Spreadsheets, business forms, resumes, proposal templates, presentation slides, and planners."
+  },
+  {
+    "id": "953b7147-1c07-43a2-a942-12e894d312a1",
+    "title": "Licenses and Digital Assets",
+    "description": "Software licenses, virtual goods, game items, and other digital rights."
+  },
+  {
+    "id": "133f53e3-df4e-4013-8df6-977c9f091780",
+    "title": "Memberships and Subscriptions",
+    "description": "Access to exclusive content, communities, premium features, or ongoing updates."
+  },
+  {
+    "id": "f99181c5-553c-42f6-8f8b-54133e584a42",
+    "title": "Printables",
+    "description": "Digital files for printing, such as planners, calendars, stickers, art prints, and worksheets."
+  },
+  {
+    "id": "251e82f0-e613-407f-87f4-943adafc7050",
+    "title": "Website Themes and Templates:",
+    "description": "Pre-designed layouts for websites, including WordPress themes, HTML templates, and page builders."
+  },
+  {
+    "id": "57f0c29c-6a33-4ddd-9ea2-68014efc1f36",
+    "title": "Digital Tickets and Access Passess",
+    "description": "Tickets for events, webinars, online concerts, or digital experiences."
+  },
+  {
+    "id": "b5040d5e-f215-40e0-83d2-5117fb70a70c",
+    "title": "3D Models and CAD Files",
+    "description": "Files used in design, gaming, 3D printing, and virtual environments."
+  },
+  {
+    "id": "b5c98f4b-9de5-4345-95a6-1faaf16d6c13",
+    "title": "Digital Marketing Assets",
+    "description": "Email templates, social media graphics, ad banners, and sales funnels."
+  }
+]

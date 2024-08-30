@@ -30,7 +30,7 @@ public class SimpleCommerceApplication {
     @Bean
     RouterFunction<?> index() {
         return RouterFunctions.route()
-                .GET("/index", request -> ServerResponse.permanentRedirect(URI.create("/"))
+                .GET("/index", request -> ServerResponse.temporaryRedirect(URI.create("/"))
                 .build())
                 .build();
     }
