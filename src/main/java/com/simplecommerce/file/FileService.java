@@ -3,6 +3,7 @@ package com.simplecommerce.file;
 import java.util.List;
 
 /**
+ * Basic operations for working with files.
  * @author julius.krah
  */
 interface FileService {

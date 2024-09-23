@@ -6,6 +6,8 @@ import com.simplecommerce.shared.Types;
 import org.springframework.util.function.SingletonSupplier;
 
 /**
+ * Supplies a {@link NodeService} for media files. By registering this as a Service Provider, we avoid a
+ * cyclic dependency between the {@code node} module and the {@code file} module.
  * @author julius.krah
  */
 public class FileNodeServiceSupplier implements NodeServiceSupplier {

@@ -28,6 +28,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
+ * Service for managing files and media.
  * @author julius.krah
  */
 @Transactional(readOnly = true)

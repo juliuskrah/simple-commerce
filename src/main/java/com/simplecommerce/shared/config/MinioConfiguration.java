@@ -56,7 +56,7 @@ class MinioConfiguration {
 
   @Bean
   @DependsOn("createDefaultBucket")
-  @ConditionalOnResource(resources = "classpath:policies/anonymous-bucket-policy.json")
+  @ConditionalOnResource(resources = "${objectstore.options.anonymous-bucket-policy}")
   ApplicationRunner createAnonymousBucketPolicy(MinioClient client, ObjectStoreProperties properties) {
     LOG.debug("Applying anonymous bucket policy to bucket: {}", properties.bucketName());
     return args -> {

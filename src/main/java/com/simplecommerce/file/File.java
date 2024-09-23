@@ -4,6 +4,7 @@ import com.simplecommerce.node.Node;
 import java.time.OffsetDateTime;
 
 /**
+ * Super type for all files. This interfaces models the create and update metadata of a file.
  * @author julius.krah
  */
 interface File extends Node {

@@ -7,6 +7,8 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
+ * Service provider interface for {@link NodeService}.
+ * This has been added to avoid a cyclic dependency between the {@code node} module and other modules.
  * @since 1.0
  * @author julius.krah
  */

@@ -12,7 +12,6 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -61,41 +60,20 @@ public class SeedingService {
     var productMediaVariables = objectMapper.readValue(productMedia.getInputStream(),
         new TypeReference<Set<Map<String, Object>>>() {
         });
-    Set<Map<String, Object>> mediaVariables = products.map(product ->
+    Flux<Map<String, Object>> mediaVariables = products.map(product ->
       productMediaVariables.stream()
           .filter(media -> media.get("productId") == product.syntheticId())
           .peek(media -> media.put("id", product.naturalId()))
           .collect(Collectors.toSet())
-    )
-        .blockLast();
-    Flux.fromIterable(productMediaVariables)
+    ).flatMap(Flux::fromIterable);
+    Flux.from(mediaVariables)
         .flatMap(variable -> {
           @SuppressWarnings("unchecked")
           var images = (List<String>) variable.get("mediaLocations");
           return Flux.fromIterable(images)
               .flatMap(this::createStaged)
               .publishOn(Schedulers.boundedElastic())
-              .map(staged -> {
-                var mediaPath = (String) staged.get("mediaPath");
-                var contentType = (String) staged.get("contentType");
-                var resource = resourceLoader.getResource(directoryPrefix + mediaPath);
-                try(var client = HttpClient.newHttpClient()) {
-                  var request = HttpRequest.newBuilder()
-                      .uri(URI.create((String) staged.get("presignedUrl")))
-                      .header("Content-Type", contentType)
-                      .PUT(BodyPublishers.ofFile(resource.getFile().toPath()))
-                      .build();
-                  var response = client.send(request, BodyHandlers.ofString());
-                  LOG.info("Upload status: {}", response.statusCode());
-                } catch (IOException | InterruptedException e) {
-                  LOG.info("Failed to upload media: {}", mediaPath, e);
-                }
-                return Map.of(
-                    "file", Map.of(
-                        "contentType", contentType,
-                        "resourceUrl", staged.get("resourceUrl")),
-                    "id", variable.get("id"));
-              });
+              .map(staged -> uploadMedia(staged, variable));
         }).log()
         .blockLast();
   }
@@ -158,6 +136,28 @@ public class SeedingService {
       return Map.of("presignedUrl", presignedUrl, "resourceUrl", resourceUrl,
           "contentType", contentType, "mediaPath", filePath);
     });
+  }
+
+  private Map<String, Object> uploadMedia(Map<String, Object> stagedMedia, Map<String, Object> variable) {
+    var mediaPath = (String) stagedMedia.get("mediaPath");
+    var contentType = (String) stagedMedia.get("contentType");
+    var resource = resourceLoader.getResource(directoryPrefix + mediaPath);
+    try(var client = HttpClient.newHttpClient()) {
+      var request = HttpRequest.newBuilder()
+          .uri(URI.create((String) stagedMedia.get("presignedUrl")))
+          .header("Content-Type", contentType)
+          .PUT(BodyPublishers.ofFile(resource.getFile().toPath()))
+          .build();
+      var response = client.send(request, BodyHandlers.ofString());
+      LOG.info("Upload status: {}", response.statusCode());
+    } catch (IOException | InterruptedException e) {
+      LOG.info("Failed to upload media: {}", mediaPath, e);
+    }
+    return Map.of(
+        "file", Map.of(
+            "contentType", contentType,
+            "resourceUrl", stagedMedia.get("resourceUrl")),
+        "id", variable.get("id"));
   }
 
   private Resource loadResource(String path) {

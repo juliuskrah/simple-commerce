@@ -1,7 +1,25 @@
 extend type Mutation {
-    "Add digital content to a product."
+    "Add digital content to a product. This is useful for products that are delivered electronically."
     addDigitalContent(productId: ID!, file: FileInput!): DigitalContent
-    "Add media to a product."
+    """
+    Add media to a product. The product's media can be used to showcase the product. The following types of
+    media can be added: images, videos, 3D models, and audio files.
+    When uploading new media, you must first stage the upload by calling the [stagedUpload](#stagedUpload) mutation
+    before calling this mutation.
+
+    ```graphql
+    mutation stageUpload($input: StagedUploadInput!) {
+        stagedUpload(input: $input) {
+            presignedUrl
+            resourceUrl
+            contentType
+        }
+    }
+    ```
+
+    Upload the file using `presignedUrl` and `contentType` from the [stagedUpload](#stagedUpload) mutation.
+    Then use the `resourceUrl` when calling this mutation.
+    """
     addProductMedia(productId: ID!, file: FileInput!): MediaFile
     """
     Create a presigned URL for uploading a file to a cloud storage service. This is the first

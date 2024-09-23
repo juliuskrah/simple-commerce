@@ -4,11 +4,11 @@ import java.net.URL;
 import java.time.OffsetDateTime;
 
 /**
- * Represents a media file.
- * @param id
- * @param createdAt
- * @param url
- * @param updatedAt
+ * Representation of a media file.
+ * @param id The unique identifier of the media file
+ * @param createdAt The date and time the media file was created
+ * @param url The URL of the media file
+ * @param updatedAt The date and time the media file was last updated
  *
  * @author julius.krah
  */
