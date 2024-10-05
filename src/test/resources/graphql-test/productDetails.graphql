@@ -3,10 +3,6 @@ query productDetails($id: ID!) {
       id
       title
       slug
-      price {
-        amount
-        currency
-      }
       description
   }
 }

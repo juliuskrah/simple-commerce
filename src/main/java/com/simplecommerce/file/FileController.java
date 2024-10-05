@@ -6,27 +6,25 @@ import com.simplecommerce.product.Product;
 import com.simplecommerce.shared.GlobalId;
 import java.util.List;
 import java.util.function.Supplier;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.function.SingletonSupplier;
 
 /**
  * @author julius.krah
  */
 @Controller
 class FileController {
-  @Autowired(required = false)
-  private FileService fileService;
+  private final ObjectProvider<FileService> fileService;
+  // Defer creation of the FileService to avoid early initialization of aspectj proxy
+  private final Supplier<FileService> fileServiceSupplier = SingletonSupplier.of(FileManagement::new);
 
-  private final Supplier<FileService> fileServiceSupplier = () -> {
-    if (fileService != null) {
-      return fileService;
-    }
-    fileService = new FileManagement();
-    return fileService;
-  };
+  FileController(ObjectProvider<FileService> fileService) {
+    this.fileService = fileService;
+  }
 
   @SchemaMapping(typeName = "MediaFile")
   String id(MediaFile source) {
@@ -35,7 +33,7 @@ class FileController {
 
   @SchemaMapping
   List<MediaFile> media(Product product) {
-    return fileServiceSupplier.get().productMedia(product.id());
+    return fileService.getIfAvailable(fileServiceSupplier).productMedia(product.id());
   }
 
   @SchemaMapping
@@ -45,12 +43,12 @@ class FileController {
 
   @MutationMapping
   StagedUpload stagedUpload(@Argument StagedUploadInput input) {
-    return fileServiceSupplier.get().stageUpload(input);
+    return fileService.getIfAvailable(fileServiceSupplier).stageUpload(input);
   }
 
   @MutationMapping
   MediaFile addProductMedia(@Argument String productId, @Argument FileInput file) {
-    return fileServiceSupplier.get().addMediaToProduct(productId, file);
+    return fileService.getIfAvailable(fileServiceSupplier).addMediaToProduct(productId, file);
   }
 
   @MutationMapping

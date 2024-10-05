@@ -7,6 +7,7 @@ val springModulithVersion by extra("1.2.1")
 val graphQlJavaVersion by extra("22.0")
 val springInstrument: Configuration by configurations.creating
 val enablePreview = "--enable-preview"
+val javaVersion = 21
 
 group = "com.simplecommerce"
 version = "1.0.0"
@@ -15,7 +16,7 @@ version = "1.0.0"
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(javaVersion)
     }
 }
 
@@ -65,7 +66,7 @@ tasks.withType<Test> {
 tasks.withType<JavaCompile> {
     options.compilerArgs.add(enablePreview)
     options.compilerArgs.add("-Xlint:preview")
-    options.release.set(21)
+    options.release.set(javaVersion)
 }
 
 tasks.withType<JavaExec> {

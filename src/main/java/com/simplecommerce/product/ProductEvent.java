@@ -6,7 +6,7 @@ import com.simplecommerce.shared.DomainEvent;
 /**
  * @author julius.krah
  */
-public record ProductEvent(ProductEntity source, ProductEventType eventType)
+record ProductEvent(ProductEntity source, ProductEventType eventType)
     implements DomainEvent<ProductEntity, ProductEventType> {
   enum ProductEventType {
     CREATED,

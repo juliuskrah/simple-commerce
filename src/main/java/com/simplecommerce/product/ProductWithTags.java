@@ -6,7 +6,7 @@ import java.util.UUID;
 /**
  * @author julius.krah
  */
-public interface ProductWithTags {
+interface ProductWithTags {
   UUID getId();
   List<String> getTags();
 }

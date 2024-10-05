@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * @author julius.krah
  */
 @Component
-public class Event<EVENT extends DomainEvent> {
+public class Event<EVENT extends DomainEvent<?, ? extends Enum<?>>> {
   private final ApplicationEventPublisher publisher;
 
   public Event(ApplicationEventPublisher publisher) {

@@ -10,7 +10,8 @@ record ProductInput(
     String description,
     BigDecimal price,
     List<String> tags,
-    String title
+    String title,
+    ProductStatus status
 ) {
 
 }

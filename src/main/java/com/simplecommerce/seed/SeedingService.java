@@ -66,16 +66,21 @@ public class SeedingService {
           .peek(media -> media.put("id", product.naturalId()))
           .collect(Collectors.toSet())
     ).flatMap(Flux::fromIterable);
-    Flux.from(mediaVariables)
+    try(var client = HttpClient.newHttpClient()) {
+      uploadMedia(mediaVariables, client).blockLast();
+    }
+  }
+
+  private Flux<Map<String, Object>> uploadMedia(Flux<Map<String, Object>> mediaVariables, HttpClient client) {
+    return Flux.from(mediaVariables)
         .flatMap(variable -> {
           @SuppressWarnings("unchecked")
           var images = (List<String>) variable.get("mediaLocations");
           return Flux.fromIterable(images)
               .flatMap(this::createStaged)
               .publishOn(Schedulers.boundedElastic())
-              .map(staged -> uploadMedia(staged, variable));
-        }).log()
-        .blockLast();
+              .map(staged -> uploadMedia(client, staged, variable));
+        }).log();
   }
 
   private Flux<Product> seedProduct() throws IOException {
@@ -138,11 +143,12 @@ public class SeedingService {
     });
   }
 
-  private Map<String, Object> uploadMedia(Map<String, Object> stagedMedia, Map<String, Object> variable) {
+  private Map<String, Object> uploadMedia(HttpClient client,
+      Map<String, Object> stagedMedia, Map<String, Object> variable) {
     var mediaPath = (String) stagedMedia.get("mediaPath");
     var contentType = (String) stagedMedia.get("contentType");
     var resource = resourceLoader.getResource(directoryPrefix + mediaPath);
-    try(var client = HttpClient.newHttpClient()) {
+    try {
       var request = HttpRequest.newBuilder()
           .uri(URI.create((String) stagedMedia.get("presignedUrl")))
           .header("Content-Type", contentType)
@@ -170,14 +176,14 @@ public class SeedingService {
     seedProductMedia(products);
   }
 
+  /**
+   * Seed the database when the application is ready.
+   * @param event ApplicationReadyEvent
+   */
   @Async
   @EventListener
   void on(ApplicationReadyEvent event) {
-    try {
-      seed();
-    } catch (IOException e) {
-      LOG.error("Failed to seed data", e);
-    }
+    // Add method body or move to different class
   }
 
   record Product(String syntheticId, String naturalId) {

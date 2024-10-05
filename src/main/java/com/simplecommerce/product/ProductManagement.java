@@ -4,6 +4,8 @@ import static com.simplecommerce.shared.VirtualThreadHelper.callInScope;
 import static com.simplecommerce.shared.VirtualThreadHelper.runInScope;
 
 import com.simplecommerce.node.NodeService;
+import com.simplecommerce.product.ProductEvent.ProductEventType;
+import com.simplecommerce.shared.Event;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.NotFoundException;
 import com.simplecommerce.shared.Slug;
@@ -33,8 +35,12 @@ class ProductManagement implements ProductService, NodeService {
   public void setProductRepository(ObjectFactory<Products> productRepository) {
     this.productRepository = productRepository.getObject();
   }
+  public void setEvent(ObjectFactory<Event<ProductEvent>> event) {
+    this.event = event.getObject();
+  }
 
   private Products productRepository;
+  private Event<ProductEvent> event;
 
   private ProductEntity toEntity(ProductInput product) {
     var entity = new ProductEntity();
@@ -140,6 +146,8 @@ class ProductManagement implements ProductService, NodeService {
   @Override
   public Product updateProduct(String productId, ProductInput product) {
     return callInScope(() -> updateProduct(product, productId))
+        .stream().peek(entity -> event.fire(new ProductEvent(entity, ProductEventType.UPDATED)))
+        .findFirst()
         .map(this::fromEntity)
         .orElseThrow(NotFoundException::new);
   }

@@ -19,6 +19,8 @@ type Mutation {
 type Product implements Node {
     id: ID!
     createdAt: DateTime!
+    "Actor that created the product. This is a restricted field and can only be seen by users with the proper permissions."
+    createdBy: Actor
     description: JsonString
     """
     The slug is a uniquely generated URI friendly identifier for a product.
@@ -26,9 +28,25 @@ type Product implements Node {
     to the end of the slug if a product with the same slug already exists.
     """
     slug: String!
-    price: Money
+    status: ProductStatus!
+    priceRange: PriceRange
+    priceSet: PriceSet
     tags(limit: Int!): [String!]
     title: String!
+    updatedAt: DateTime!
+    "Actor that updated the product. This is a restricted field and can only be seen by users with the proper permissions."
+    updatedBy: Actor
+}
+
+type PriceRange {
+    start: Money
+    stop: Money
+}
+
+type PriceSet {
+    id: ID!
+    createdAt: DateTime!
+    prices: [Money!]
     updatedAt: DateTime!
 }
 
@@ -37,6 +55,7 @@ input ProductInput {
     price: Decimal
     tags: [String!]
     title: String!
+    status: ProductStatus = DRAFT
 }
 
 enum ProductStatus {

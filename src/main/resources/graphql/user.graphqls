@@ -1,0 +1,13 @@
+extend type Query {
+    me: User!
+}
+
+type User implements Actor {
+    id: ID!
+    username: String!
+}
+
+type Customer implements Actor {
+    id: ID!
+    username: String!
+}

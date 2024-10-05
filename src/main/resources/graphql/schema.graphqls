@@ -42,6 +42,11 @@ interface Node {
     id: ID!
 }
 
+interface Actor {
+    id: ID!
+    username: String!
+}
+
 enum OrderDirection {
     "Specifies an ascending order for a given `orderBy` argument."
     ASC
@@ -72,6 +77,12 @@ scalar URL
 
 schema {
     query: Query
+    # Update all mutations to take an argument named `input`. The input type should
+    # be named after the mutation name.
+    # e.g.
+    # type Mutation {
+    #   createProduct(input: CreateProductInput!): Product
+    # }
     mutation: Mutation
 }
 

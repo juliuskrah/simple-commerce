@@ -7,6 +7,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import com.simplecommerce.shared.Event;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,8 @@ import org.springframework.data.domain.Window;
 class ProductManagementTest {
   @Mock
   private Products productRepository;
+  @Mock
+  private Event<ProductEvent> event;
   @InjectMocks
   ProductManagement productService;
 
@@ -132,7 +135,7 @@ class ProductManagementTest {
             you stay ahead of the curve, enhancing productivity and ensuring your data is both
             accessible and protected.
             """,
-        new BigDecimal("123.90"), List.of("security"), "Cyber Sphere");
+        new BigDecimal("123.90"), List.of("security"), "Cyber Sphere", ProductStatus.DRAFT);
     Product product = productService.createProduct(productInput);
     assertThat(product).isNotNull()
         .hasFieldOrPropertyWithValue("id", "7004ebbc-e71c-45f3-8d23-1ba2c37f2f1c")
@@ -165,7 +168,7 @@ class ProductManagementTest {
         intelligence and accelerate their project timelines. The platform's intuitive interface
         ensures ease of use, while its high-level security features protect your valuable data,
         giving you peace of mind as you innovate and grow.
-        """, new BigDecimal("123.90"), List.of(), "InnoGrid");
+        """, new BigDecimal("123.90"), List.of(), "InnoGrid", ProductStatus.PUBLISHED);
     Product product = productService.updateProduct("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvUHJvZHVjdC82ZmQwZGFkYS1jMDk1LTRlODgtYjhkNy03OTE2YTk3ZTc5NTg=", productInput);
     assertThat(product).isNotNull()
         .hasFieldOrPropertyWithValue("id", id)

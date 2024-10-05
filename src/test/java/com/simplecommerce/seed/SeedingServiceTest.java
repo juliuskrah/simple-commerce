@@ -11,6 +11,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.simplecommerce.shared.GlobalId;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import java.util.HashMap;
@@ -22,7 +23,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -113,23 +116,36 @@ class SeedingServiceTest {
 
   private Mono<ExecutionGraphQlResponse> createCreateProductResponse() {
     var input = ExecutionInput.newExecutionInput().query("mutation {}").build();
+    String id = new GlobalId("Product", UUID.randomUUID().toString()).encode();
     var output = ExecutionResult.newExecutionResult().data(Map.of(
         "addProduct", Map.of(
-            "id", "Z2lkOi8vU2ltcGxlQ29tbWVyY2UvUHJvZHVjdC9lNWVhODE5YS05NjQ1LTRiMTQtOWVjMy00NzgzZGY0Mzc0OWI="))).build();
+            "id", id))).build();
     ExecutionGraphQlResponse response = new DefaultExecutionGraphQlResponse(input, output);
     return Mono.defer(() -> Mono.just(response));
   }
 
   private Mono<ExecutionGraphQlResponse> stagedUploadResponse() {
     var input = ExecutionInput.newExecutionInput().query("mutation {}").build();
+    Random random = new Random();
+    var randomString = randomString(random);
     var output = ExecutionResult.newExecutionResult().data(Map.of(
         "stagedUpload", Map.of(
             "presignedUrl", "https://play.minio.io/bucket/prefix/object.jpg?signature=signature&expires=expires",
-            "resourceUrl", "https://play.minio.io/bucket/prefix/object.jpg",
+            "resourceUrl", "https://play.minio.io/bucket/prefix/%s.jpg".formatted(randomString),
             "contentType", "image/jpeg")))
         .build();
     ExecutionGraphQlResponse response = new DefaultExecutionGraphQlResponse(input, output);
     return Mono.defer(() -> Mono.just(response));
+  }
+
+  private String randomString(Random random) {
+    int leftLimit = 97; // letter 'a'
+    int rightLimit = 122; // letter 'z'
+    long targetStringLength = 10;
+    return random.ints(leftLimit, rightLimit + 1)
+        .limit(targetStringLength)
+        .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+        .toString();
   }
 
   private Mono<ExecutionGraphQlResponse> answerRequest(ExecutionGraphQlRequest request) {
