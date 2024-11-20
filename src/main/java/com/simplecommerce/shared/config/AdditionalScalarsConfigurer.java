@@ -1,11 +1,11 @@
 package com.simplecommerce.shared.config;
 
-import static graphql.scalars.ExtendedScalars.Currency;
 import static graphql.scalars.ExtendedScalars.DateTime;
-import static graphql.scalars.ExtendedScalars.GraphQLBigDecimal;
 import static graphql.Scalars.GraphQLString;
+import static graphql.scalars.ExtendedScalars.GraphQLBigDecimal;
 import static graphql.scalars.ExtendedScalars.Url;
 
+import com.simplecommerce.shared.scalars.CurrencyScalar;
 import graphql.scalars.ExtendedScalars;
 import graphql.schema.idl.RuntimeWiring.Builder;
 import org.springframework.graphql.execution.RuntimeWiringConfigurer;
@@ -26,7 +26,7 @@ class AdditionalScalarsConfigurer implements RuntimeWiringConfigurer {
   @Override
   public void configure(Builder builder) {
     builder.scalar(DateTime)
-        .scalar(Currency)
+        .scalar(CurrencyScalar.INSTANCE)
         .scalar(ExtendedScalars.newAliasedScalar("Decimal")
             .aliasedScalar(GraphQLBigDecimal)
             .build())

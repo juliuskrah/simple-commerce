@@ -13,3 +13,26 @@ query productWithTags($id: ID!, $first: Int!) {
       tags(limit: $first)
   }
 }
+
+query productWithPrice($id: ID!) {
+    product(id: $id){
+        id
+        priceSet {
+            id
+            prices {
+                amount
+                currency
+            }
+        }
+        priceRange {
+            start {
+                amount
+                currency
+            }
+            stop {
+                amount
+                currency
+            }
+        }
+    }
+}

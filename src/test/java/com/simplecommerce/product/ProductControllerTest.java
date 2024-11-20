@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
@@ -92,6 +93,30 @@ class ProductControllerTest {
             .isEqualTo("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvUHJvZHVjdC9jNmY1NmU0YS1iYjJlLTRjYTItYjI2Ny1lYTM5OGFlOGNiMzQ="));
 
     assertThat(firstCaptor.getValue()).isEqualTo(first);
+  }
+
+  @Test
+  void shouldFetchProductWithPriceSet() {
+    when(productService.findProduct(anyString())).thenReturn(
+        new Product("c6f56e4a-bb2e-4ca2-b267-ea398ae8cb34", "Cyber Cafe", "cyber-cafe",
+        null, null, null));
+    var entity = new ParameterizedTypeReference<Map<String, Object>>() {};
+    graphQlTester.documentName("productDetails")
+        .variable("id", "gid://SimpleCommerce/Product/some-random-id-1234567")
+        .operationName("productWithPrice")
+        .execute()
+        .path("product", product -> product.path("priceSet")
+            .entity(entity).satisfies(
+                priceSet -> assertThat(priceSet).isNotNull()
+                    .hasFieldOrProperty("id")
+                    .hasFieldOrProperty("prices")
+            ).path("priceRange")
+            .entity(entity).satisfies(
+                priceRange -> assertThat(priceRange).isNotNull()
+                    .hasFieldOrProperty("start")
+                    .hasFieldOrProperty("stop")
+            )
+        );
   }
 
   @Test

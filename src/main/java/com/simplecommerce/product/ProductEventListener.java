@@ -1,5 +1,6 @@
 package com.simplecommerce.product;
 
+import com.simplecommerce.product.ProductEvent.ProductEventType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.modulith.events.ApplicationModuleListener;
@@ -14,6 +15,12 @@ class ProductEventListener {
 
   @ApplicationModuleListener
   void on(ProductEvent event) {
-    LOG.info("Product {}}: {}", event.eventType(), event.source());
+    switch (event) {
+      case ProductEvent(ProductEntity source, ProductEventType eventType) when (eventType == ProductEventType.CREATED) ->
+          LOG.info("Product created : {}", source);
+      case ProductEvent(ProductEntity source, ProductEventType eventType) when (eventType == ProductEventType.UPDATED) ->
+          LOG.info("Product updated: {}", source);
+      default -> LOG.info("Unmapped product event {}: {}", event.eventType(), event.source());
+    }
   }
 }

@@ -1,6 +1,7 @@
 package com.simplecommerce.shared;
 
 import java.math.BigDecimal;
+import javax.money.CurrencyUnit;
 
 /**
  * @param currency currency unit
@@ -8,6 +9,6 @@ import java.math.BigDecimal;
  *
  * @author julius.krah
  */
-public record Money(String currency, BigDecimal amount) {
+public record Money(CurrencyUnit currency, BigDecimal amount) {
 
 }

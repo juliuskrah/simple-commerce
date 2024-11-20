@@ -5,9 +5,11 @@ import static java.util.stream.Collectors.toMap;
 
 import com.simplecommerce.shared.Actor;
 import com.simplecommerce.shared.GlobalId;
+import com.simplecommerce.shared.MonetaryUtils;
 import com.simplecommerce.shared.Money;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
@@ -79,15 +81,16 @@ class ProductController {
     @SchemaMapping
     CompletableFuture<List<String>> tags(
         Product product, @Argument int limit, DataLoader<String, List<String>> tagsDataLoader) {
-        LOG.info("Deferring fetching {} tag(s) for product: {}", limit, product.id());
+        LOG.debug("Deferring fetching {} tag(s) for product: {}", limit, product.id());
         return tagsDataLoader.load(product.id(), limit);
     }
 
     @SchemaMapping
-    PriceRange priceRange(Product product) {
+    PriceRange priceRange(Product product, Locale locale) {
+        var usd = MonetaryUtils.getCurrency("USD", locale);
         return new PriceRange(
-            new Money("USD", new BigDecimal("100.00")),
-            new Money("USD", new BigDecimal("200.00"))
+            new Money(usd, new BigDecimal("100.00")),
+            new Money(usd, new BigDecimal("200.00"))
         );
     }
 
@@ -102,8 +105,14 @@ class ProductController {
     }
 
     @SchemaMapping
-    PriceSet priceSet(Product product) {
-        return null;
+    PriceSet priceSet(Product product, Locale locale) {
+        var usd = MonetaryUtils.getCurrency("USD", locale);
+        return new PriceSet(
+            "c6f56e4a-bb2e-4ca2-b267-ea398ae8cb34",
+            null,
+            List.of(new Money(usd, new BigDecimal("200.50"))),
+            null
+        );
     }
 
     @MutationMapping

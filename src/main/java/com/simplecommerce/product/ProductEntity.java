@@ -52,6 +52,9 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> {
   @CollectionTable(name = "product_tag", joinColumns = @JoinColumn(name = "product_id"))
   private List<String> tags = new ArrayList<>();
 
+  /**
+   * Publishes a {@link ProductEvent} of type {@link ProductEventType#CREATED}.
+   */
   void publishProductCreatedEvent() {
     registerEvent(new ProductEvent(this, ProductEventType.CREATED));
   }
