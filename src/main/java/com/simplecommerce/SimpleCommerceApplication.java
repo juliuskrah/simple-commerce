@@ -22,6 +22,7 @@ public class SimpleCommerceApplication {
 
     @Bean
     RouterFunction<?> home() {
+        // TODO remove after adding React frontend
         return RouterFunctions.route()
                 .GET("/", request -> ServerResponse.ok().body("Hello World!"))
                 .build();
@@ -29,6 +30,7 @@ public class SimpleCommerceApplication {
 
     @Bean
     RouterFunction<?> index() {
+        // TODO remove after adding React frontend
         return RouterFunctions.route()
                 .GET("/index", request -> ServerResponse.temporaryRedirect(URI.create("/"))
                 .build())

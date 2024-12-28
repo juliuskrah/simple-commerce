@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS products (
     id UUID NOT NULL,
     description TEXT,
     slug VARCHAR(503) NOT NULL UNIQUE,
-    title VARCHAR(500),
+    title VARCHAR(500) NOT NULL,
     PRIMARY KEY (id)
 );
 

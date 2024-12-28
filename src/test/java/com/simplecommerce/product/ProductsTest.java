@@ -3,51 +3,31 @@ package com.simplecommerce.product;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-import java.time.Duration;
+import com.simplecommerce.DataPostgresTest;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.assertj.core.api.InstanceOfAssertFactories;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.jdbc.JdbcConnectionDetails;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * @author julius.krah
  */
-@DataJpaTest(properties = {
-    "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect",
-    "spring.jpa.hibernate.ddl-auto=none"
-})
-@Testcontainers
+@DataPostgresTest
 @RecordApplicationEvents
-@AutoConfigureTestDatabase(replace = Replace.NONE)
 class ProductsTest {
-
   @Autowired
   TestEntityManager em;
   @Autowired
   private Products productRepository;
-
-  @Container
-  @ServiceConnection(type = JdbcConnectionDetails.class)
-  static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16.3-alpine")
-      .withMinimumRunningDuration(Duration.ofSeconds(5L));
 
   @Test
   void shouldSaveProduct(ApplicationEvents events) {
@@ -58,7 +38,7 @@ class ProductsTest {
     product.publishProductCreatedEvent();
     var entity = productRepository.saveAndFlush(product);
     assertThat(entity).isNotNull()
-        .hasNoNullFieldsOrPropertiesExcept("description", "createdBy", "updatedBy")
+        .hasNoNullFieldsOrPropertiesExcept("description", "createdBy", "updatedBy", "category")
         .extracting(ProductEntity::getTags)
         .asInstanceOf(InstanceOfAssertFactories. LIST).contains("technology", "software", "cloud_computing");
     var firedEvent = events.stream(ProductEvent.class).map(ProductEvent::source).findFirst();
@@ -162,10 +142,6 @@ class ProductsTest {
     assertThat(none).isNull();
   }
 
-  @AfterAll
-  static void tearDown() {
-    postgres.close();
-  }
 }
 
 

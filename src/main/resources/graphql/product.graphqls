@@ -18,6 +18,7 @@ type Mutation {
 
 type Product implements Node {
     id: ID!
+    category: Category
     createdAt: DateTime!
     "Actor that created the product. This is a restricted field and can only be seen by users with the proper permissions."
     createdBy: Actor

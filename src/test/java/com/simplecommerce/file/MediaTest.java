@@ -6,31 +6,17 @@ import static org.assertj.core.api.Assertions.from;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
 
+import com.simplecommerce.DataPostgresTest;
 import com.simplecommerce.product.ProductEntity;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.time.Duration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
-@DataJpaTest
-@Testcontainers
-@AutoConfigureTestDatabase(replace = Replace.NONE)
+@DataPostgresTest
 class MediaTest {
   @Autowired
   private Media mediaRepository;
-
-  @Container
-  @ServiceConnection
-  static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16.3-alpine")
-      .withMinimumRunningDuration(Duration.ofSeconds(5L));
 
   @Test
   void shouldFindMediaById() throws MalformedURLException {

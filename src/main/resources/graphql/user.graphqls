@@ -1,5 +1,6 @@
 extend type Query {
     me: User!
+    actor(id: ID!): Actor
 }
 
 type User implements Actor {

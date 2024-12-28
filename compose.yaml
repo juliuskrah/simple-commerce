@@ -2,7 +2,7 @@ name: "simple-commerce"
 
 services:
   postgres:
-    image: postgres:16.3-alpine
+    image: postgres:17.2-alpine
     hostname: postgres
     environment:
       POSTGRES_DB: simple_commerce

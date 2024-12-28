@@ -1,0 +1,44 @@
+extend type Query {
+    "Find a category by its ID."
+    category(id: ID): Category
+}
+
+type Category implements Node {
+    id: ID!
+    ancestors: [Category!]
+    children: [Category!]
+    createdAt: DateTime!
+    createdBy: Actor
+    description: JsonString
+    """
+    Whether the category is a leaf category. A leaf category doesn't have any subcategories beneath it.
+    For example, in Animals & Pet Supplies > Pet Supplies > Dog Supplies > Dog Treadmills,
+    Dog Treadmills is a leaf category. The value is `true` when there are no `children` specified.
+    """
+    isLeaf: Boolean!
+    """
+    Whether the category is a root category. A root category is at the top level of the category hierarchy
+    and doesn't have a parent category. For example, Animals & Pet Supplies. The value is `true` when
+    there's no `parent` specified.
+    """
+    isRoot: Boolean!
+    """
+    The level of the category in the taxonomy tree. Levels indicate the depth of the category
+    from the root. For example, in Animals & Pet Supplies > Pet Supplies > Dog Supplies,
+    Animals & Pet Supplies is at level 1, Animals & Pet Supplies > Pet Supplies is at level 2,
+    and Animals & Pet Supplies > Pet Supplies > Dog Supplies is at level 3.
+    """
+    level: Int!
+    parent: Category
+    """
+    The products in the category. The products are sorted by the specified `orderBy` field.
+    By default only direct products are returned. To include products from subcategories,
+    set the `includeSubcategories` argument to `true`.
+    """
+    products(first: Int @Positive, after: String, last: Int @Positive, before: String,
+        orderBy: [ProductOrderField], orderDirection: OrderDirection = ASC, includeSubcategories: Boolean): ProductConnection
+    slug: String!
+    title: String!
+    updatedAt: DateTime!
+    updatedBy: Actor
+}
