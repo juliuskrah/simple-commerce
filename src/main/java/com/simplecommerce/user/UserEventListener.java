@@ -37,7 +37,7 @@ public class UserEventListener {
   private UserEntity upsertUser(UserEntity entity) {
     var lastLogin = entity.getLastLogin();
     var sessionFactory = emf.unwrap(SessionFactory.class);
-    sessionFactory.inTransaction((session) ->
+    sessionFactory.inTransaction(session ->
       session.createQuery("FROM User WHERE username = :username", UserEntity.class)
           .setParameter("username", entity.getUsername())
           .uniqueResultOptional()

@@ -13,6 +13,9 @@ import java.net.URI;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * @author julius.krah
+ */
 @DataPostgresTest
 class MediaTest {
   @Autowired

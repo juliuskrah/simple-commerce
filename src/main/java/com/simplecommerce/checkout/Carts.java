@@ -1,7 +1,5 @@
 package com.simplecommerce.checkout;
 
-import com.simplecommerce.shared.Event;
-
 /**
  * Enumeration of events related to carts.
  * @author julius.krah

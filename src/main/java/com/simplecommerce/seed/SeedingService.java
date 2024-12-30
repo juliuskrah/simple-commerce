@@ -30,6 +30,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+/**
+ * @author julius.krah
+ */
 @Service
 @ConditionalOnProperty(prefix = "simple-commerce.seeder", name = "enabled", havingValue = "true")
 public class SeedingService {

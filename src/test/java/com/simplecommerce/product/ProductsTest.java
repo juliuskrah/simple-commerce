@@ -38,7 +38,7 @@ class ProductsTest {
     product.publishProductCreatedEvent();
     var entity = productRepository.saveAndFlush(product);
     assertThat(entity).isNotNull()
-        .hasNoNullFieldsOrPropertiesExcept("description", "createdBy", "updatedBy", "category")
+        .hasNoNullFieldsOrPropertiesExcept("description", "createdBy", "updatedBy")
         .extracting(ProductEntity::getTags)
         .asInstanceOf(InstanceOfAssertFactories. LIST).contains("technology", "software", "cloud_computing");
     var firedEvent = events.stream(ProductEvent.class).map(ProductEvent::source).findFirst();

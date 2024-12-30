@@ -4,10 +4,14 @@ package com.simplecommerce.product;
  * Strategy for selecting the price of a product.
  * @author julius.krah
  */
-class PriceSelectionStrategies {
-  void allOf() {
+final class PriceSelectionStrategies {
+  private PriceSelectionStrategies() { }
 
+  static PriceSelectionStrategy allOf() {
+    return null;
   }
 
-  void anyOf() {}
+  static PriceSelectionStrategy anyOf() {
+    return null;
+  }
 }

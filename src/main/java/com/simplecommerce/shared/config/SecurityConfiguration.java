@@ -25,11 +25,11 @@ class SecurityConfiguration {
   @Bean
   @Profile("oidc-auth")
   SecurityFilterChain oidcAuthFilterChain(HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests((requests) -> requests.requestMatchers(
+    http.authorizeHttpRequests(requests -> requests.requestMatchers(
         PathRequest.toStaticResources().atCommonLocations()).permitAll()
         .requestMatchers("/graphiql").permitAll()
         .anyRequest().authenticated());
-    http.oauth2ResourceServer((resourceServer) -> resourceServer.jwt(withDefaults()));
+    http.oauth2ResourceServer(resourceServer -> resourceServer.jwt(withDefaults()));
     return http.build();
   }
 
@@ -39,7 +39,7 @@ class SecurityConfiguration {
   @Bean
   @Profile("!oidc-auth")
   SecurityFilterChain basicAuthFilterChain(HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests((requests) -> requests.anyRequest().authenticated());
+    http.authorizeHttpRequests(requests -> requests.anyRequest().authenticated());
     http.csrf(AbstractHttpConfigurer::disable);
     http.formLogin(withDefaults());
     http.httpBasic(withDefaults());

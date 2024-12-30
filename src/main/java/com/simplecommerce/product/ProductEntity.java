@@ -8,7 +8,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -42,8 +41,6 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> {
   private OffsetDateTime updatedAt;
   private String createdBy;
   private String updatedBy;
-  @ManyToOne
-  private CategoryEntity category;
   @ElementCollection
   @CollectionTable(name = "product_tag", joinColumns = @JoinColumn(name = "product_id"))
   private List<String> tags = new ArrayList<>();
@@ -97,14 +94,6 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> {
 
   public OffsetDateTime getUpdatedAt() {
     return updatedAt;
-  }
-
-  public CategoryEntity getCategory() {
-    return category;
-  }
-
-  public void setCategory(CategoryEntity category) {
-    this.category = category;
   }
 
   public List<String> getTags() {

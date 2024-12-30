@@ -43,6 +43,9 @@ import org.springframework.graphql.support.DefaultExecutionGraphQlRequest;
 import org.springframework.graphql.support.DefaultExecutionGraphQlResponse;
 import reactor.core.publisher.Mono;
 
+/**
+ * @author julius.krah
+ */
 @ExtendWith(MockitoExtension.class)
 class SeedingServiceTest {
   @InjectMocks
