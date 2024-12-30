@@ -3,7 +3,7 @@ package com.simplecommerce.product;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.simplecommerce.DataPostgresTest;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,7 +86,7 @@ class CategoriesTest {
 
   @Test
   void shouldFindTreeLevelForMultipleCategories() {
-    var categoryIds = List.of(
+    var categoryIds = Set.of(
         UUID.fromString("4086eb75-f11a-49e6-8dcc-1825bdd40bde"), // level 1 (Mature)
         UUID.fromString("cb625b5a-0d43-4628-80e3-0c08a9b89e02"), // level 2 (Erotic)
         UUID.randomUUID(),                                             // missing

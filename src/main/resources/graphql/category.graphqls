@@ -1,6 +1,10 @@
 extend type Query {
     "Find a category by its ID."
     category(id: ID): Category
+    "Find all categories."
+    categories(first: Int @Positive, after: String, last: Int @Positive, before: String,
+        orderBy: [CategoryOrderField], orderDirection: OrderDirection = ASC):
+    CategoryConnection! @Expression(value : "${args.containsOneOf('first','last')}")
 }
 
 type Category implements Node {
@@ -41,4 +45,11 @@ type Category implements Node {
     title: String!
     updatedAt: DateTime!
     updatedBy: Actor
+}
+
+enum CategoryOrderField {
+    id
+    title
+    createdAt
+    updatedAt
 }

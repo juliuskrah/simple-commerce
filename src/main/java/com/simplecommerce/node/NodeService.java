@@ -1,11 +1,14 @@
 package com.simplecommerce.node;
 
+import java.net.MalformedURLException;
+
 /**
  * Implementations of this interface are represented managed node types that participate in
  * a relay connection.
  * @since 1.0
  * @author julius.krah
  */
+@FunctionalInterface
 public interface NodeService {
 
   /**

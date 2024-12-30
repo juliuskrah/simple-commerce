@@ -4,7 +4,7 @@ extend type Query {
     "Find all products."
     products(first: Int @Positive, after: String, last: Int @Positive, before: String,
         orderBy: [ProductOrderField], orderDirection: OrderDirection = ASC):
-        ProductConnection! @Expression(value : "${args.containsOneOf('first','last')}")
+    ProductConnection! @Expression(value : "${args.containsOneOf('first','last')}")
 }
 
 type Mutation {

@@ -12,7 +12,7 @@ import java.time.OffsetDateTime;
  *
  * @author julius.krah
  */
-record MediaFile(
+public record MediaFile(
     String id,
     OffsetDateTime createdAt,
     String contentType,

@@ -18,13 +18,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
 import org.springframework.graphql.test.tester.GraphQlTester;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /**
  * Test for {@link ProductController}.
@@ -36,7 +36,7 @@ import org.springframework.graphql.test.tester.GraphQlTester;
 class ProductControllerTest {
   @Autowired
   private GraphQlTester graphQlTester;
-  @MockBean
+  @MockitoBean
   private ProductService productService;
 
   @Test
@@ -125,7 +125,7 @@ class ProductControllerTest {
     var entities = List.of(new Product(UUID.randomUUID().toString(), "Cyberdyne Rover", "cyberdyne-rover",
         null, null, null));
     when(productService.findProducts(anyInt(), any(Sort.class), any(ScrollPosition.class)))
-        .thenReturn(Window.from(entities, limit -> ScrollPosition.keyset()));
+        .thenReturn(Window.from(entities, ignored -> ScrollPosition.keyset()));
     graphQlTester.documentName("products")
         .variable("first", 10)
         .execute()

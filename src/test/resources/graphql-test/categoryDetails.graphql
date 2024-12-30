@@ -1,0 +1,15 @@
+query categoryDetails($id: ID!) {
+    category(id: $id){
+        id
+        title
+        slug
+        description
+    }
+}
+
+query categoryWithLevel($id: ID!) {
+    category(id: $id){
+        id
+        level
+    }
+}

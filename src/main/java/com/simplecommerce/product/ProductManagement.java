@@ -97,6 +97,7 @@ class ProductManagement implements ProductService, NodeService {
   /**
    * {@inheritDoc}
    */
+  @Transactional(readOnly = true)
   @Override
   public List<String> findTags(String productId, int limit) {
     return callInScope(() -> productRepository.findTags(UUID.fromString(productId), Limit.of(limit)));

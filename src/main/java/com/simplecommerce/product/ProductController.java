@@ -49,9 +49,9 @@ class ProductController {
       this.productService = productService;
       registry.<String, List<String>>forName("tagsDataLoader")
           .registerMappedBatchLoader((productIds, env) -> {
-              var ketContext = env.getKeyContextsList().getFirst();
+              var keyContext = env.getKeyContextsList().getFirst();
               LOG.info("Fetching tags for {} product(s): {}", productIds.size(), productIds);
-              return Mono.fromSupplier(() -> productService.getIfAvailable(productServiceSupplier).findTags(productIds, (Integer) ketContext)
+              return Mono.fromSupplier(() -> productService.getIfAvailable(productServiceSupplier).findTags(productIds, (Integer) keyContext)
                   .stream().map(productWithTags -> Map.entry(
                       productWithTags.getId().toString(), productWithTags.getTags()))
                   .collect(toMap(Entry::getKey, Entry::getValue))

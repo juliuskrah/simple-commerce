@@ -9,3 +9,5 @@ spring:
 logging:
   level:
     org.hibernate.SQL: info
+    org.hibernate.HQL_FUNCTIONS: debug
+    com.simplecommerce.product.CategoryController: debug

@@ -1,0 +1,31 @@
+query productDetails($id: ID!) {
+  node(id: $id){
+      id
+      ... on Product {
+          title
+          slug
+          description
+      }
+  }
+}
+
+query categoryDetails($id: ID!) {
+    node(id: $id){
+        id
+        ... on Category {
+            title
+            slug
+            description
+        }
+    }
+}
+
+query mediaFileDetails($id: ID!) {
+    node(id: $id){
+        id
+        ... on MediaFile {
+            url
+            contentType
+        }
+    }
+}

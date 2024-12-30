@@ -14,15 +14,15 @@ import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.graphql.test.tester.ExecutionGraphQlServiceTester;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /**
  * @author julius.krah
  */
 @GraphQlTest(FileController.class)
 class FileControllerTest {
-  @MockBean
+  @MockitoBean
   private FileService fileService;
 
   @Autowired

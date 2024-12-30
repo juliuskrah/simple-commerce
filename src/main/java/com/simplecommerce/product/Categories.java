@@ -4,7 +4,7 @@ import static org.springframework.data.jpa.domain.Specification.where;
 
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
-import java.util.List;
+import java.util.Set;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -29,7 +29,7 @@ interface Categories extends Repository<CategoryEntity, UUID>, JpaSpecificationE
   Optional<Integer> findTreeLevel(UUID id);
 
   @Query("SELECT nlevel(path) AS level FROM Category WHERE id in :ids")
-  Stream<Integer> findTreeLevel(List<UUID> ids);
+  Stream<Integer> findTreeLevel(Set<UUID> ids);
 
   /**
    * {@code select *
@@ -79,7 +79,7 @@ interface Categories extends Repository<CategoryEntity, UUID>, JpaSpecificationE
   }
 
   Window<CategoryEntity> findBy(Limit limit, Sort sort, ScrollPosition position);
-  
+
   private Specification<CategoryEntity> ancestorsForId(UUID id) {
     return (root, query, builder) -> {
       Subquery<String> subquery = query.subquery(String.class);
