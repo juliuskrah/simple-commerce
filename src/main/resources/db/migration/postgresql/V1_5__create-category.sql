@@ -12,10 +12,5 @@ CREATE TABLE IF NOT EXISTS categories (
     path LTREE,
     PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS categories_path_gist_idx ON categories USING GIST (path);
 
-ALTER TABLE IF EXISTS products
-    ADD COLUMN category_id UUID,
-    ADD CONSTRAINT products_category_id_fk
-    FOREIGN KEY (category_id)
-    REFERENCES categories;
+CREATE INDEX IF NOT EXISTS categories_path_gist_idx ON categories USING GIST (path);

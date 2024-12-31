@@ -1,6 +1,8 @@
 package com.simplecommerce.product;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.atIndex;
 import static org.assertj.core.api.Assertions.tuple;
 
 import com.simplecommerce.DataPostgresTest;
@@ -38,7 +40,7 @@ class ProductsTest {
     product.publishProductCreatedEvent();
     var entity = productRepository.saveAndFlush(product);
     assertThat(entity).isNotNull()
-        .hasNoNullFieldsOrPropertiesExcept("description", "createdBy", "updatedBy")
+        .hasNoNullFieldsOrPropertiesExcept("description", "createdBy", "updatedBy", "category")
         .extracting(ProductEntity::getTags)
         .asInstanceOf(InstanceOfAssertFactories. LIST).contains("technology", "software", "cloud_computing");
     var firedEvent = events.stream(ProductEvent.class).map(ProductEvent::source).findFirst();
@@ -52,8 +54,10 @@ class ProductsTest {
     assertThat(found).isPresent()
         .get().hasFieldOrPropertyWithValue("title", "Data Dynamo")
         .hasFieldOrPropertyWithValue("slug", "data-dynamo")
-        .extracting("tags")
-        .asInstanceOf(InstanceOfAssertFactories.LIST).contains("big-data", "integration", "enterprise-solutions");
+        .extracting(ProductEntity::getTags, product -> product.getCategory().getTitle())
+        .contains("Uncategorized", atIndex(1)) // Default category
+        .element(0, as(InstanceOfAssertFactories.LIST))
+        .contains("big-data", "integration", "enterprise-solutions");
   }
 
   @Test

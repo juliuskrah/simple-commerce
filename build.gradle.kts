@@ -1,19 +1,19 @@
 plugins {
     java
     id("org.springframework.boot") version "3.4.1"
-    id("io.spring.dependency-management") version "1.1.5"
+    id("io.spring.dependency-management") version "1.1.7"
 }
-val springModulithVersion by extra("1.2.1")
-val springStatemachineVersion by extra("4.0.0")
 val graphQlJavaVersion by extra("22.0")
 val springInstrument: Configuration by configurations.creating
+val mockitoAgent: Configuration by configurations.creating
 val enablePreview = "--enable-preview"
 val javaVersion = 21
 
 group = "com.simplecommerce"
 version = "1.0.0"
 
-// extra["hibernate.version"] = "6.4.9.Final"
+extra["springModulithVersion"] = "1.3.1"
+extra["springStatemachineVersion"] = "4.0.0"
 
 java {
     toolchain {
@@ -35,11 +35,15 @@ dependencies {
     implementation("org.springframework.modulith:spring-modulith-starter-jpa")
     implementation("com.graphql-java:graphql-java-extended-scalars:$graphQlJavaVersion")
     implementation("com.graphql-java:graphql-java-extended-validation:$graphQlJavaVersion")
-    implementation("io.minio:minio:8.5.11")
-    implementation("org.javamoney:moneta:1.4.4")
+    implementation(libs.minio)
+    implementation(libs.moneta)
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     springInstrument("org.springframework:spring-instrument") {
         because("Required for Spring Load-Time Weaving")
+    }
+    mockitoAgent(libs.mockito) {
+        because("Required for inline mocking")
+        isTransitive = false
     }
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("org.flywaydb:flyway-core")
@@ -57,14 +61,14 @@ dependencies {
 }
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.modulith:spring-modulith-bom:$springModulithVersion")
-        mavenBom("org.springframework.statemachine:spring-statemachine-bom:$springStatemachineVersion")
+        mavenBom("org.springframework.modulith:spring-modulith-bom:${property("springModulithVersion")}")
+        mavenBom("org.springframework.statemachine:spring-statemachine-bom:${property("springStatemachineVersion")}")
     }
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
-    jvmArgs(enablePreview)
+    jvmArgs(enablePreview, "-javaagent:${mockitoAgent.asPath}")
 }
 
 tasks.withType<JavaCompile> {

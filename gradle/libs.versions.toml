@@ -1,0 +1,9 @@
+[versions]
+mockito = "5.14.2"
+minio = "8.5.11"
+moneta = "1.4.4"
+
+[libraries]
+mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+minio = { module = "io.minio:minio", version.ref = "minio" }
+moneta = { module = "org.javamoney:moneta", version.ref = "moneta" }

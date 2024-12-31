@@ -1,5 +1,7 @@
 package com.simplecommerce.product;
 
+import static jakarta.persistence.FetchType.LAZY;
+
 import com.simplecommerce.product.ProductEvent.ProductEventType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -8,6 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -44,6 +47,8 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> {
   @ElementCollection
   @CollectionTable(name = "product_tag", joinColumns = @JoinColumn(name = "product_id"))
   private List<String> tags = new ArrayList<>();
+  @ManyToOne(fetch = LAZY)
+  private CategoryEntity category;
 
   /**
    * Publishes a {@link ProductEvent} of type {@link ProductEventType#CREATED}.
@@ -102,6 +107,10 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> {
 
   public void setTags(List<String> tags) {
     this.tags = tags;
+  }
+
+  public CategoryEntity getCategory() {
+    return category;
   }
 
   @Override
