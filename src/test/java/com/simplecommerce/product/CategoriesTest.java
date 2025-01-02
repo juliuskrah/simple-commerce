@@ -167,8 +167,8 @@ class CategoriesTest {
   @Test
   void shouldFindAllDescendantsById() {
     var categoryId = UUID.fromString("b970ca6d-4c07-40b4-8513-edee51d12c4e"); // level 3 (Weapon Care & Accessories)
-    try (var ancestors = categoryRepository.findDescendantsById(categoryId)) {
-      assertThat(ancestors).hasSize(15)
+    try (var descendants = categoryRepository.findDescendantsById(categoryId)) {
+      assertThat(descendants).hasSize(15)
           .extracting("title")
           .containsExactly(
               "Weapon Care & Accessories",
@@ -187,5 +187,69 @@ class CategoriesTest {
               "Weapon Rails",
               "Weapon Slings");
     }
+  }
+
+  @Test
+  void shouldFindWindowedDescendantsById() {
+    var categoryId = UUID.fromString("ad5d8835-cbbe-4d7f-8be2-efc8b80c4b88"); // level 4 (Weapon Cleaning)
+    var descendants = categoryRepository.findDescendantsById(categoryId, Limit.unlimited(), Sort.unsorted(), ScrollPosition.offset());
+    assertThat(descendants).hasSize(4)
+        .extracting("title")
+        .containsExactly(
+            "Weapon Cleaning",
+            "Cleaning Cloths & Swabs",
+            "Cleaning Patches",
+            "Cleaning Solvents");
+  }
+
+  @Test
+  void shouldFindScrolledDescendantsById() {
+    var categoryId = UUID.fromString("cb625b5a-0d43-4628-80e3-0c08a9b89e02"); // level 2 (Erotic)
+    var descendants = WindowIterator.of(position ->
+            categoryRepository.findDescendantsById(categoryId, Limit.of(3), Sort.unsorted(), position))
+        .startingAt(ScrollPosition.offset());
+    assertThat(descendants).hasNext()
+        .toIterable().hasSize(7)
+        .extracting("title")
+        .containsExactly(
+            "Erotic",
+            "Erotic Clothing",
+            "Erotic Food & Edibles",
+            "Erotic Magazines",
+            "Sex Toys & Erotic Games",
+            "Erotic Videos",
+            "Erotic Books");
+  }
+
+  @Test
+  void shouldFindSortedDescendantsById() {
+    var categoryId = UUID.fromString("1f12c348-02e1-42ed-a4bc-058478506f25"); // level 4 (Reloading Supplies & Equipment)
+    var descendants = categoryRepository.findDescendantsById(categoryId, Limit.unlimited(), Sort.by(Order.asc("title")), ScrollPosition.keyset());
+    assertThat(descendants).hasSize(2)
+        .extracting("title")
+        .containsExactly(
+            "Ammunition Reloading Presses",
+            "Reloading Supplies & Equipment");
+  }
+
+  @Test
+  void shouldFindParentWhenNotRoot() {
+    var categoryId = UUID.fromString("1f12c348-02e1-42ed-a4bc-058478506f25"); // level 4 (Reloading Supplies & Equipment)
+    var category = categoryRepository.findById(categoryId);
+    assertThat(category).isPresent();
+    var parent = categoryRepository.findParent(category.get().getId());
+    assertThat(parent).isPresent()
+        .get().hasFieldOrPropertyWithValue("title", "Weapon Care & Accessories")
+        .hasFieldOrPropertyWithValue("slug", "weapon-care-accessories")
+        .hasFieldOrPropertyWithValue("path", "Mature.Weapons_Weapon_Accessories.Weapon_Care_Accessories");
+  }
+
+  @Test
+  void shouldNotFindParentWhenRoot() {
+    var categoryId = UUID.fromString("ae3d3d1f-703b-4878-9050-8034523f85ce"); // level 1 (Hardware)
+    var category = categoryRepository.findById(categoryId);
+    assertThat(category).isPresent();
+    var parent = categoryRepository.findParent(category.get().getId());
+    assertThat(parent).isNotPresent();
   }
 }

@@ -41,11 +41,17 @@ class CategoryController {
     return new GlobalId(NODE_CATEGORY, source.id()).encode();
   }
 
+  @SchemaMapping
+  Category parent(Category source) {
+    return null;
+  }
+
   @BatchMapping
   List<Integer> level(List<Category> categories) {
     var categoryIds = categories.stream().map(Category::id).collect(toSet());
     LOG.debug("Fetching category-level for {} categories: {}", categories.size(), categoryIds);
-    return categoryService.getIfAvailable(categoryServiceSupplier)
-        .findCategoryLevels(categoryIds).toList();
+    try(var levels = categoryService.getIfAvailable(categoryServiceSupplier).findCategoryLevels(categoryIds)) {
+        return levels.toList();
+    }
   }
 }

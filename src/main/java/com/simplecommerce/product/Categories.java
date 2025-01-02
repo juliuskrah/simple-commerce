@@ -28,6 +28,19 @@ interface Categories extends Repository<CategoryEntity, UUID>, JpaSpecificationE
   @Query("SELECT nlevel(path) AS level FROM Category WHERE id = :id")
   Optional<Integer> findTreeLevel(UUID id);
 
+  /**
+   * {@code SELECT *
+   * FROM categories
+   * WHERE path = subpath((SELECT path FROM categories WHERE id = :id), 0, -1)}
+   * @return the parent category if it exists.
+   */
+  @Query("""
+      SELECT c
+      FROM Category c
+      WHERE sql('?::ltree', c.path) = subpath((SELECT path FROM Category WHERE id = :id), 0, -1)
+      """)
+  Optional<CategoryEntity> findParent(UUID id);
+
   @Query("SELECT nlevel(path) AS level FROM Category WHERE id in :ids")
   Stream<Integer> findTreeLevel(Set<UUID> ids);
 
@@ -69,6 +82,8 @@ interface Categories extends Repository<CategoryEntity, UUID>, JpaSpecificationE
       """)
   Stream<CategoryEntity> findDescendantsById(UUID id);
 
+  Window<CategoryEntity> findBy(Limit limit, Sort sort, ScrollPosition position);
+
   default Window<CategoryEntity> findAncestorsById(UUID id, Limit limit, Sort sort, ScrollPosition position) {
     return findBy(where(ancestorsForId(id)), function -> {
       if (limit.isLimited()) {
@@ -78,7 +93,15 @@ interface Categories extends Repository<CategoryEntity, UUID>, JpaSpecificationE
     });
   }
 
-  Window<CategoryEntity> findBy(Limit limit, Sort sort, ScrollPosition position);
+
+  default Window<CategoryEntity> findDescendantsById(UUID id, Limit limit, Sort sort, ScrollPosition position) {
+    return findBy(where(descendantsForId(id)), function -> {
+      if (limit.isLimited()) {
+        return function.limit(limit.max()).sortBy(sort).scroll(position);
+      }
+      return function.sortBy(sort).scroll(position);
+    });
+  }
 
   private Specification<CategoryEntity> ancestorsForId(UUID id) {
     return (root, query, builder) -> {
@@ -87,6 +110,16 @@ interface Categories extends Repository<CategoryEntity, UUID>, JpaSpecificationE
       return builder.isTrue(
             builder.function("ancestorsof", Boolean.class, root.get("path"),
                 subquery.select(from.get("path")).where(builder.equal(from.get("id"), id))));
+    };
+  }
+
+  private Specification<CategoryEntity> descendantsForId(UUID id) {
+    return (root, query, builder) -> {
+      Subquery<String> subquery = query.subquery(String.class);
+      Root<CategoryEntity> from = subquery.from(CategoryEntity.class);
+      return builder.isTrue(
+          builder.function("descendantsof", Boolean.class, root.get("path"),
+              subquery.select(from.get("path")).where(builder.equal(from.get("id"), id))));
     };
   }
 }

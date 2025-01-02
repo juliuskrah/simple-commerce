@@ -9,8 +9,10 @@ extend type Query {
 
 type Category implements Node {
     id: ID!
-    ancestors: [Category!]
-    children: [Category!]
+    ancestors(first: Int @Positive, after: String, last: Int @Positive, before: String):
+        CategoryConnection! @Expression(value : "${args.containsOneOf('first','last')}")
+    children(first: Int @Positive, after: String, last: Int @Positive, before: String):
+        CategoryConnection! @Expression(value : "${args.containsOneOf('first','last')}")
     createdAt: DateTime!
     createdBy: Actor
     description: JsonString
