@@ -5,6 +5,8 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.data.domain.ScrollPosition;
+import org.springframework.data.domain.Window;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -27,6 +29,24 @@ class CategoryManagement implements CategoryService, NodeService {
    */
   @Override
   public Category findCategory(String id) {
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Category findCategoryParent(String id) {
+    return null;
+  }
+
+  @Override
+  public Window<Category> findCategoryAncestors(String id, int limit, ScrollPosition scroll) {
+    return null;
+  }
+
+  @Override
+  public Window<Category> findCategoryDescendants(String id, int limit, ScrollPosition scroll) {
     return null;
   }
 

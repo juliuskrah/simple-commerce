@@ -1,31 +1,20 @@
-query productDetails($id: ID!) {
+query nodeDetails($id: ID!) {
   node(id: $id){
       id
+      __typename
       ... on Product {
           title
           slug
           description
       }
+      ... on Category {
+          title
+          slug
+          description
+      }
+      ... on MediaFile {
+          url
+          contentType
+      }
   }
-}
-
-query categoryDetails($id: ID!) {
-    node(id: $id){
-        id
-        ... on Category {
-            title
-            slug
-            description
-        }
-    }
-}
-
-query mediaFileDetails($id: ID!) {
-    node(id: $id){
-        id
-        ... on MediaFile {
-            url
-            contentType
-        }
-    }
 }

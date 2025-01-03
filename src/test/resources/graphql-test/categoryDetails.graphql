@@ -13,3 +13,42 @@ query categoryWithLevel($id: ID!) {
         level
     }
 }
+
+query categoryWithParent($id: ID!) {
+    category(id: $id){
+        id
+        parent {
+            title
+        }
+    }
+}
+
+query categoryWithAncestors(
+    $id: ID!,
+    $first: Int) {
+    category(id: $id){
+        id
+        ancestors(first: $first) {
+            edges {
+                node {
+                    title
+                }
+            }
+        }
+    }
+}
+
+query categoryWithChildren(
+    $id: ID!,
+    $first: Int) {
+    category(id: $id){
+        id
+        children(first: $first) {
+            edges {
+                node {
+                    title
+                }
+            }
+        }
+    }
+}

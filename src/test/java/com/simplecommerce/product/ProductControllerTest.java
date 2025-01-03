@@ -8,6 +8,8 @@ import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import com.simplecommerce.shared.ExceptionHandling;
+import com.simplecommerce.shared.NotFoundException;
 import com.simplecommerce.shared.config.Sorting;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +25,8 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
+import org.springframework.graphql.ResponseError;
+import org.springframework.graphql.execution.ErrorType;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -31,7 +35,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
  * @author julius.krah
  * @since 1.0
  */
-@Import(Sorting.class)
+@Import({Sorting.class, ExceptionHandling.class})
 @GraphQlTest(ProductController.class)
 class ProductControllerTest {
   @Autowired
@@ -56,6 +60,22 @@ class ProductControllerTest {
                 .isEqualTo("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvUHJvZHVjdC8xOGQyNTY1Mi01ODcwLTQ1NTUtODE0Ni01MTY2ZmVjOTdjM2Y=");
             assertThat(product).extracting(Product::title).isEqualTo("Product");
         });
+  }
+
+  @Test
+  @DisplayName("Should not fetch product that does not exist")
+  void shouldNotFetchUnknownProduct() {
+    when(productService.findProduct(anyString()))
+        .thenThrow(new NotFoundException());
+    graphQlTester.documentName("productDetails")
+        .variable("id", "gid://SimpleCommerce/Product/some-random-id-1234567")
+        .operationName("productDetails")
+        .execute().errors()
+        .expect(error -> error.getErrorType() == ErrorType.NOT_FOUND)
+        .satisfy( errors -> assertThat(errors).hasSize(1).first()
+            .extracting(ResponseError::getExtensions, ResponseError::getMessage, ResponseError::getPath)
+            .containsExactly(Map.of(), "Cannot be found", "product"))
+        .path("product").valueIsNull();
   }
 
   @Test
@@ -96,6 +116,7 @@ class ProductControllerTest {
   }
 
   @Test
+  @DisplayName("Should fetch product with price set")
   void shouldFetchProductWithPriceSet() {
     when(productService.findProduct(anyString())).thenReturn(
         new Product("c6f56e4a-bb2e-4ca2-b267-ea398ae8cb34", "Cyber Cafe", "cyber-cafe",
@@ -177,8 +198,6 @@ class ProductControllerTest {
     when(productService.deleteProduct(anyString())).thenReturn("12345");
     graphQlTester.documentName("deleteProduct")
         .variable("id", "12345")
-        .execute()
-        .path("deleteProduct").entity(String.class)
-        .isEqualTo("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvUHJvZHVjdC8xMjM0NQ==");
+        .executeAndVerify();
   }
 }

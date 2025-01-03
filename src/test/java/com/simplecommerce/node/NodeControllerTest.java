@@ -53,9 +53,9 @@ class NodeControllerTest {
         .thenReturn(Optional.of(nodeServiceSupplier));
     graphQlTester.documentName("nodeDetails")
         .variable("id", "Z2lkOi8vU2ltcGxlQ29tbWVyY2UvUHJvZHVjdC9kYjU5MTMxNy1iMzhjLTQyMGYtYWIzOC00ZDM0ZDRlNDc3YjE=")
-        .operationName("productDetails")
         .execute()
-        .path("node").entity(Product.class)
+        .path("node", node -> node.path("__typename").entity(String.class).isEqualTo("Product"))
+        .entity(Product.class)
         .satisfies(product -> {
           assertThat(product).isNotNull()
               .extracting(Product::id, as(InstanceOfAssertFactories.STRING)).isBase64()
@@ -72,14 +72,14 @@ class NodeControllerTest {
         .thenReturn(Optional.of(nodeServiceSupplier));
     graphQlTester.documentName("nodeDetails")
         .variable("id", "Z2lkOi8vU2ltcGxlQ29tbWVyY2UvQ2F0ZWdvcnkvZmQ3MTI3MDctNDlkNy00MjBmLTkyMTctOTk3ZTk3OTNlMWJl")
-        .operationName("categoryDetails")
         .execute()
-        .path("node").entity(Category.class)
-        .satisfies(product -> {
-          assertThat(product).isNotNull()
+        .path("node", node -> node.path("__typename").entity(String.class).isEqualTo("Category"))
+        .entity(Category.class)
+        .satisfies(category -> {
+          assertThat(category).isNotNull()
               .extracting(Category::id, as(InstanceOfAssertFactories.STRING)).isBase64()
               .isEqualTo("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvQ2F0ZWdvcnkvZmQ3MTI3MDctNDlkNy00MjBmLTkyMTctOTk3ZTk3OTNlMWJl");
-          assertThat(product).extracting(Category::title, Category::slug).containsExactly("Category", "category");
+          assertThat(category).extracting(Category::title, Category::slug).containsExactly("Category", "category");
         });
   }
 
@@ -92,14 +92,14 @@ class NodeControllerTest {
         .thenReturn(Optional.of(nodeServiceSupplier));
     graphQlTester.documentName("nodeDetails")
         .variable("id", "Z2lkOi8vU2ltcGxlQ29tbWVyY2UvTWVkaWFGaWxlL2Y2MTYxNzc3LTc5MzQtNDJiNy05MTJkLTRmNDAyMGY0YjBmNg==")
-        .operationName("mediaFileDetails")
         .execute()
-        .path("node").entity(MediaFile.class)
-        .satisfies(product -> {
-          assertThat(product).isNotNull()
+        .path("node", node -> node.path("__typename").entity(String.class).isEqualTo("MediaFile"))
+        .entity(MediaFile.class)
+        .satisfies(mediaFile -> {
+          assertThat(mediaFile).isNotNull()
               .extracting(MediaFile::id, as(InstanceOfAssertFactories.STRING)).isBase64()
               .isEqualTo("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvTWVkaWFGaWxlL2Y2MTYxNzc3LTc5MzQtNDJiNy05MTJkLTRmNDAyMGY0YjBmNg==");
-          assertThat(product).extracting(MediaFile::url, MediaFile::contentType).containsExactly(url, "image/png");
+          assertThat(mediaFile).extracting(MediaFile::url, MediaFile::contentType).containsExactly(url, "image/png");
         });
   }
 }
