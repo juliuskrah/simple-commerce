@@ -18,7 +18,6 @@ type Mutation {
 
 type Product implements Node {
     id: ID!
-    category: Category
     createdAt: DateTime!
     "Actor that created the product. This is a restricted field and can only be seen by users with the proper permissions."
     createdBy: Actor
@@ -37,6 +36,17 @@ type Product implements Node {
     updatedAt: DateTime!
     "Actor that updated the product. This is a restricted field and can only be seen by users with the proper permissions."
     updatedBy: Actor
+}
+
+extend type Category {
+    """
+    The products in the category. The products are sorted by the specified `orderBy` field.
+    By default only direct products are returned. To include products from subcategories,
+    set the `includeSubcategories` argument to `true`.
+    """
+    products(first: Int @Positive, after: String, last: Int @Positive, before: String,
+        orderBy: [ProductOrderField], orderDirection: OrderDirection = ASC,
+        includeSubcategories: Boolean = true): ProductConnection!
 }
 
 type PriceRange {

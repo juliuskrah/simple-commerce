@@ -122,6 +122,14 @@ class ProductManagement implements ProductService, NodeService {
   /**
    * {@inheritDoc}
    */
+  @Override
+  public Window<Product> findProductsByCategory(String categoryId, int limit, Sort sort, ScrollPosition scroll) {
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @PreAuthorize("denyAll()")
   @Override
   public String deleteProduct(String id) {

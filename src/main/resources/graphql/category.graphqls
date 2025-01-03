@@ -7,6 +7,10 @@ extend type Query {
     CategoryConnection! @Expression(value : "${args.containsOneOf('first','last')}")
 }
 
+extend type Product {
+    category: Category
+}
+
 type Category implements Node {
     id: ID!
     ancestors(first: Int @Positive, after: String, last: Int @Positive, before: String):
@@ -36,13 +40,6 @@ type Category implements Node {
     """
     level: Int!
     parent: Category
-    """
-    The products in the category. The products are sorted by the specified `orderBy` field.
-    By default only direct products are returned. To include products from subcategories,
-    set the `includeSubcategories` argument to `true`.
-    """
-    products(first: Int @Positive, after: String, last: Int @Positive, before: String,
-        orderBy: [ProductOrderField], orderDirection: OrderDirection = ASC, includeSubcategories: Boolean): ProductConnection
     slug: String!
     title: String!
     updatedAt: DateTime!

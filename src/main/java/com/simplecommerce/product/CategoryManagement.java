@@ -3,6 +3,7 @@ package com.simplecommerce.product;
 import com.simplecommerce.node.NodeService;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.data.domain.ScrollPosition;
@@ -15,6 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @Configurable(autowire = Autowire.BY_TYPE)
 class CategoryManagement implements CategoryService, NodeService {
+
+  public void setCategoryRepository(ObjectFactory<Categories> categoryRepository) {
+    this.categoryRepository = categoryRepository.getObject();
+  }
+
+  private Categories categoryRepository;
 
   /**
    * {@inheritDoc}

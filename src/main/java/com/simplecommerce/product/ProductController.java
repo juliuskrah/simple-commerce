@@ -8,6 +8,7 @@ import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.MonetaryUtils;
 import com.simplecommerce.shared.Money;
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -73,6 +74,13 @@ class ProductController {
         return productService.getIfAvailable(productServiceSupplier).findProducts(limit, sort, scroll);
     }
 
+    @SchemaMapping
+    Window<Product> products(Category source, ScrollSubrange subrange, Sort sort, @Argument boolean includeSubcategories) {
+        var limit = subrange.count().orElse(100);
+        var scroll = subrange.position().orElse(ScrollPosition.keyset());
+        return productService.getIfAvailable(productServiceSupplier).findProductsByCategory(source.id(), limit, sort, scroll);
+    }
+
     @SchemaMapping(typeName = "Product")
     String id(Product source) {
         return new GlobalId(NODE_PRODUCT, source.id()).encode();
@@ -85,8 +93,8 @@ class ProductController {
         return tagsDataLoader.load(product.id(), limit);
     }
 
-    @SchemaMapping
-    PriceRange priceRange(Product product, Locale locale) {
+    @SchemaMapping(typeName = "Product")
+    PriceRange priceRange(Locale locale) {
         var usd = MonetaryUtils.getCurrency("USD", locale);
         return new PriceRange(
             new Money(usd, new BigDecimal("100.00")),
@@ -94,24 +102,25 @@ class ProductController {
         );
     }
 
-    @SchemaMapping
-    Actor createdBy(Product product) {
+    @SchemaMapping(typeName = "Product")
+    Actor createdBy() {
         return null;
     }
 
-    @SchemaMapping
-    Actor updatedBy(Product product) {
+    @SchemaMapping(typeName = "Product")
+    Actor updatedBy() {
         return null;
     }
 
-    @SchemaMapping
-    PriceSet priceSet(Product product, Locale locale) {
+    @SchemaMapping(typeName = "Product")
+    PriceSet priceSet(Locale locale) {
         var usd = MonetaryUtils.getCurrency("USD", locale);
+        var now = OffsetDateTime.now();
         return new PriceSet(
             "c6f56e4a-bb2e-4ca2-b267-ea398ae8cb34",
-            null,
+            now,
             List.of(new Money(usd, new BigDecimal("200.50"))),
-            null
+            now
         );
     }
 

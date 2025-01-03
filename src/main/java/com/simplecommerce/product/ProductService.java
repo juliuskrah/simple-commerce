@@ -47,6 +47,16 @@ interface ProductService {
   Window<Product> findProducts(int limit, Sort sort, ScrollPosition scroll);
 
   /**
+   * Find a list of products by category using cursor-based pagination.
+   * @param categoryId The ID of the category.
+   * @param limit The maximum number of products to return.
+   * @param sort The sort order.
+   * @param scroll The scroll position.
+   * @return The slice of products.
+   */
+  Window<Product> findProductsByCategory(String categoryId, int limit, Sort sort, ScrollPosition scroll);
+
+  /**
    * Delete a product by its ID. Deletion is idempotent.
    * @param id The ID of the product.
    * @see com.simplecommerce.shared.GlobalId#decode(String)

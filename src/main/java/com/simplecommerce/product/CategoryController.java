@@ -3,6 +3,7 @@ package com.simplecommerce.product;
 import static com.simplecommerce.shared.Types.NODE_CATEGORY;
 import static java.util.stream.Collectors.toSet;
 
+import com.simplecommerce.shared.Actor;
 import com.simplecommerce.shared.GlobalId;
 import java.util.List;
 import java.util.function.Supplier;
@@ -47,6 +48,16 @@ class CategoryController {
   @SchemaMapping
   Category parent(Category source) {
     return categoryService.getIfAvailable(categoryServiceSupplier).findCategoryParent(source.id());
+  }
+
+  @SchemaMapping(typeName = "Category")
+  Actor createdBy() {
+    return null;
+  }
+
+  @SchemaMapping(typeName = "Category")
+  Actor updatedBy() {
+    return null;
   }
 
   @SchemaMapping
