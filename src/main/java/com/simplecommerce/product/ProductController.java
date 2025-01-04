@@ -75,7 +75,7 @@ class ProductController {
     }
 
     @SchemaMapping
-    Window<Product> products(Category source, ScrollSubrange subrange, Sort sort, @Argument boolean includeSubcategories) {
+    Window<Product> products(Category source, ScrollSubrange subrange, Sort sort, @Argument Boolean includeSubcategories) {
         var limit = subrange.count().orElse(100);
         var scroll = subrange.position().orElse(ScrollPosition.keyset());
         return productService.getIfAvailable(productServiceSupplier).findProductsByCategory(source.id(), limit, sort, scroll);

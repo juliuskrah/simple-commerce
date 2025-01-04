@@ -39,6 +39,8 @@ interface Products extends Repository<ProductEntity, UUID> {
 
   Window<ProductEntity> findBy(Limit limit, Sort sort, ScrollPosition scroll);
 
+  Window<ProductEntity> findByCategoryId(UUID categoryId, Limit limit, Sort sort, ScrollPosition scroll);
+
   ProductEntity saveAndFlush(ProductEntity product);
 
   void deleteById(UUID id);

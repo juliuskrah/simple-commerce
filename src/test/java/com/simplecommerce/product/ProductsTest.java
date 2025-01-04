@@ -109,6 +109,25 @@ class ProductsTest {
   }
 
   @Test
+  void shouldFindProductsByCategoryId() {
+    var id = UUID.fromString("6ef9c5ce-0430-468e-8adb-523fc05c4a11"); // Uncategorized - Default category
+    var products = productRepository.findByCategoryId(id, Limit.unlimited(), Sort.unsorted(), ScrollPosition.keyset());
+    assertThat(products).isNotEmpty()
+        .hasSize(20).extractingResultOf("getTitle")
+        .contains(
+            "Sync Fusion",
+            "Pixel Forge",
+            "Alpha Stream",
+            "Pixel Pro",
+            "Nex Tech",
+            "Data Dynamo",
+            "Code Pulse",
+            "Logic Flow",
+            "Tech Verse",
+            "Virtual Vault");
+  }
+
+  @Test
   void shouldFindProductsByScrollingAfterKeys() {
     var window = productRepository.findBy(Limit.of(10), Sort.unsorted(), ScrollPosition.forward(Map.of(
         "title", "Virtual Vault", "id", UUID.fromString("8a293c02-33f9-4bdb-96b9-3e7d4f753666"))

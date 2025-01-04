@@ -122,9 +122,11 @@ class ProductManagement implements ProductService, NodeService {
   /**
    * {@inheritDoc}
    */
+  @Transactional(readOnly = true)
   @Override
   public Window<Product> findProductsByCategory(String categoryId, int limit, Sort sort, ScrollPosition scroll) {
-    return null;
+    return callInScope(() -> productRepository.findByCategoryId(UUID.fromString(categoryId), Limit.of(limit), sort, scroll))
+        .map(this::fromEntity);
   }
 
   /**
@@ -135,6 +137,9 @@ class ProductManagement implements ProductService, NodeService {
   public String deleteProduct(String id) {
     var gid = GlobalId.decode(id);
     runInScope(() -> productRepository.deleteById(UUID.fromString(gid.id())));
+    var entity = new ProductEntity();
+    entity.setId(UUID.fromString(gid.id()));
+    event.fire(new ProductEvent(entity, ProductEventType.DELETED));
     return gid.id();
   }
 
@@ -155,9 +160,10 @@ class ProductManagement implements ProductService, NodeService {
   @Override
   public Product updateProduct(String productId, ProductInput product) {
     return callInScope(() -> updateProduct(product, productId))
-        .stream().peek(entity -> event.fire(new ProductEvent(entity, ProductEventType.UPDATED)))
-        .findFirst()
-        .map(this::fromEntity)
+        .map(entity -> {
+          event.fire(new ProductEvent(entity, ProductEventType.UPDATED));
+          return fromEntity(entity);
+        })
         .orElseThrow(NotFoundException::new);
   }
 }

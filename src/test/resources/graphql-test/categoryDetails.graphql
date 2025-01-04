@@ -52,3 +52,18 @@ query categoryWithChildren(
         }
     }
 }
+
+query categoryWithProducts(
+    $id: ID!,
+    $first: Int) {
+    category(id: $id){
+        id
+        products(first: $first) {
+            edges {
+                node {
+                    title
+                }
+            }
+        }
+    }
+}

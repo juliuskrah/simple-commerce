@@ -3,8 +3,10 @@ package com.simplecommerce.product;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.simplecommerce.shared.Event;
@@ -69,13 +71,28 @@ class ProductManagementTest {
     entity.setId(UUID.randomUUID());
     entity.setTitle("Opti Core");
     when(productRepository.findBy(any(Limit.class), any(Sort.class), any(ScrollPosition.class)))
-        .thenReturn(Window.from(List.of(entity), (limit) -> null));
+        .thenReturn(Window.from(List.of(entity), ignored -> null));
     var products = productService.findProducts(1, Sort.unsorted(), ScrollPosition.keyset());
 
     var expected = new Product(null, "Opti Core", null, null, null, null);
     assertThat(products).isNotEmpty().hasSize(1)
         .usingRecursiveComparison().comparingOnlyFields("title")
-        .isEqualTo(Window.from(List.of(expected), (limit) -> null));
+        .isEqualTo(Window.from(List.of(expected), ignored -> null));
+  }
+
+  @Test
+  void shouldFindProductsByCategoryId() {
+    var entity = new ProductEntity();
+    entity.setId(UUID.randomUUID());
+    entity.setTitle("Opti Core");
+    when(productRepository.findByCategoryId(any(UUID.class), any(Limit.class), any(Sort.class), any(ScrollPosition.class)))
+        .thenReturn(Window.from(List.of(entity), ignored -> ScrollPosition.keyset()));
+    var products = productService.findProductsByCategory(UUID.randomUUID().toString(), 1, Sort.unsorted(), ScrollPosition.keyset());
+
+    var expected = new Product(null, "Opti Core", null, null, null, null);
+    assertThat(products).isNotEmpty().hasSize(1)
+        .usingRecursiveComparison().comparingOnlyFields("title")
+        .isEqualTo(Window.from(List.of(expected), ignored -> ScrollPosition.keyset()));
   }
 
   @Test
@@ -119,7 +136,7 @@ class ProductManagementTest {
 
   @Test
   void shouldCreateProduct() {
-    when(productRepository.saveAndFlush(any(ProductEntity.class))).thenAnswer((invocation) -> {
+    when(productRepository.saveAndFlush(any(ProductEntity.class))).thenAnswer(invocation -> {
       ProductEntity productEntity = invocation.getArgument(0);
       productEntity.setId(UUID.fromString("7004ebbc-e71c-45f3-8d23-1ba2c37f2f1c"));
       return null; // don't care about the return value
@@ -148,6 +165,7 @@ class ProductManagementTest {
     // gid://SimpleCommerce/Product/9dfef6b8-0fae-4fcd-b51f-69e4de5a5b3e
     var id = productService.deleteProduct("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvUHJvZHVjdC85ZGZlZjZiOC0wZmFlLTRmY2QtYjUxZi02OWU0ZGU1YTViM2U=");
     assertThat(id).isNotNull().isEqualTo("9dfef6b8-0fae-4fcd-b51f-69e4de5a5b3e");
+    verify(event, atMostOnce()).fire(any(ProductEvent.class));
   }
 
   @Test
@@ -175,5 +193,6 @@ class ProductManagementTest {
         .hasFieldOrPropertyWithValue("title", "InnoGrid");
 
     assertThat(idCaptor.getValue()).isEqualTo(UUID.fromString(id));
+    verify(event, atMostOnce()).fire(any(ProductEvent.class));
   }
 }

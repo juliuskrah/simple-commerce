@@ -36,12 +36,14 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
  * @since 1.0
  */
 @Import({Sorting.class, ExceptionHandling.class})
-@GraphQlTest(ProductController.class)
+@GraphQlTest({ProductController.class, CategoryController.class})
 class ProductControllerTest {
   @Autowired
   private GraphQlTester graphQlTester;
   @MockitoBean
   private ProductService productService;
+  @MockitoBean
+  private CategoryService categoryService;
 
   @Test
   @DisplayName("Should fetch product by ID")
@@ -199,5 +201,29 @@ class ProductControllerTest {
     graphQlTester.documentName("deleteProduct")
         .variable("id", "12345")
         .executeAndVerify();
+  }
+
+  @Test
+  @DisplayName("Should fetch products by category ID")
+  void shouldFetchCategoryProducts() {
+    var id = "79d9cf75-0d30-4d1f-886b-7827deb98508";
+    when(categoryService.findCategory(anyString())).thenReturn(new Category(id, null, null, null, null, null));
+    var entities = List.of(
+        new Product(UUID.randomUUID().toString(), "Product One", null, null, null, null),
+        new Product(UUID.randomUUID().toString(), "Product Two", null, null, null, null)
+    );
+    when(productService.findProductsByCategory(anyString(), anyInt(), any(Sort.class), any(ScrollPosition.class)))
+        .thenReturn(Window.from(entities, ignored -> ScrollPosition.keyset()));
+    graphQlTester.documentName("categoryDetails")
+        .variable("id", "gid://SimpleCommerce/Category/some-random-id-1234567")
+        .variable("first", 5)
+        .operationName("categoryWithProducts")
+        .execute()
+        .path("category", category -> category.path("products.edges[*].node").entityList(Product.class)
+            .satisfies(children -> assertThat(children).isNotNull()
+                .extracting(Product::title).contains("Product One", "Product Two")))
+        .entity(Category.class).satisfies(category -> assertThat(category).isNotNull()
+            .extracting(Category::id, as(InstanceOfAssertFactories.STRING)).isBase64()
+            .isEqualTo("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvQ2F0ZWdvcnkvNzlkOWNmNzUtMGQzMC00ZDFmLTg4NmItNzgyN2RlYjk4NTA4"));
   }
 }

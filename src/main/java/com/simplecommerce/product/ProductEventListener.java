@@ -20,6 +20,8 @@ class ProductEventListener {
           LOG.info("Product created : {}", source);
       case ProductEvent(ProductEntity source, ProductEventType eventType) when (eventType == ProductEventType.UPDATED) ->
           LOG.info("Product updated: {}", source);
+      case ProductEvent(ProductEntity source, ProductEventType eventType) when (eventType == ProductEventType.DELETED) ->
+          LOG.info("Product with id: {} deleted", source.getId());
       default -> LOG.info("Unmapped product event {}: {}", event.eventType(), event.source());
     }
   }

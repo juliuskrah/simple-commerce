@@ -18,5 +18,6 @@ record ProductEvent(ProductEntity source, ProductEventType eventType)
   enum ProductEventType {
     CREATED,
     UPDATED,
+    DELETED
   }
 }
