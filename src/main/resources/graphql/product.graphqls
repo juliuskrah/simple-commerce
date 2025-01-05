@@ -75,7 +75,7 @@ enum ProductStatus {
 }
 
 enum ProductOrderField {
-    id
+    title
     createdAt
     updatedAt
 }

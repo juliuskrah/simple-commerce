@@ -89,8 +89,6 @@ class CategoryController {
   List<Integer> level(List<Category> categories) {
     var categoryIds = categories.stream().map(Category::id).collect(toSet());
     LOG.debug("Fetching category-level for {} categories: {}", categories.size(), categoryIds);
-    try(var levels = categoryService.getIfAvailable(categoryServiceSupplier).findCategoryLevels(categoryIds)) {
-        return levels.toList();
-    }
+    return categoryService.getIfAvailable(categoryServiceSupplier).findCategoryLevels(categoryIds);
   }
 }

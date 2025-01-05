@@ -5,11 +5,11 @@ import static com.simplecommerce.shared.VirtualThreadHelper.callInScope;
 import com.simplecommerce.node.NodeService;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.NotFoundException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -17,6 +17,7 @@ import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -41,6 +42,13 @@ class CategoryManagement implements CategoryService, NodeService {
         entity.getDescription(),
         entity.getUpdatedAt()
     );
+  }
+
+  @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+  private List<Integer> levelsWithinTransaction(Set<UUID> ids) {
+    try(var stream = categoryRepository.findTreeLevel(ids)) {
+      return stream.toList();
+    }
   }
 
   /**
@@ -88,9 +96,9 @@ class CategoryManagement implements CategoryService, NodeService {
    * {@inheritDoc}
    */
   @Override
-  public Stream<Integer> findCategoryLevels(Set<String> ids) {
+  public List<Integer> findCategoryLevels(Set<String> ids) {
     var categoryIds = ids.stream().map(UUID::fromString).collect(Collectors.toSet());
-    return callInScope(() -> categoryRepository.findTreeLevel(categoryIds));
+    return levelsWithinTransaction(categoryIds);
   }
 
   @Override

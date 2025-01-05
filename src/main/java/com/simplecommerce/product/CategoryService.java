@@ -1,9 +1,9 @@
 package com.simplecommerce.product;
 
 import com.simplecommerce.shared.NotFoundException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Window;
 
@@ -53,7 +53,7 @@ interface CategoryService {
    * @param ids The IDs of the categories.
    * @return The level of the category.
    */
-  Stream<Integer> findCategoryLevels(Set<String> ids);
+  List<Integer> findCategoryLevels(Set<String> ids);
 
   /**
    * Check if a category is a leaf node.

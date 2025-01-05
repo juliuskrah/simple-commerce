@@ -138,6 +138,7 @@ class ProductController {
 
     @MutationMapping
     Product addProduct(@Argument ProductInput input) {
+        LOG.debug("Creating product: {}", input);
         return productService.getIfAvailable(productServiceSupplier).createProduct(input);
     }
 

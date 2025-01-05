@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Stream;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -55,7 +54,7 @@ class CategoryControllerTest {
   void shouldFetchCategoryWithLevel() {
     var id = "0e5f79b1-8aca-4634-a617-5c2d12ac6a5f";
     when(categoryService.findCategory(anyString())).thenReturn(new Category(id, null, null, null, null, null));
-    when(categoryService.findCategoryLevels(anySet())).thenReturn(Stream.of(3));
+    when(categoryService.findCategoryLevels(anySet())).thenReturn(List.of(3));
     graphQlTester.documentName("categoryDetails")
         .variable("id", "gid://SimpleCommerce/Category/some-random-id-1234567")
         .operationName("categoryWithLevel")
