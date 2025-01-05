@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toSet;
 import com.simplecommerce.shared.Actor;
 import com.simplecommerce.shared.GlobalId;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,18 +47,28 @@ class CategoryController {
   }
 
   @SchemaMapping
-  Category parent(Category source) {
+  Optional<Category> parent(Category source) {
     return categoryService.getIfAvailable(categoryServiceSupplier).findCategoryParent(source.id());
   }
 
   @SchemaMapping(typeName = "Category")
-  Actor createdBy() {
-    return null;
+  Optional<Actor> createdBy() {
+    return Optional.empty();
   }
 
   @SchemaMapping(typeName = "Category")
-  Actor updatedBy() {
-    return null;
+  Optional<Actor> updatedBy() {
+    return Optional.empty();
+  }
+
+  @SchemaMapping
+  boolean isLeaf(Category source) {
+    return categoryService.getIfAvailable(categoryServiceSupplier).isLeaf(source.id());
+  }
+
+  @SchemaMapping
+  boolean isRoot(Category source) {
+    return categoryService.getIfAvailable(categoryServiceSupplier).isRoot(source.id());
   }
 
   @SchemaMapping

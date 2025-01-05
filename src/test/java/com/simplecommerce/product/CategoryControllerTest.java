@@ -8,10 +8,8 @@ import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import com.simplecommerce.shared.ExceptionHandling;
-import com.simplecommerce.shared.NotFoundException;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.assertj.core.api.InstanceOfAssertFactories;
@@ -19,11 +17,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Window;
-import org.springframework.graphql.ResponseError;
-import org.springframework.graphql.execution.ErrorType;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -31,7 +26,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
  * Test the {@link CategoryController}.
  * @author julius.krah
  */
-@Import(ExceptionHandling.class)
 @GraphQlTest(CategoryController.class)
 class CategoryControllerTest {
   @Autowired private GraphQlTester graphQlTester;
@@ -78,9 +72,8 @@ class CategoryControllerTest {
   void shouldFetchCategoryParent() {
     var id = "f102eb90-1faf-4951-9baa-4414e665913c";
     when(categoryService.findCategory(anyString())).thenReturn(new Category(id, null, null, null, null, null));
-    when(categoryService.findCategoryParent(anyString())).thenReturn(
-        new Category(UUID.randomUUID().toString(), "Parent", null, null, null, null)
-    );
+    var entity = new Category(UUID.randomUUID().toString(), "Parent", null, null, null, null);
+    when(categoryService.findCategoryParent(anyString())).thenReturn(Optional.of(entity));
     graphQlTester.documentName("categoryDetails")
         .variable("id", "gid://SimpleCommerce/Category/some-random-id-1234567")
         .operationName("categoryWithParent")
@@ -98,16 +91,14 @@ class CategoryControllerTest {
   void shouldFetchCategoryWithoutParent() {
     var id = "aa4a9b48-09a5-4d0c-9543-bb88e917eab1";
     when(categoryService.findCategory(anyString())).thenReturn(new Category(id, null, null, null, null, null));
-    when(categoryService.findCategoryParent(anyString())).thenThrow(new NotFoundException("Category not found"));
+    when(categoryService.findCategoryParent(anyString())).thenReturn(Optional.empty());
     graphQlTester.documentName("categoryDetails")
         .variable("id", "gid://SimpleCommerce/Category/some-random-id-1234567")
         .operationName("categoryWithParent")
-        .execute().errors()
-        .expect(error -> error.getErrorType() == ErrorType.NOT_FOUND)
-        .satisfy(errors -> assertThat(errors).hasSize(1).first()
-            .extracting(ResponseError::getExtensions, ResponseError::getMessage, ResponseError::getPath)
-            .containsExactly(Map.of(), "Cannot be found", "category.parent"))
-        .path("category.parent").valueIsNull();
+        .execute()
+        .path("category", category -> category.path("parent").valueIsNull())
+        .entity(Category.class).satisfies(category -> assertThat(category).isNotNull()
+            .extracting(Category::id).isNotNull());
   }
 
   @Test
@@ -158,6 +149,39 @@ class CategoryControllerTest {
         .entity(Category.class).satisfies(category -> assertThat(category).isNotNull()
             .extracting(Category::id, as(InstanceOfAssertFactories.STRING)).isBase64()
             .isEqualTo("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvQ2F0ZWdvcnkvNzlkOWNmNzUtMGQzMC00ZDFmLTg4NmItNzgyN2RlYjk4NTA4"));
+  }
+
+  @Test
+  @DisplayName("Should check if category is root")
+  void shouldFetchIfCategoryIsRoot() {
+    var id = "79d9cf75-0d30-4d1f-886b-7827deb98508";
+    when(categoryService.findCategory(anyString())).thenReturn(new Category(id, null, null, null, null, null));
+    when(categoryService.isRoot(anyString())).thenReturn(true);
+    graphQlTester.documentName("categoryDetails")
+        .variable("id", "gid://SimpleCommerce/Category/some-random-id-1234567")
+        .operationName("categoryWithIsRoot")
+        .execute()
+        .path("category", category -> category.path("isRoot").hasValue())
+        .entity(Category.class).satisfies(category -> assertThat(category).isNotNull()
+            .extracting(Category::id, as(InstanceOfAssertFactories.STRING)).isBase64()
+            .isEqualTo("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvQ2F0ZWdvcnkvNzlkOWNmNzUtMGQzMC00ZDFmLTg4NmItNzgyN2RlYjk4NTA4"));
+  }
+
+  @Test
+  @DisplayName("Should check if category is leaf")
+  void shouldFetchIfCategoryIsLeaf() {
+    var id = "79d9cf75-0d30-4d1f-886b-7827deb98508";
+    when(categoryService.findCategory(anyString())).thenReturn(new Category(id, null, null, null, null, null));
+    when(categoryService.isLeaf(anyString())).thenReturn(true);
+    graphQlTester.documentName("categoryDetails")
+        .variable("id", "gid://SimpleCommerce/Category/some-random-id-1234567")
+        .operationName("categoryWithIsLeaf")
+        .execute()
+        .path("category", category -> category.path("isLeaf").hasValue())
+        .entity(Category.class).satisfies(category -> assertThat(category).isNotNull()
+            .extracting(Category::id, as(InstanceOfAssertFactories.STRING)).isBase64()
+            .isEqualTo("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvQ2F0ZWdvcnkvNzlkOWNmNzUtMGQzMC00ZDFmLTg4NmItNzgyN2RlYjk4NTA4"));
+
   }
 
 }

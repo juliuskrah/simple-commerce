@@ -21,6 +21,43 @@ import org.springframework.data.repository.Repository;
  * @author julius.krah
  */
 interface Categories extends Repository<CategoryEntity, UUID>, JpaSpecificationExecutor<CategoryEntity> {
+
+  /**
+   * {@code SELECT EXISTS (SELECT *
+   *                FROM categories AS c1
+   *                WHERE NOT EXISTS (SELECT 1
+   *                                  FROM categories AS c2
+   *                                  WHERE c1.path <> c2.path
+   *                                    AND c1.path @> c2.path)
+   *                  AND c1.id = ?) AS is_leaf}
+   * @param id the id of the category
+   * @return true if the category is a leaf node
+   */
+  @Query("""
+      SELECT EXISTS (SELECT c1
+               FROM Category c1
+               WHERE NOT EXISTS (SELECT c2
+                                 FROM Category c2
+                                 WHERE c1.path <> c2.path
+                                   AND ancestorsof(c1.path, c2.path))
+                 AND c1.id = :id)
+      """)
+  boolean isLeaf(UUID id);
+
+  /**
+   * {@code SELECT NOT EXISTS(SELECT *
+   *                   FROM categories
+   *                   WHERE path = subpath((SELECT path FROM categories WHERE id = ?), '0', '-1')) AS is_root}
+   * @param id the id of the category
+   * @return true if the category is a root node
+   */
+  @Query("""
+      SELECT NOT EXISTS(SELECT c
+                  FROM Category c
+                  WHERE sql('?::ltree', c.path) = subpath((SELECT path FROM Category WHERE id = :id), 0, -1))
+      """)
+  boolean isRoot(UUID id);
+
   CategoryEntity saveAndFlush(CategoryEntity category);
 
   Optional<CategoryEntity> findById(UUID id);

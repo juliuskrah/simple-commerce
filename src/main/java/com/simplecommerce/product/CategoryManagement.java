@@ -1,6 +1,7 @@
 package com.simplecommerce.product;
 
 import com.simplecommerce.node.NodeService;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.ObjectFactory;
@@ -43,8 +44,8 @@ class CategoryManagement implements CategoryService, NodeService {
    * {@inheritDoc}
    */
   @Override
-  public Category findCategoryParent(String id) {
-    return null;
+  public Optional<Category> findCategoryParent(String id) {
+    return Optional.empty();
   }
 
   @Override
@@ -63,5 +64,15 @@ class CategoryManagement implements CategoryService, NodeService {
   @Override
   public Stream<Integer> findCategoryLevels(Set<String> ids) {
     return Stream.empty();
+  }
+
+  @Override
+  public boolean isLeaf(String id) {
+    return false;
+  }
+
+  @Override
+  public boolean isRoot(String id) {
+    return false;
   }
 }

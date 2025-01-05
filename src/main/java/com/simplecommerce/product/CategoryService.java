@@ -1,6 +1,7 @@
 package com.simplecommerce.product;
 
 import com.simplecommerce.shared.NotFoundException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.springframework.data.domain.ScrollPosition;
@@ -27,7 +28,7 @@ interface CategoryService {
    * @throws NotFoundException If the category has no parent.
    * @return The parent category if category is not root.
    */
-  Category findCategoryParent(String id);
+  Optional<Category> findCategoryParent(String id);
 
   /**
    * Find the ancestors of a category.
@@ -53,4 +54,18 @@ interface CategoryService {
    * @return The level of the category.
    */
   Stream<Integer> findCategoryLevels(Set<String> ids);
+
+  /**
+   * Check if a category is a leaf node.
+   * @param id The ID of the category.
+   * @return True if the category is a leaf node.
+   */
+  boolean isLeaf(String id);
+
+  /**
+   * Check if a category is a root node.
+   * @param id The ID of the category.
+   * @return True if the category is a root node.
+   */
+  boolean isRoot(String id);
 }

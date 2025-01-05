@@ -5,6 +5,7 @@ import static com.simplecommerce.shared.Types.NODE_MEDIA_FILE;
 import com.simplecommerce.product.Product;
 import com.simplecommerce.shared.GlobalId;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -36,9 +37,9 @@ class FileController {
     return fileService.getIfAvailable(fileServiceSupplier).productMedia(product.id());
   }
 
-  @SchemaMapping
-  DigitalContent digitalContent(Product product) {
-    return new DigitalContent();
+  @SchemaMapping(typeName = "Product")
+  Optional<DigitalContent> digitalContent() {
+    return Optional.of(new DigitalContent());
   }
 
   @MutationMapping

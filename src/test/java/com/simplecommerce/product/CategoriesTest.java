@@ -252,4 +252,28 @@ class CategoriesTest {
     var parent = categoryRepository.findParent(category.get().getId());
     assertThat(parent).isNotPresent();
   }
+
+  @Test
+  void shouldFindTrueForIsLeaf() {
+    var isLeaf = categoryRepository.isLeaf(UUID.fromString("f0427d1b-6c81-4570-b173-a8bf32b124d4")); // level 4 (Cleaning Solvents)
+    assertThat(isLeaf).isTrue();
+  }
+
+  @Test
+  void shouldFindFalseForIsLeaf() {
+    var isLeaf = categoryRepository.isLeaf(UUID.fromString("ad5d8835-cbbe-4d7f-8be2-efc8b80c4b88")); // level 3 (Weapon Cleaning)
+    assertThat(isLeaf).isFalse();
+  }
+
+  @Test
+  void shouldFindTrueForIsRoot() {
+    var isRoot = categoryRepository.isRoot(UUID.fromString("4086eb75-f11a-49e6-8dcc-1825bdd40bde")); // level 1 (Mature)
+    assertThat(isRoot).isTrue();
+  }
+
+  @Test
+  void shouldFindFalseForIsRoot() {
+    var isRoot = categoryRepository.isRoot(UUID.fromString("c0bdb6d4-a372-49cb-b6fc-af686484cdfc")); // level 3 (Weapons)
+    assertThat(isRoot).isFalse();
+  }
 }

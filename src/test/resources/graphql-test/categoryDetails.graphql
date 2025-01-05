@@ -23,6 +23,20 @@ query categoryWithParent($id: ID!) {
     }
 }
 
+query categoryWithIsLeaf($id: ID!) {
+    category(id: $id){
+        id
+        isLeaf
+    }
+}
+
+query categoryWithIsRoot($id: ID!) {
+    category(id: $id){
+        id
+        isRoot
+    }
+}
+
 query categoryWithAncestors(
     $id: ID!,
     $first: Int) {

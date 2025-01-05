@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import org.dataloader.DataLoader;
@@ -94,34 +95,34 @@ class ProductController {
     }
 
     @SchemaMapping(typeName = "Product")
-    PriceRange priceRange(Locale locale) {
+    Optional<PriceRange> priceRange(Locale locale) {
         var usd = MonetaryUtils.getCurrency("USD", locale);
-        return new PriceRange(
+        return Optional.of(new PriceRange(
             new Money(usd, new BigDecimal("100.00")),
             new Money(usd, new BigDecimal("200.00"))
-        );
+        ));
     }
 
     @SchemaMapping(typeName = "Product")
-    Actor createdBy() {
-        return null;
+    Optional<Actor> createdBy() {
+        return Optional.empty();
     }
 
     @SchemaMapping(typeName = "Product")
-    Actor updatedBy() {
-        return null;
+    Optional<Actor> updatedBy() {
+        return Optional.empty();
     }
 
     @SchemaMapping(typeName = "Product")
-    PriceSet priceSet(Locale locale) {
+    Optional<PriceSet> priceSet(Locale locale) {
         var usd = MonetaryUtils.getCurrency("USD", locale);
         var now = OffsetDateTime.now();
-        return new PriceSet(
+        return Optional.of(new PriceSet(
             "c6f56e4a-bb2e-4ca2-b267-ea398ae8cb34",
             now,
             List.of(new Money(usd, new BigDecimal("200.50"))),
             now
-        );
+        ));
     }
 
     @MutationMapping

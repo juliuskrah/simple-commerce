@@ -1,7 +1,5 @@
 package com.simplecommerce.node;
 
-import java.net.MalformedURLException;
-
 /**
  * Implementations of this interface are represented managed node types that participate in
  * a relay connection.
