@@ -43,6 +43,10 @@ public class CategoryEntity {
   private String createdBy;
   private String updatedBy;
 
+  public void setId(UUID id) {
+    this.id = id;
+  }
+
   public String getTitle() {
     return title;
   }
@@ -125,4 +129,5 @@ public class CategoryEntity {
         ", updatedBy='" + updatedBy + '\'' +
         '}';
   }
+
 }
