@@ -73,11 +73,23 @@ class CategoryManagement implements CategoryService, NodeService {
    * {@inheritDoc}
    */
   @Override
+  public Optional<Category> findProductCategory(String productId) {
+    return callInScope(() -> categoryRepository.findOneByProductId(UUID.fromString(productId))
+        .map(this::fromEntity));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Optional<Category> findCategoryParent(String id) {
     return callInScope(() -> categoryRepository.findParent(UUID.fromString(id))
         .map(this::fromEntity));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Window<Category> findCategoryAncestors(String id, int limit, ScrollPosition scroll) {
     return callInScope(() -> categoryRepository.findAncestorsById(
@@ -85,6 +97,9 @@ class CategoryManagement implements CategoryService, NodeService {
         .map(this::fromEntity));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Window<Category> findCategoryDescendants(String id, int limit, ScrollPosition scroll) {
     return callInScope(() -> categoryRepository.findDescendantsById(
@@ -101,11 +116,17 @@ class CategoryManagement implements CategoryService, NodeService {
     return levelsWithinTransaction(categoryIds);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean isLeaf(String id) {
     return callInScope(() -> categoryRepository.isLeaf(UUID.fromString(id)));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean isRoot(String id) {
     return callInScope(() -> categoryRepository.isRoot(UUID.fromString(id)));

@@ -51,6 +51,11 @@ class CategoryController {
     return categoryService.getIfAvailable(categoryServiceSupplier).findCategoryParent(source.id());
   }
 
+  @SchemaMapping
+  Optional<Category> category(Product source) {
+    return categoryService.getIfAvailable(categoryServiceSupplier).findProductCategory(source.id());
+  }
+
   @SchemaMapping(typeName = "Category")
   Optional<Actor> createdBy() {
     return Optional.empty();

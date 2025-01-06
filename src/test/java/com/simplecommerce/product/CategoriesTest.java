@@ -254,6 +254,14 @@ class CategoriesTest {
   }
 
   @Test
+  void shouldFindCategoryForProduct() {
+    var productId = UUID.fromString("cb68d159-edea-404d-89eb-338344295274");
+    var category = categoryRepository.findOneByProductId(productId);
+    assertThat(category).isPresent()
+        .get().hasFieldOrPropertyWithValue("title", "Uncategorized");
+  }
+
+  @Test
   void shouldFindTrueForIsLeaf() {
     var isLeaf = categoryRepository.isLeaf(UUID.fromString("f0427d1b-6c81-4570-b173-a8bf32b124d4")); // level 4 (Cleaning Solvents)
     assertThat(isLeaf).isTrue();

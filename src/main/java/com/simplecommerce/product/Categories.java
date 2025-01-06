@@ -62,6 +62,18 @@ interface Categories extends Repository<CategoryEntity, UUID>, JpaSpecificationE
 
   Optional<CategoryEntity> findById(UUID id);
 
+  /**
+   * Get the category of a product ID.
+   * @param productId the product ID
+   * @return the category of the product
+   */
+  @Query("""
+      SELECT c
+      FROM Category c JOIN Product p ON c.id = p.category.id
+      WHERE p.id = :productId
+      """)
+  Optional<CategoryEntity> findOneByProductId(UUID productId);
+
   @Query("SELECT nlevel(path) AS level FROM Category WHERE id = :id")
   Optional<Integer> findTreeLevel(UUID id);
 

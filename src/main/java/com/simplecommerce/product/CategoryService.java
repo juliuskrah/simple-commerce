@@ -23,6 +23,13 @@ interface CategoryService {
   Category findCategory(String id);
 
   /**
+   * Find a category by its product ID.
+   * @param productId The title of the category.
+   * @return The category when found.
+   */
+  Optional<Category> findProductCategory(String productId);
+
+  /**
    * Find the parent of a category.
    * @param id The ID of the category.
    * @throws NotFoundException If the category has no parent.
