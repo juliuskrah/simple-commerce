@@ -17,12 +17,12 @@ class ProductEventListener {
   void on(ProductEvent event) {
     switch (event) {
       case ProductEvent(ProductEntity source, ProductEventType eventType) when (eventType == ProductEventType.CREATED) ->
-          LOG.info("Product created : {}", source);
+          LOG.debug("Product created : {}", source);
       case ProductEvent(ProductEntity source, ProductEventType eventType) when (eventType == ProductEventType.UPDATED) ->
-          LOG.info("Product updated: {}", source);
+          LOG.debug("Product updated: {}", source);
       case ProductEvent(ProductEntity source, ProductEventType eventType) when (eventType == ProductEventType.DELETED) ->
-          LOG.info("Product with id: {} deleted", source.getId());
-      default -> LOG.info("Unmapped product event {}: {}", event.eventType(), event.source());
+          LOG.debug("Product with id: {} deleted", source.getId());
+      default -> LOG.debug("Unmapped product event {}: {}", event.eventType(), event.source());
     }
   }
 }

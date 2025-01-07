@@ -4,6 +4,7 @@ import static java.time.ZoneOffset.UTC;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
+import java.util.Objects;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 /**
  * @author julius.krah
  */
+@Async
 @Component
 public class UserEventListener {
   @PersistenceUnit
@@ -30,7 +32,9 @@ public class UserEventListener {
     entity.setUsername(jwt.getName());
     entity.setEmail(jwt.getToken().getClaimAsString("email"));
     entity.setExternalId(jwt.getToken().getSubject());
-    entity.setLastLogin(jwt.getToken().getIssuedAt().atOffset(UTC));
+    if(Objects.nonNull(jwt.getToken().getIssuedAt())) {
+      entity.setLastLogin(jwt.getToken().getIssuedAt().atOffset(UTC));
+    }
     return entity;
   }
 
@@ -49,25 +53,22 @@ public class UserEventListener {
     return entity;
   }
 
-  @Async
   @EventListener
   void on(AuthenticationSuccessEvent event) {
     if (event.getAuthentication() instanceof JwtAuthenticationToken jwt) {
-      LOG.info("Authentication success: {}", jwt);
+      LOG.debug("Authentication success: {}", jwt);
       var user = upsertUser(mapToEntity(jwt));
-      LOG.info("User logged in: {}", user);
+      LOG.debug("User logged in: {}", user);
     }
   }
 
-  @Async
   @EventListener
   void on(AuthenticationFailureBadCredentialsEvent event) {
-    LOG.info("Authentication failure: {}", event.getAuthentication());
+    LOG.debug("Authentication failure: {}", event.getAuthentication());
   }
 
-  @Async
   @EventListener
   void on(AuthorizationDeniedEvent<SecurityContextHolderAwareRequestWrapper> event) {
-    LOG.info("Catch all authorization failure: {}", event.getSource());
+    LOG.debug("Catch all authorization failure: {}", event.getSource());
   }
 }
