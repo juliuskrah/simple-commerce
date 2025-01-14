@@ -9,6 +9,8 @@ import com.simplecommerce.shared.Event;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.NotFoundException;
 import com.simplecommerce.shared.Slug;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -43,11 +45,14 @@ class ProductManagement implements ProductService, NodeService {
   private Event<ProductEvent> event;
 
   private ProductEntity toEntity(ProductInput product) {
+    var category = new CategoryEntity();
+    category.setId(UUID.fromString("6ef9c5ce-0430-468e-8adb-523fc05c4a11")); // Uncategorized
     var entity = new ProductEntity();
     entity.setTitle(product.title());
     entity.setSlug(Slug.generate(product.title()));
     entity.setDescription(product.description());
     entity.setTags(product.tags());
+    entity.setCategory(category);
     return entity;
   }
 
@@ -56,9 +61,11 @@ class ProductManagement implements ProductService, NodeService {
         entity.getId().toString(),
         entity.getTitle(),
         entity.getSlug(),
-        entity.getCreatedAt(),
+        entity.getCreatedDate().orElseGet(() -> OffsetDateTime
+            .of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)),
         entity.getDescription(),
-        entity.getUpdatedAt()
+        entity.getLastModifiedDate().orElseGet(() -> OffsetDateTime
+        .of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))
     );
   }
 

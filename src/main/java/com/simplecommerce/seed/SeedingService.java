@@ -5,10 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.execution.ExecutionId;
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.BodyPublishers;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +20,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.graphql.ExecutionGraphQlService;
 import org.springframework.graphql.support.DefaultExecutionGraphQlRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -41,13 +39,15 @@ public class SeedingService {
   private final ExecutionGraphQlService executionService;
   private final ResourceLoader resourceLoader;
   private final ObjectMapper objectMapper;
+  private final RestClient restClient;
   @Value("${simple-commerce.seeder.directory-prefix}")
   private String directoryPrefix;
 
-  public SeedingService(ExecutionGraphQlService executionService, ResourceLoader resourceLoader, ObjectMapper objectMapper) {
+  public SeedingService(ExecutionGraphQlService executionService, ResourceLoader resourceLoader, ObjectMapper objectMapper, RestClient restClient) {
     this.executionService = executionService;
     this.resourceLoader = resourceLoader;
     this.objectMapper = objectMapper;
+    this.restClient = restClient;
   }
 
   private void seedProductMedia(Flux<Product> products) throws IOException {
@@ -66,15 +66,13 @@ public class SeedingService {
     Flux<Map<String, Object>> mediaVariables = products.map(product ->
       productMediaVariables.stream()
           .filter(media -> media.get("productId") == product.syntheticId())
-          .peek(media -> media.put("id", product.naturalId()))
+          .map(media -> {media.put("id", product.naturalId()); return media;})
           .collect(Collectors.toSet())
     ).flatMap(Flux::fromIterable);
-    try(var client = HttpClient.newHttpClient()) {
-      uploadMedia(mediaVariables, client).blockLast();
-    }
+    uploadMedia(mediaVariables).blockLast();
   }
 
-  private Flux<Map<String, Object>> uploadMedia(Flux<Map<String, Object>> mediaVariables, HttpClient client) {
+  private Flux<Map<String, Object>> uploadMedia(Flux<Map<String, Object>> mediaVariables) {
     return Flux.from(mediaVariables)
         .flatMap(variable -> {
           @SuppressWarnings("unchecked")
@@ -82,7 +80,7 @@ public class SeedingService {
           return Flux.fromIterable(images)
               .flatMap(this::createStaged)
               .publishOn(Schedulers.boundedElastic())
-              .map(staged -> uploadMedia(client, staged, variable));
+              .map(staged -> uploadMedia(staged, variable));
         }).log();
   }
 
@@ -146,21 +144,19 @@ public class SeedingService {
     });
   }
 
-  private Map<String, Object> uploadMedia(HttpClient client,
+  private Map<String, Object> uploadMedia(
       Map<String, Object> stagedMedia, Map<String, Object> variable) {
     var mediaPath = (String) stagedMedia.get("mediaPath");
     var contentType = (String) stagedMedia.get("contentType");
     var resource = resourceLoader.getResource(directoryPrefix + mediaPath);
     try {
-      var request = HttpRequest.newBuilder()
-          .uri(URI.create((String) stagedMedia.get("presignedUrl")))
-          .header("Content-Type", contentType)
-          .PUT(BodyPublishers.ofFile(resource.getFile().toPath()))
-          .build();
-      var response = client.send(request, BodyHandlers.ofString());
-      LOG.info("Upload status: {}", response.statusCode());
-    } catch (IOException | InterruptedException e) {
-      LOG.info("Failed to upload media: {}", mediaPath, e);
+      var response = restClient.put().uri(URI.create((String) stagedMedia.get("presignedUrl")))
+          .header(HttpHeaders.CONTENT_TYPE, contentType)
+          .body(resource)
+          .retrieve().toEntity(String.class);
+      LOG.info("Upload status: {}", response.getStatusCode());
+    } catch (Exception e) {
+      LOG.info("Failed to upload media [{}] to {}", mediaPath, stagedMedia.get("presignedUrl"), e);
     }
     return Map.of(
         "file", Map.of(

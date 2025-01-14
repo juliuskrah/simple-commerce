@@ -10,6 +10,11 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.client.ExpectedCount.manyTimes;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 import com.simplecommerce.shared.GlobalId;
 import graphql.ExecutionInput;
@@ -27,11 +32,12 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import org.assertj.core.api.InstanceOfAssertFactories;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
@@ -41,6 +47,11 @@ import org.springframework.graphql.ExecutionGraphQlResponse;
 import org.springframework.graphql.ExecutionGraphQlService;
 import org.springframework.graphql.support.DefaultExecutionGraphQlRequest;
 import org.springframework.graphql.support.DefaultExecutionGraphQlResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClient.Builder;
 import reactor.core.publisher.Mono;
 
 /**
@@ -48,7 +59,6 @@ import reactor.core.publisher.Mono;
  */
 @ExtendWith(MockitoExtension.class)
 class SeedingServiceTest {
-  @InjectMocks
   private SeedingService seedingService;
   @Mock
   private ExecutionGraphQlService executionService;
@@ -56,9 +66,28 @@ class SeedingServiceTest {
   private ResourceLoader resourceLoader;
   @Mock
   private ObjectMapper objectMapper;
+  private MockRestServiceServer mockServer;
+
+  @BeforeEach
+  void setUp() {
+    Builder restClientBuilder = RestClient.builder();
+    mockServer = MockRestServiceServer.bindTo(restClientBuilder).build();
+    RestClient restClient = restClientBuilder.build();
+    seedingService = new SeedingService(executionService, resourceLoader, objectMapper, restClient);
+  }
+
+  @AfterEach
+  void tearDown() {
+    mockServer.reset();
+  }
 
   @Test
   void shouldSeedData() throws IOException {
+    mockServer.expect(manyTimes(),
+            requestTo("/bucket/prefix/object.jpg?signature=signature&expires=expires"))
+        .andExpect(method(HttpMethod.PUT))
+        .andExpect(header(HttpHeaders.CONTENT_TYPE, "image/jpeg"))
+        .andRespond(withSuccess());
     stubs();
     seedingService.seed();
     var capture = ArgumentCaptor.forClass(DefaultExecutionGraphQlRequest.class);
@@ -92,6 +121,7 @@ class SeedingServiceTest {
     verify(resourceLoader, times(1)).getResource(argThat(location -> location.contains("product_media.json")));
     verify(resourceLoader, times(5)).getResource(argThat(location -> location.contains("media/doom-part-one")));
     verify(resourceLoader, times(5)).getResource(argThat(location -> location.contains("media/doom-part-two")));
+    mockServer.verify();
   }
 
   @SuppressWarnings("unchecked")
@@ -133,8 +163,8 @@ class SeedingServiceTest {
     var randomString = randomString(random);
     var output = ExecutionResult.newExecutionResult().data(Map.of(
         "stagedUpload", Map.of(
-            "presignedUrl", "https://play.minio.io/bucket/prefix/object.jpg?signature=signature&expires=expires",
-            "resourceUrl", "https://play.minio.io/bucket/prefix/%s.jpg".formatted(randomString),
+            "presignedUrl", "/bucket/prefix/object.jpg?signature=signature&expires=expires",
+            "resourceUrl", "https://localhost/bucket/prefix/%s.jpg".formatted(randomString),
             "contentType", "image/jpeg")))
         .build();
     ExecutionGraphQlResponse response = new DefaultExecutionGraphQlResponse(input, output);
@@ -144,7 +174,7 @@ class SeedingServiceTest {
   private String randomString(Random random) {
     int leftLimit = 97; // letter 'a'
     int rightLimit = 122; // letter 'z'
-    long targetStringLength = 10;
+    long targetStringLength = 10L;
     return random.ints(leftLimit, rightLimit + 1)
         .limit(targetStringLength)
         .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)

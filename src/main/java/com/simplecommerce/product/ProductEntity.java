@@ -17,17 +17,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.domain.AbstractAggregateRoot;
+import org.springframework.data.domain.Auditable;
 
 /**
  * @author julius.krah
  */
 @Entity(name = "Product")
 @Table(name = "products")
-public class ProductEntity extends AbstractAggregateRoot<ProductEntity> {
+public class ProductEntity extends AbstractAggregateRoot<ProductEntity> implements Auditable<String, UUID, OffsetDateTime> {
 
   @Id
   @GeneratedValue
@@ -61,12 +63,56 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> {
     this.tags.addAll(Arrays.stream(tags).toList());
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isNew() {
+    return null == id;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public UUID getId() {
     return id;
   }
 
   public void setId(UUID id) {
     this.id = id;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Optional<String> getCreatedBy() {
+    return Optional.ofNullable(createdBy);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Optional<String> getLastModifiedBy() {
+    return Optional.ofNullable(updatedBy);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setLastModifiedBy(String lastModifiedBy) {
+    this.updatedBy = lastModifiedBy;
   }
 
   public String getTitle() {
@@ -93,12 +139,36 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> {
     this.description = description;
   }
 
-  public OffsetDateTime getCreatedAt() {
-    return createdAt;
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Optional<OffsetDateTime> getCreatedDate() {
+    return Optional.ofNullable(createdAt);
   }
 
-  public OffsetDateTime getUpdatedAt() {
-    return updatedAt;
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setCreatedDate(OffsetDateTime creationDate) {
+    this.createdAt = creationDate;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Optional<OffsetDateTime> getLastModifiedDate() {
+    return Optional.ofNullable(updatedAt);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setLastModifiedDate(OffsetDateTime lastModifiedDate) {
+    this.updatedAt = lastModifiedDate;
   }
 
   public List<String> getTags() {
@@ -111,6 +181,10 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> {
 
   public CategoryEntity getCategory() {
     return category;
+  }
+
+  public void setCategory(CategoryEntity category) {
+    this.category = category;
   }
 
   @Override

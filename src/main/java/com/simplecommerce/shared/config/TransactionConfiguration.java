@@ -19,9 +19,9 @@ import org.springframework.transaction.config.TransactionManagementConfigUtils;
 /**
  * @author julius.krah
  */
+@EnableJpaAuditing(setDates = false)
 @EnableLoadTimeWeaving
 @EnableSpringConfigured
-@EnableJpaAuditing(setDates = false)
 @Configuration(proxyBeanMethods = false)
 class TransactionConfiguration {
 
@@ -42,4 +42,3 @@ class TransactionConfiguration {
         .or(() -> Optional.of("system"));
   }
 }
-

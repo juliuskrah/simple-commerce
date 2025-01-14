@@ -66,7 +66,8 @@ input FileInput {
     contentType: String
 }
 
-interface File {
+interface File implements Node {
+    id: ID!
     createdAt: DateTime!
     updatedAt: DateTime!
 }
