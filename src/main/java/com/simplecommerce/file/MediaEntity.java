@@ -81,14 +81,6 @@ public class MediaEntity implements Auditable<String, UUID, OffsetDateTime> {
     this.contentType = contentType;
   }
 
-  public OffsetDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public OffsetDateTime getUpdatedAt() {
-    return updatedAt;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {

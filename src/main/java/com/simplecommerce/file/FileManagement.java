@@ -18,9 +18,12 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -61,8 +64,13 @@ class FileManagement implements FileService, NodeService {
   }
 
   private MediaFile fromEntity(MediaEntity entity) {
-    return new MediaFile(entity.getId().toString(), entity.getCreatedAt(),
-        entity.getContentType(), entity.getUrl(), entity.getUpdatedAt());
+    Supplier<OffsetDateTime> epoch = () -> OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+    return new MediaFile(
+        entity.getId().toString(),
+        entity.getCreatedDate().orElseGet(epoch),
+        entity.getContentType(),
+        entity.getUrl(),
+        entity.getLastModifiedDate().orElseGet(epoch));
   }
 
   private String getContentType(StagedUploadInput input) {

@@ -38,5 +38,9 @@ out/
 .vscode/
 *.jar
 
+### NPM ###
+node_modules/
+package-lock.json
+
 ### Others ###
 .DS_Store

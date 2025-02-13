@@ -1,0 +1,46 @@
+$schema: "https://raw.githubusercontent.com/ory/keto/master/.schema/config.schema.json"
+dsn: postgres://keto_user:H75NgxE83umbtT4aQGLpYk@postgres:5432/keto
+serve:
+  read:
+    host: 0.0.0.0
+    port: 4466
+    cors:
+      enabled: true
+      allowed_origins:
+        - "*"
+      allowed_methods:
+        - GET
+        - POST
+      allow_credentials: false
+  write:
+    host: 0.0.0.0
+    port: 4467
+    cors:
+      enabled: true
+      allowed_origins:
+        - "*"
+      allowed_methods:
+        - GET
+        - POST
+      allow_credentials: false
+  opl:
+    host: 0.0.0.0
+    port: 4469
+    cors:
+      enabled: true
+      allowed_origins:
+        - "*"
+      allowed_methods:
+        - GET
+        - POST
+      allow_credentials: false
+profiling: mem
+log:
+  level: info
+  format: gelf
+  leak_sensitive_values: false
+  redaction_text: "[REDACTED]"
+version: v0.12.0
+namespaces:
+  location: file:///home/ory/namespaces/
+  experimental_strict_mode: true

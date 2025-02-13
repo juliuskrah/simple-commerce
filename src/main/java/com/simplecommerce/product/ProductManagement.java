@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowire;
@@ -57,15 +58,14 @@ class ProductManagement implements ProductService, NodeService {
   }
 
   private Product fromEntity(ProductEntity entity) {
+    Supplier<OffsetDateTime> epoch = () -> OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
     return new Product(
         entity.getId().toString(),
         entity.getTitle(),
         entity.getSlug(),
-        entity.getCreatedDate().orElseGet(() -> OffsetDateTime
-            .of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)),
+        entity.getCreatedDate().orElseGet(epoch),
         entity.getDescription(),
-        entity.getLastModifiedDate().orElseGet(() -> OffsetDateTime
-        .of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))
+        entity.getLastModifiedDate().orElseGet(epoch)
     );
   }
 

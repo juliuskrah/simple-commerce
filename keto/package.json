@@ -1,0 +1,13 @@
+{
+  "name": "@simple-commerce/keto",
+  "version": "1.0.0",
+  "description": "Namespace definitions for Simple Commerce",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Julius Krah",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@ory/keto-namespace-types": "^0.13.0-alpha.0"
+  }
+}
