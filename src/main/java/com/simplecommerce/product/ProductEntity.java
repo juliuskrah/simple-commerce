@@ -30,7 +30,6 @@ import org.springframework.data.domain.Auditable;
 @Entity(name = "Product")
 @Table(name = "products")
 public class ProductEntity extends AbstractAggregateRoot<ProductEntity> implements Auditable<String, UUID, OffsetDateTime> {
-
   @Id
   @GeneratedValue
   private UUID id;

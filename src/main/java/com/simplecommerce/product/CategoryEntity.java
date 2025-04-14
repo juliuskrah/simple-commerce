@@ -21,25 +21,18 @@ public class CategoryEntity {
   @Id
   @GeneratedValue
   private UUID id;
-
   private String title;
-
   @Column(unique = true, nullable = false)
   private String slug;
-
   private String description;
-
   @Column(columnDefinition = "ltree")
   private String path;
-
   @CreationTimestamp
   @Column(nullable = false)
   private OffsetDateTime createdAt;
-
   @UpdateTimestamp
   @Column(nullable = false)
   private OffsetDateTime updatedAt;
-
   private String createdBy;
   private String updatedBy;
 

@@ -25,18 +25,13 @@ public class MediaEntity implements Auditable<String, UUID, OffsetDateTime> {
   @Id
   @GeneratedValue
   private UUID id;
-
   @ManyToOne
   private ProductEntity product;
-
   private URL url;
-
   private String contentType;
-
   @CreationTimestamp
   @Column(nullable = false)
   private OffsetDateTime createdAt;
-
   @UpdateTimestamp
   @Column(nullable = false)
   private OffsetDateTime updatedAt;
