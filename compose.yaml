@@ -28,6 +28,8 @@ services:
     ports:
       - "9001:9001"
       - "9000:9000"
+    labels:
+      com.simplecommerce.endpoint.scheme: http
   oidc:
     image: ghcr.io/dexidp/dex:v2.41.1-distroless
     command: ["dex", "serve", "/etc/dex.yaml"]

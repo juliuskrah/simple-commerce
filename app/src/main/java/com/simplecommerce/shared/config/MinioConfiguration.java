@@ -5,11 +5,9 @@ import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.SetBucketPolicyArgs;
-import io.minio.credentials.StaticProvider;
 import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnResource;
@@ -25,21 +23,7 @@ import org.springframework.context.annotation.DependsOn;
 @EnableConfigurationProperties(ObjectStoreProperties.class)
 class MinioConfiguration {
   private static final Logger LOG = LoggerFactory.getLogger(MinioConfiguration.class);
-  @Value("${minio.endpoint}")
-  private String endpoint;
-  @Value("${minio.access-key}")
-  private String accessKey;
-  @Value("${minio.secret-key}")
-  private String secretKey;
 
-  @Bean
-  MinioClient minioClient() {
-    var provider = new StaticProvider(accessKey, secretKey, null);
-    return MinioClient.builder()
-      .endpoint(endpoint)
-      .credentialsProvider(provider)
-      .build();
-  }
 
   @Bean
   @ConditionalOnProperty(prefix = "objectstore.options", name = "default-bucket", havingValue = "true")
