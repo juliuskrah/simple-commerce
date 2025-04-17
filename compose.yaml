@@ -1,6 +1,22 @@
 name: "simple-commerce"
 
 services:
+  simple_commerce:
+    image: juliuskrah/simple-commerce
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/simple_commerce
+      SPRING_DATASOURCE_USERNAME: simple_commerce
+      SPRING_DATASOURCE_PASSWORD: simple_commerce
+      MINIO_ENDPOINT: http://objectStore:9000
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://oidc:5556/dex/keys
+      SPRING_PROFILES_ACTIVE: oidc-authn, keto-authz
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      objectStore:
+        condition: service_started
   postgres:
     image: postgres:17.2-alpine
     hostname: postgres
@@ -22,6 +38,8 @@ services:
     command: ["server", "--console-address", ":9001"]
     environment:
       MINIO_CONFIG_ENV_FILE: /etc/config.env
+      MINIO_ROOT_USER: simple_commerce
+      MINIO_ROOT_PASSWORD: simple_commerce
     volumes:
       - objectStoreData:/mnt/data
       - ./minio/config:/etc/config.env

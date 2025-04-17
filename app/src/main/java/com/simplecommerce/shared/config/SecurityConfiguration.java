@@ -23,7 +23,7 @@ class SecurityConfiguration {
    * This filter enables OpenID Connect resource-server authentication for the application.
    */
   @Bean
-  @Profile("oidc-auth")
+  @Profile("oidc-authn")
   SecurityFilterChain oidcAuthFilterChain(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests(requests -> requests.requestMatchers(
         PathRequest.toStaticResources().atCommonLocations()).permitAll()
@@ -37,7 +37,7 @@ class SecurityConfiguration {
    * This filter enables basic authentication for the application.
    */
   @Bean
-  @Profile("!oidc-auth")
+  @Profile("!oidc-authn")
   SecurityFilterChain basicAuthFilterChain(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests(requests -> requests.anyRequest().authenticated());
     http.csrf(AbstractHttpConfigurer::disable);
