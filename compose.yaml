@@ -17,6 +17,8 @@ services:
         condition: service_healthy
       objectStore:
         condition: service_started
+    profiles:
+      - app
   postgres:
     image: postgres:17.2-alpine
     hostname: postgres
