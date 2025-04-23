@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnResource;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -40,6 +41,7 @@ class MinioConfiguration {
 
   @Bean
   @DependsOn("createDefaultBucket")
+  @ConditionalOnBean(name = "createDefaultBucket")
   @ConditionalOnResource(resources = "${objectstore.options.anonymous-bucket-policy}")
   ApplicationRunner createAnonymousBucketPolicy(MinioClient client, ObjectStoreProperties properties) {
     LOG.debug("Applying anonymous bucket policy to bucket: {}", properties.bucketName());

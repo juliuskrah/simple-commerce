@@ -3,14 +3,15 @@ FROM bellsoft/liberica-openjdk-debian:21-cds AS builder
 LABEL authors="julius.krah"
 
 WORKDIR /builder
-ARG JAR_FILE=app/build/libs/*.jar
-COPY app/build.gradle.kts app/src ./
-COPY gradle ./gradle
-COPY minio-docker-compose/build.gradle.kts minio-docker-compose/src ./minio-docker-compose/
-COPY ${JAR_FILE} application.jar
-COPY build.gradle.kts gradle.properties settings.gradle.kts ./
-COPY gradlew ./
+ARG JAR_DIR=app/build/libs
+COPY gradlew build.gradle.kts gradle.properties settings.gradle.kts ./
+COPY gradle/                                                        ./gradle/
+COPY app/src/                                                       ./app/src/
+COPY app/build.gradle.kts                                           ./app/
+COPY minio-docker-compose/src                                       ./minio-docker-compose/
+COPY minio-docker-compose/build.gradle.kts                          ./minio-docker-compose/
 RUN chmod +x ./gradlew && ./gradlew --no-daemon --stacktrace --info --console=plain build -x test
+RUN find ${JAR_DIR} -name '*.jar' -a ! -name '*plain.jar' -exec mv '{}' application.jar \;
 RUN java -Djarmode=tools -jar application.jar extract --layers --destination extracted
 
 FROM bellsoft/liberica-openjre-debian:21-cds
@@ -23,6 +24,7 @@ ARG SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
 ARG SPRING_JPA_PROPERTIES_HIBERNATE_BOOT_ALLOW_JDBC_METADATA_ACCESS=false
 ARG SPRING_JPA_HIBERNATE_DDL_AUTO=none
 ARG SPRING_SQL_INIT_MODE=never
+ARG OBJECTSTORE_OPTIONS_DEFAULT_BUCKET=false
 ENV SPRING_DOCKER_COMPOSE_ENABLED=false
 ENV JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS} -XX:+UnlockDiagnosticVMOptions -XX:+AllowArchivingWithJavaAgent --enable-preview -javaagent:${SPRING_INSTRUMENT}"
 WORKDIR /application
