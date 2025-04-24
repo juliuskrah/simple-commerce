@@ -34,6 +34,7 @@ extend type Product {
     media: [MediaFile!]
 }
 
+"A downloadable file that is associated with a product."
 type DigitalContent implements Node & File {
     id: ID!
     createdAt: DateTime!
@@ -42,6 +43,7 @@ type DigitalContent implements Node & File {
     url: URL!
 }
 
+"A file that is associated with a product. This can be an image, video, 3D model, or audio file."
 type MediaFile implements Node & File {
     id: ID!
     createdAt: DateTime!
@@ -50,6 +52,7 @@ type MediaFile implements Node & File {
     url: URL!
 }
 
+"Information about a staged upload, which should be used to send a request to upload a file."
 type StagedUpload {
     presignedUrl: URL
     resourceUrl: URL
@@ -66,6 +69,7 @@ input FileInput {
     contentType: String
 }
 
+"A representation of a digital object. This is usually a DigitalContent or MediaFile."
 interface File implements Node {
     id: ID!
     createdAt: DateTime!

@@ -1,5 +1,5 @@
 extend type Query {
-    "Find a category by its ID."
+    "Find a category by its ID. This allows you to access a taxonomy category, attributes and values of the loaded taxonomy tree"
     category(id: ID): Category
     "Find all categories."
     categories(first: Int @Positive, after: String, last: Int @Positive, before: String,
@@ -11,6 +11,9 @@ extend type Product {
     category: Category
 }
 
+"""
+The Category Taxonomy resource lets you access the categories, attributes and values of a taxonomy tree.
+"""
 type Category implements Node {
     id: ID!
     ancestors(first: Int @Positive, after: String, last: Int @Positive, before: String):

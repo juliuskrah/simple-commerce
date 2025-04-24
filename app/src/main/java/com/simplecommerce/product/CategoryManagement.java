@@ -5,10 +5,13 @@ import static com.simplecommerce.shared.VirtualThreadHelper.callInScope;
 import com.simplecommerce.node.NodeService;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.NotFoundException;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowire;
@@ -34,13 +37,14 @@ class CategoryManagement implements CategoryService, NodeService {
   private Categories categoryRepository;
 
   private Category fromEntity(CategoryEntity entity) {
+    Supplier<OffsetDateTime> epoch = () -> OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
     return new Category(
         entity.getId().toString(),
         entity.getTitle(),
         entity.getSlug(),
-        entity.getCreatedAt(),
+        entity.getCreatedDate().orElseGet(epoch),
         entity.getDescription(),
-        entity.getUpdatedAt()
+        entity.getLastModifiedDate().orElseGet(epoch)
     );
   }
 

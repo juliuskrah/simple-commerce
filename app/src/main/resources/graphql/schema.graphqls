@@ -32,16 +32,18 @@ type Query {
     node(id: ID!): Node
 }
 
+"A monetary value with a currency."
 type Money {
     amount: Decimal!
     currency: Currency!
 }
 
+"An object with an ID."
 interface Node {
     "The global ID of the object."
     id: ID!
 }
-
+"An `Actor` is an entity that can perform actions in the system. Typically a User or Bot"
 interface Actor {
     id: ID!
     username: String!
@@ -86,8 +88,18 @@ schema {
     mutation: Mutation
 }
 
+"""
+The `@Expression` validation directive allows a Java EL to be used to help build validation rules.
+Java EL is a powerful expression syntax for expressing validation conditions.
+"""
 directive @Expression(value : String!, message : String = "graphql.validation.Expression.message")
     on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
+"""
+The element must be a positive number.
+
+- Example: `categories(first: Int @Positive): CategoryConnection!`
+- Applies to: `Byte`, `Short`, `Int`, `Long`, `Float`, `Lists`, `BigDecimal`, `BigInteger`.
+"""
 directive @Positive(message : String = "graphql.validation.Positive.message")
     on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION

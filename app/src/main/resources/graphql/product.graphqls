@@ -16,6 +16,13 @@ type Mutation {
     deleteProduct(id: ID!): ID!
 }
 
+"""
+The Product object lets you manage products in a store. Products are the goods and services that are offered for sale.
+They can include various details such as title, description, price, and status. You can use product variants
+to create or update different versions of a product, such as different sizes or colors.
+
+You can add or update product media. Products can be organised by grouping them into collections.
+"""
 type Product implements Node {
     id: ID!
     createdAt: DateTime!

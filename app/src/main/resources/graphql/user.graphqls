@@ -8,6 +8,7 @@ type User implements Actor {
     username: String!
 }
 
+"A user that purchases products in the system."
 type Customer implements Actor {
     id: ID!
     username: String!

@@ -7,9 +7,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.domain.Auditable;
 
 /**
  * @author julius.krah
@@ -17,7 +19,7 @@ import org.hibernate.annotations.UpdateTimestamp;
  */
 @Entity(name = "Category")
 @Table(name = "categories")
-public class CategoryEntity {
+public class CategoryEntity implements Auditable<String, UUID, OffsetDateTime> {
   @Id
   @GeneratedValue
   private UUID id;
@@ -35,6 +37,14 @@ public class CategoryEntity {
   private OffsetDateTime updatedAt;
   private String createdBy;
   private String updatedBy;
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isNew() {
+    return null == id;
+  }
 
   public void setId(UUID id) {
     this.id = id;
@@ -72,24 +82,49 @@ public class CategoryEntity {
     this.path = path;
   }
 
+  @Override
   public UUID getId() {
     return id;
   }
 
-  public OffsetDateTime getCreatedAt() {
-    return createdAt;
+  @Override
+  public Optional<OffsetDateTime> getCreatedDate() {
+    return Optional.ofNullable(createdAt);
   }
 
-  public OffsetDateTime getUpdatedAt() {
-    return updatedAt;
+  @Override
+  public void setCreatedDate(OffsetDateTime createdAt) {
+    this.createdAt = createdAt;
   }
 
-  public String getCreatedBy() {
-    return createdBy;
+  @Override
+  public Optional<OffsetDateTime> getLastModifiedDate() {
+    return Optional.ofNullable(updatedAt);
   }
 
-  public String getUpdatedBy() {
-    return updatedBy;
+  @Override
+  public void setLastModifiedDate(OffsetDateTime updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
+  @Override
+  public Optional<String> getCreatedBy() {
+    return Optional.ofNullable(createdBy);
+  }
+
+  @Override
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
+
+  @Override
+  public Optional<String> getLastModifiedBy() {
+    return Optional.ofNullable(updatedBy);
+  }
+
+  @Override
+  public void setLastModifiedBy(String updatedBy) {
+    this.updatedBy = updatedBy;
   }
 
   @Override

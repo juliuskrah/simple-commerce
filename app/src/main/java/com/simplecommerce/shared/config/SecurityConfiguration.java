@@ -18,6 +18,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration(proxyBeanMethods = false)
 @EnableMethodSecurity(mode = AdviceMode.ASPECTJ)
 class SecurityConfiguration {
+  private static final String[] GRAPHQL_PATH_PATTERNS = {
+      "/graphiql",
+      "/graphql/schema"
+  };
 
   /*
    * This filter enables OpenID Connect resource-server authentication for the application.
@@ -27,7 +31,7 @@ class SecurityConfiguration {
   SecurityFilterChain oidcAuthFilterChain(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests(requests -> requests.requestMatchers(
         PathRequest.toStaticResources().atCommonLocations()).permitAll()
-        .requestMatchers("/graphiql").permitAll()
+        .requestMatchers(GRAPHQL_PATH_PATTERNS).permitAll()
         .anyRequest().authenticated());
     http.oauth2ResourceServer(resourceServer -> resourceServer.jwt(withDefaults()));
     return http.build();
@@ -39,7 +43,10 @@ class SecurityConfiguration {
   @Bean
   @Profile("!oidc-authn")
   SecurityFilterChain basicAuthFilterChain(HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests(requests -> requests.anyRequest().authenticated());
+    http.authorizeHttpRequests(requests -> requests.requestMatchers(
+        PathRequest.toStaticResources().atCommonLocations()).permitAll()
+        .requestMatchers(GRAPHQL_PATH_PATTERNS).permitAll()
+        .anyRequest().authenticated());
     http.csrf(AbstractHttpConfigurer::disable);
     http.formLogin(withDefaults());
     http.httpBasic(withDefaults());

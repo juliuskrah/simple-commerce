@@ -1,6 +1,7 @@
 # See https://docs.spring.io/spring-boot/reference/packaging/container-images/dockerfiles.html#packaging.container-images.dockerfiles.cds
 FROM bellsoft/liberica-openjdk-debian:21-cds AS builder
 LABEL authors="julius.krah"
+LABEL org.opencontainers.image.description="Simple Commerce is a ecommerce platform for the sale of digital products."
 
 WORKDIR /builder
 ARG JAR_DIR=app/build/libs
