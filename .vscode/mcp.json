@@ -1,33 +1,35 @@
 {
-    "inputs": [
-        {
-            "id": "github_token",
-            "type": "promptString",
-            "description": "GitHub Personal Access Token",
-            "password": true,
-        }
-    ],
-    "servers": {
-        "github": {
-            "command": "docker",
-            "args": [
-                "run",
-                "-i",
-                "--rm",
-                "-e",
-                "GITHUB_PERSONAL_ACCESS_TOKEN",
-                "ghcr.io/github/github-mcp-server"
-            ],
-            "env": {
-                "GITHUB_PERSONAL_ACCESS_TOKEN": "${input:github_token}"
-            }
-        },
-        "shopify-dev": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "@shopify/dev-mcp@latest"
-            ]
-        }
-    }
+	"servers": {
+		"shopify-dev": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@shopify/dev-mcp@latest"
+			],
+			"type": "stdio"
+		},
+		"github": {
+			"url": "https://api.githubcopilot.com/mcp/",
+			"type": "http"
+		},
+		"Framelink Figma MCP": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"-y",
+				"figma-developer-mcp@0.5.0",
+				"--figma-api-key=${input:figmaApiKey}",
+				"--stdio"
+			],
+			"env": {}
+		}
+	},
+	"inputs": [
+		{
+            "id": "figmaApiKey",
+			"type": "promptString",
+			"description": "Figma API Key",
+			"password": true
+		}
+	]
 }
