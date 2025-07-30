@@ -1,6 +1,9 @@
 <script lang="ts">
     import DashboardLayout from '$lib/components/DashboardLayout.svelte';
     
+    let { data } = $props();
+    const user = $derived(data.user);
+    
     // Sample data for customers
     const customers = [
         {
@@ -72,7 +75,7 @@
     }
 </script>
 
-<DashboardLayout title="Customers">
+<DashboardLayout title="Customers" {user}>
     <div class="mb-6 flex justify-between items-center">
         <h1 class="text-2xl font-semibold text-gray-800">Customers</h1>
         <button class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center">

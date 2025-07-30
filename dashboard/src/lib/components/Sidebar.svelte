@@ -2,6 +2,8 @@
     // Sidebar component for home
     let activeItem = 'home';
     
+    export let user: any = null;
+    
     const menuItems = [
         { id: 'home', label: 'Home', icon: 'home' },
         { id: 'products', label: 'Products', icon: 'shopping-bag' },
@@ -42,10 +44,14 @@
     
     <div class="absolute bottom-0 w-64 p-4 border-t">
         <div class="flex items-center">
-            <div class="w-10 h-10 rounded-full bg-gray-300"></div>
+            <div class="w-10 h-10 rounded-full bg-gray-300">
+                {#if user?.picture}
+                    <img src={user.picture} alt="Profile" class="w-10 h-10 rounded-full" />
+                {/if}
+            </div>
             <div class="ml-3">
-                <p class="text-sm font-medium">John Doe</p>
-                <p class="text-xs text-gray-500">Admin</p>
+                <p class="text-sm font-medium">{user?.name || user?.email || 'Guest User'}</p>
+                <p class="text-xs text-gray-500">{user?.role || 'User'}</p>
             </div>
         </div>
     </div>

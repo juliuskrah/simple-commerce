@@ -1,6 +1,9 @@
 <script lang="ts">
     import DashboardLayout from '$lib/components/DashboardLayout.svelte';
     
+    let { data } = $props();
+    const user = $derived(data.user);
+    
     // Sample data for products
     const products = [
         {
@@ -46,16 +49,17 @@
     ];
 </script>
 
-<DashboardLayout title="Products">
-    <div class="mb-6 flex justify-between items-center">
-        <h1 class="text-2xl font-semibold text-gray-800">Products</h1>
-        <button class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-            </svg>
-            Add Product
-        </button>
-    </div>
+<DashboardLayout title="Products" {user}>
+    <div class="bg-white rounded-lg shadow-md mb-8">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+            <h2 class="font-semibold text-lg text-gray-800">Products</h2>
+            <button class="bg-primary-600 text-white px-4 py-2 rounded-md text-sm flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+                Add Product
+            </button>
+        </div>
     
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <div class="p-4 border-b flex justify-between items-center">

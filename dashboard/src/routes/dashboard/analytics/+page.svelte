@@ -1,6 +1,9 @@
 <script lang="ts">
     import DashboardLayout from '$lib/components/DashboardLayout.svelte';
     
+    let { data } = $props();
+    const user = $derived(data.user);
+    
     // Sample data for analytics
     const monthlySales = [
         { month: 'Jan', amount: 12000 },
@@ -49,7 +52,7 @@
     let selectedPeriod = periods[4]; // Last year by default
 </script>
 
-<DashboardLayout title="Analytics">
+<DashboardLayout title="Analytics" {user}>
     <div class="mb-6 flex justify-between items-center">
         <h1 class="text-2xl font-semibold text-gray-800">Analytics Dashboard</h1>
         <div class="flex space-x-2">

@@ -1,6 +1,9 @@
 <script lang="ts">
     import DashboardLayout from '$lib/components/DashboardLayout.svelte';
     
+    let { data } = $props();
+    const user = $derived(data.user);
+    
     // Sample data for orders
     const recentOrders = [
         {
@@ -58,7 +61,7 @@
     ];
 </script>
 
-<DashboardLayout title="Home">
+<DashboardLayout title="Home" {user}>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {#each stats as stat}
             <div class="bg-white rounded-lg shadow-md p-6">

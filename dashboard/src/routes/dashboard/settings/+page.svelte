@@ -2,8 +2,11 @@
     import DashboardLayout from '$lib/components/DashboardLayout.svelte';
     import { onMount } from 'svelte';
     
+    let { data } = $props();
+    const user = $derived(data.user);
+    
     // Form data
-    let profileForm = {
+    let profileForm = $state({
         firstName: 'Angel',
         lastName: 'King',
         email: 'angel.king@example.com',
@@ -13,9 +16,9 @@
         address: '123 Main Street, Osu',
         postalCode: 'GA-123-4567',
         bio: 'E-commerce store owner specializing in fashion accessories and electronics.'
-    };
-    
-    let storeForm = {
+    });
+
+    let storeForm = $state({
         storeName: 'Angel\'s Store',
         storeEmail: 'contact@angelsstore.com',
         storePhone: '+233 50 123 4568',
@@ -26,9 +29,9 @@
             { name: 'Standard Shipping', price: '15', days: '3-5' },
             { name: 'Express Shipping', price: '30', days: '1-2' }
         ]
-    };
-    
-    let paymentForm = {
+    });
+
+    let paymentForm = $state({
         acceptCreditCards: true,
         acceptMobileMoney: true,
         acceptCashOnDelivery: true,
@@ -39,20 +42,20 @@
             accountNumber: '1234567890',
             branchCode: 'ACC-123'
         }
-    };
-    
-    let notificationForm = {
+    });
+
+    let notificationForm = $state({
         emailNotifications: true,
         smsNotifications: false,
         orderConfirmations: true,
         orderStatusUpdates: true,
         customerSignups: true,
         promotionalEmails: false
-    };
-    
+    });
+
     // Active tab tracking
-    let activeTab = 'profile';
-    
+    let activeTab = $state('profile');
+
     function setActiveTab(tab: string) {
         activeTab = tab;
     }
@@ -74,6 +77,13 @@
     function saveNotificationSettings() {
         alert('Notification settings saved successfully!');
     }
+
+    function preventDefault(fn: Function) {
+        return (event: Event) => {
+            event.preventDefault();
+            fn(event);
+        }
+    }
     
     // Add shipping option
     function addShippingOption() {
@@ -93,7 +103,7 @@
     });
 </script>
 
-<DashboardLayout title="Settings">
+<DashboardLayout title="Settings" {user}>
     <div class="mb-6">
         <h1 class="text-2xl font-semibold text-gray-800">Settings</h1>
         <p class="text-gray-500 mt-1">Manage your account and store settings</p>
@@ -103,25 +113,25 @@
         <div class="flex border-b">
             <button 
                 class="px-6 py-3 font-medium text-sm {activeTab === 'profile' ? 'text-primary-600 border-b-2 border-primary-600' : 'text-gray-500 hover:text-gray-700'}"
-                on:click={() => setActiveTab('profile')}
+                onclick={() => setActiveTab('profile')}
             >
                 Profile
             </button>
             <button 
                 class="px-6 py-3 font-medium text-sm {activeTab === 'store' ? 'text-primary-600 border-b-2 border-primary-600' : 'text-gray-500 hover:text-gray-700'}"
-                on:click={() => setActiveTab('store')}
+                onclick={() => setActiveTab('store')}
             >
                 Store
             </button>
             <button 
                 class="px-6 py-3 font-medium text-sm {activeTab === 'payment' ? 'text-primary-600 border-b-2 border-primary-600' : 'text-gray-500 hover:text-gray-700'}"
-                on:click={() => setActiveTab('payment')}
+                onclick={() => setActiveTab('payment')}
             >
                 Payment
             </button>
             <button 
                 class="px-6 py-3 font-medium text-sm {activeTab === 'notification' ? 'text-primary-600 border-b-2 border-primary-600' : 'text-gray-500 hover:text-gray-700'}"
-                on:click={() => setActiveTab('notification')}
+                onclick={() => setActiveTab('notification')}
             >
                 Notifications
             </button>
@@ -130,7 +140,7 @@
         <div class="p-6">
             <!-- Profile Settings -->
             {#if activeTab === 'profile'}
-                <form on:submit|preventDefault={saveProfile} class="space-y-6">
+                <form onsubmit={preventDefault(saveProfile)} class="space-y-6">
                     <div class="flex items-center space-x-6 mb-6">
                         <div class="h-24 w-24 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center text-2xl font-medium">
                             {profileForm.firstName[0]}{profileForm.lastName[0]}
@@ -239,7 +249,7 @@
             
             <!-- Store Settings -->
             {#if activeTab === 'store'}
-                <form on:submit|preventDefault={saveStoreSettings} class="space-y-6">
+                <form onsubmit={preventDefault(saveStoreSettings)} class="space-y-6">
                     <h3 class="text-lg font-medium text-gray-800 mb-4">Store Information</h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -342,7 +352,7 @@
                                 <button 
                                     type="button" 
                                     class="px-3 py-2 text-red-600 hover:text-red-800" 
-                                    on:click={() => removeShippingOption(index)}
+                                    onclick={() => removeShippingOption(index)}
                                     aria-label="Remove shipping option"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -355,7 +365,7 @@
                         <button 
                             type="button" 
                             class="text-primary-600 hover:text-primary-800 flex items-center" 
-                            on:click={addShippingOption}
+                            onclick={addShippingOption}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
@@ -374,7 +384,7 @@
             
             <!-- Payment Settings -->
             {#if activeTab === 'payment'}
-                <form on:submit|preventDefault={savePaymentSettings} class="space-y-6">
+                <form onsubmit={preventDefault(savePaymentSettings)} class="space-y-6">
                     <h3 class="text-lg font-medium text-gray-800 mb-4">Payment Methods</h3>
                     
                     <div class="space-y-4">
@@ -468,7 +478,7 @@
             
             <!-- Notification Settings -->
             {#if activeTab === 'notification'}
-                <form on:submit|preventDefault={saveNotificationSettings} class="space-y-6">
+                <form onsubmit={preventDefault(saveNotificationSettings)} class="space-y-6">
                     <h3 class="text-lg font-medium text-gray-800 mb-4">Notification Preferences</h3>
                     
                     <div class="space-y-4">

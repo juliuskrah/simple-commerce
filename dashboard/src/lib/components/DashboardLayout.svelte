@@ -3,10 +3,11 @@
     import Header from '$lib/components/Header.svelte';
     
     export let title = 'Home';
+    export let user: any = null;
 </script>
 
 <div class="flex h-screen bg-gray-50">
-    <Sidebar />
+    <Sidebar {user} />
     
     <div class="flex-1 flex flex-col overflow-hidden">
         <Header {title} />

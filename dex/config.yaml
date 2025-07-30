@@ -24,6 +24,11 @@ staticClients:
       - "https://oauth.pstmn.io/v1/callback"
     name: "Simple Commerce"
     secret: "Zm9vYmFy"
+  - id: simple-commerce-admin
+    redirectURIs:
+      - "http://localhost:5173/auth/callback"
+    name: "Simple Commerce Dashboard"
+    public: true
 
 enablePasswordDB: true
 staticPasswords:
