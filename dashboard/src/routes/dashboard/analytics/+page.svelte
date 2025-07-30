@@ -49,7 +49,7 @@
     
     // Filter periods
     const periods = ['Last 7 days', 'Last 30 days', 'Last 90 days', 'Last 6 months', 'Last year', 'All time'];
-    let selectedPeriod = periods[4]; // Last year by default
+    let selectedPeriod = $state(periods[4]); // Last year by default
 </script>
 
 <DashboardLayout title="Analytics" {user}>

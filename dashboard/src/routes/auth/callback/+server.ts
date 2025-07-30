@@ -22,7 +22,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
     }
 
     // Exchange the authorization code for tokens
-    const tokens = await validateAuthorizationCode(code);
+    const tokens = await validateAuthorizationCode(code, event.request);
     const accessToken = tokens.accessToken();
 
     // Get the user info using the access token
@@ -35,8 +35,9 @@ export async function GET(event: RequestEvent): Promise<Response> {
     // Set the session cookie
     setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
-    // Clear the state cookie
+    // Clear the state and redirect_uri cookies
     event.cookies.delete('oidc_state', { path: '/' });
+    event.cookies.delete('oidc_redirect_uri', { path: '/' });
 
     // Redirect to the dashboard
     return redirect(302, '/');

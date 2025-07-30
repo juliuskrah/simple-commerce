@@ -27,6 +27,7 @@ staticClients:
   - id: simple-commerce-admin
     redirectURIs:
       - "http://localhost:5173/auth/callback"
+      - "http://localhost:4173/auth/callback"
     name: "Simple Commerce Dashboard"
     public: true
 

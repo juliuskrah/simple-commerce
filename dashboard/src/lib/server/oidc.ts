@@ -1,12 +1,19 @@
 import { OAuth2Client, generateState } from 'arctic';
-import { OIDC_CLIENT_ID, OIDC_ISSUER, OIDC_REDIRECT_URI } from '$env/static/private';
+import { OIDC_CLIENT_ID, OIDC_ISSUER } from '$env/static/private';
+import { building } from '$app/environment';
 
-// Create the OIDC client
-export const oidcClient = new OAuth2Client(
-	OIDC_CLIENT_ID,
-	null,
-	OIDC_REDIRECT_URI
-);
+/**
+ * Dynamically construct the redirect URI based on the request
+ */
+export function getRedirectUri(request: Request): string {
+    if (building) {
+        // During build time, use a placeholder URL
+        return 'http://localhost:5173/auth/callback';
+    }
+
+    const url = new URL(request.url);
+    return `${url.protocol}//${url.host}/auth/callback`;
+}
 
 // Cache the OIDC configuration
 let oidcConfig: any = null;
@@ -35,28 +42,44 @@ export async function getOidcConfiguration() {
 /**
  * Create an authorization URL for the OIDC flow
  */
-export async function createAuthorizationUrl() {
+export async function createAuthorizationUrl(request: Request) {
 	const config = await getOidcConfiguration();
 	const state = generateState();
+	const redirectUri = getRedirectUri(request);
+	
+	// Create OIDC client for this request
+	const client = new OAuth2Client(
+		OIDC_CLIENT_ID,
+		null,
+		redirectUri
+	);
 	
 	// Create authorization URL with the required scopes
-	const url = oidcClient.createAuthorizationURL(
+	const url = client.createAuthorizationURL(
 		config.authorization_endpoint,
 		state,
 		['openid', 'profile', 'email']
 	);
 	
-	return { url, state };
+	return { url, state, redirectUri };
 }
 
 /**
  * Validate the authorization code and exchange it for tokens
  */
-export async function validateAuthorizationCode(code: string) {
+export async function validateAuthorizationCode(code: string, request: Request) {
 	const config = await getOidcConfiguration();
+	const redirectUri = getRedirectUri(request);
+	
+	// Create OIDC client for this request
+	const client = new OAuth2Client(
+		OIDC_CLIENT_ID,
+		null,
+		redirectUri
+	);
 	
 	try {
-		const tokens = await oidcClient.validateAuthorizationCode(
+		const tokens = await client.validateAuthorizationCode(
 			config.token_endpoint,
 			code,
 			null

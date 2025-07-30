@@ -60,7 +60,8 @@
                 Add Product
             </button>
         </div>
-    
+    </div>
+
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <div class="p-4 border-b flex justify-between items-center">
             <div class="relative">

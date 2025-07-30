@@ -64,8 +64,8 @@
     ];
     
     // State for customer details
-    let selectedCustomer: typeof customers[0] | null = null;
-    
+    let selectedCustomer: typeof customers[0] | null = $state(null);
+
     function showCustomerDetails(customer: typeof customers[0]) {
         selectedCustomer = customer;
     }
@@ -158,7 +158,7 @@
                                 <button 
                                     class="text-gray-400 hover:text-primary-600" 
                                     aria-label="View customer details"
-                                    on:click={() => showCustomerDetails(customer)}
+                                    onclick={() => showCustomerDetails(customer)}
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
@@ -192,7 +192,7 @@
             <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
                 <div class="p-6 border-b flex justify-between items-center">
                     <h2 class="text-xl font-semibold text-gray-800">Customer Details</h2>
-                    <button class="text-gray-500 hover:text-gray-700" on:click={closeCustomerDetails} aria-label="Close customer details">
+                    <button class="text-gray-500 hover:text-gray-700" onclick={closeCustomerDetails} aria-label="Close customer details">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -284,7 +284,7 @@
                 </div>
                 
                 <div class="p-6 border-t bg-gray-50 flex justify-end space-x-3">
-                    <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg" on:click={closeCustomerDetails}>
+                    <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg" onclick={closeCustomerDetails}>
                         Close
                     </button>
                     <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
