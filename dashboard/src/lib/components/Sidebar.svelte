@@ -20,7 +20,7 @@
 
 <div class="h-full w-64 bg-white shadow-lg">
 	<div class="flex h-20 items-center justify-center border-b">
-		<div class="text-primary-600 text-2xl font-bold">Shoperal</div>
+		<div class="text-primary-600 text-2xl font-bold">Simple Commerce</div>
 	</div>
 
 	<div class="py-4">
@@ -32,7 +32,7 @@
 						class="flex items-center px-6 py-3 {activeItem === item.id
 							? 'bg-primary-50 text-primary-600 border-primary-600 border-r-4'
 							: 'text-gray-600 hover:bg-gray-100'}"
-						on:click={() => setActive(item.id)}
+						onclick={() => setActive(item.id)}
 					>
 						<span class="mr-3">
 							<i class="feather-{item.icon}"></i>

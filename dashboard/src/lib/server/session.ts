@@ -22,12 +22,17 @@ export interface SessionData {
 	userId: string;
 	expiresAt: Date;
 	userInfo: any;
+	accessToken: string; // Store JWT access token
 }
 
 /**
  * Create a new session
  */
-export async function createSession(sessionToken: string, userInfo: any): Promise<SessionData> {
+export async function createSession(
+	sessionToken: string,
+	userInfo: any,
+	accessToken: string
+): Promise<SessionData> {
 	// Create expiration date (24 hours from now)
 	const expiresAt = new Date();
 	expiresAt.setHours(expiresAt.getHours() + 24);
@@ -36,7 +41,8 @@ export async function createSession(sessionToken: string, userInfo: any): Promis
 		id: sessionToken,
 		userId: userInfo.sub,
 		expiresAt,
-		userInfo
+		userInfo,
+		accessToken // Store the JWT access token
 	};
 
 	// Store the session

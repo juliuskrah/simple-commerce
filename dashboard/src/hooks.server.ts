@@ -1,4 +1,5 @@
 import { getSession } from '$lib/server/session';
+import { setSession } from '$houdini';
 import type { Handle } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -13,6 +14,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 			// Add the session to the event locals
 			event.locals.session = session;
 			event.locals.user = session.userInfo;
+			setSession(event, { session });
 		}
 	}
 

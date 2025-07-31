@@ -1,11 +1,15 @@
 <script lang="ts">
+	// import type { Products } from '$houdini';
 	import DashboardLayout from '$lib/components/DashboardLayout.svelte';
+	// import Products from '$houdini';
 
 	let { data } = $props();
-	const user = $derived(data.user);
+	let { Products } = $derived(data);
+	// const user = $derived(data.user);
+	const user = { name: 'Julius' };
 
 	// Sample data for products
-	const products = [
+	const produces = [
 		{
 			id: 1,
 			name: 'Classy men wristwatch',
@@ -50,6 +54,7 @@
 </script>
 
 <DashboardLayout title="Products" {user}>
+	{$Products.data.products.edges[0].node.id}
 	<div class="mb-8 rounded-lg bg-white shadow-md">
 		<div class="flex items-center justify-between border-b border-gray-100 px-6 py-4">
 			<h2 class="text-lg font-semibold text-gray-800">Products</h2>
@@ -125,7 +130,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each products as product}
+				{#each produces as product}
 					<tr class="border-t border-gray-100 hover:bg-gray-50">
 						<td class="px-6 py-4">
 							<div class="flex items-center">

@@ -30,7 +30,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 
 	// Create a new session
 	const sessionToken = generateSessionToken();
-	const session = await createSession(sessionToken, userInfo);
+	const session = await createSession(sessionToken, userInfo, accessToken);
 
 	// Set the session cookie
 	setSessionTokenCookie(event, sessionToken, session.expiresAt);
