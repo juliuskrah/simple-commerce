@@ -1,11 +1,11 @@
 <script lang="ts">
 	let { data } = $props();
-	const user = $derived(data.user);
+	const user = $derived(data?.user);
 </script>
 
 <div class="py-8">
 	<h1 class="mb-6 text-3xl font-bold">Welcome to Simple Commerce Dashboard</h1>
-	
+
 	{#if user}
 		<div class="mb-6 rounded-lg bg-white p-6 shadow">
 			<h2 class="mb-4 text-xl font-semibold">User Information</h2>
@@ -24,7 +24,7 @@
 				</div>
 			</div>
 		</div>
-		
+
 		<div class="grid grid-cols-1 gap-6 md:grid-cols-3">
 			<div class="rounded-lg bg-white p-6 shadow">
 				<h3 class="mb-2 text-lg font-semibold">Orders</h3>
@@ -33,7 +33,7 @@
 					View Orders →
 				</a>
 			</div>
-			
+
 			<div class="rounded-lg bg-white p-6 shadow">
 				<h3 class="mb-2 text-lg font-semibold">Products</h3>
 				<p class="text-gray-600">Manage your product catalog</p>
@@ -41,7 +41,7 @@
 					View Products →
 				</a>
 			</div>
-			
+
 			<div class="rounded-lg bg-white p-6 shadow">
 				<h3 class="mb-2 text-lg font-semibold">Customers</h3>
 				<p class="text-gray-600">Manage your customer accounts</p>

@@ -27,24 +27,21 @@ export interface SessionData {
 /**
  * Create a new session
  */
-export async function createSession(
-	sessionToken: string,
-	userInfo: any
-): Promise<SessionData> {
+export async function createSession(sessionToken: string, userInfo: any): Promise<SessionData> {
 	// Create expiration date (24 hours from now)
 	const expiresAt = new Date();
 	expiresAt.setHours(expiresAt.getHours() + 24);
-	
+
 	const session: SessionData = {
 		id: sessionToken,
 		userId: userInfo.sub,
 		expiresAt,
 		userInfo
 	};
-	
+
 	// Store the session
 	sessionStore.set(sessionToken, session);
-	
+
 	return session;
 }
 
@@ -53,17 +50,17 @@ export async function createSession(
  */
 export async function getSession(sessionToken: string): Promise<SessionData | null> {
 	const session = sessionStore.get(sessionToken);
-	
+
 	if (!session) {
 		return null;
 	}
-	
+
 	// Check if session has expired
 	if (new Date() > session.expiresAt) {
 		await invalidateSession(sessionToken);
 		return null;
 	}
-	
+
 	return session;
 }
 
