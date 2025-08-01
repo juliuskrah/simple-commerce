@@ -2,11 +2,13 @@ package com.simplecommerce.shared.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import jakarta.servlet.DispatcherType;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -29,10 +31,13 @@ class SecurityConfiguration {
   @Bean
   @Profile("oidc-authn")
   SecurityFilterChain oidcAuthFilterChain(HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests(requests -> requests.requestMatchers(
-        PathRequest.toStaticResources().atCommonLocations()).permitAll()
-        .requestMatchers(GRAPHQL_PATH_PATTERNS).permitAll()
-        .anyRequest().authenticated());
+    http
+        .authorizeHttpRequests(requests -> requests
+            .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
+            .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+            .requestMatchers(GRAPHQL_PATH_PATTERNS).permitAll()
+            .requestMatchers(HttpMethod.OPTIONS, "/graphql").permitAll()
+            .anyRequest().authenticated());
     http.oauth2ResourceServer(resourceServer -> resourceServer.jwt(withDefaults()));
     return http.build();
   }

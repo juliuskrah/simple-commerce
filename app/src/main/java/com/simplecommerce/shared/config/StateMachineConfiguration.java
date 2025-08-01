@@ -16,7 +16,7 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
  */
 @EnableStateMachine
 @Configuration(proxyBeanMethods = false)
-public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter<States, Events> {
+class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter<States, Events> {
 
   @Override
   public void configure(StateMachineConfigurationConfigurer<States, Events> config)
