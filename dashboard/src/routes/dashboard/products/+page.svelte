@@ -1,60 +1,14 @@
 <script lang="ts">
-	// import type { Products } from '$houdini';
+	import type { Products } from '$houdini';
 	import DashboardLayout from '$lib/components/DashboardLayout.svelte';
-	// import Products from '$houdini';
+	import type { PageProps } from '../$types';
 
-	let { data } = $props();
-	let { Products } = $derived(data);
-	// const user = $derived(data.user);
-	const user = { name: 'Julius' };
-
-	// Sample data for products
-	const produces = [
-		{
-			id: 1,
-			name: 'Classy men wristwatch',
-			price: 'GHS 500',
-			inventory: 25,
-			category: 'Accessories',
-			status: 'Active'
-		},
-		{
-			id: 2,
-			name: "Women's handbag",
-			price: 'GHS 300',
-			inventory: 15,
-			category: 'Accessories',
-			status: 'Active'
-		},
-		{
-			id: 3,
-			name: 'Smartphone case',
-			price: 'GHS 100',
-			inventory: 50,
-			category: 'Electronics',
-			status: 'Active'
-		},
-		{
-			id: 4,
-			name: 'Wireless headphones',
-			price: 'GHS 250',
-			inventory: 8,
-			category: 'Electronics',
-			status: 'Low stock'
-		},
-		{
-			id: 5,
-			name: 'Summer dress',
-			price: 'GHS 180',
-			inventory: 0,
-			category: 'Clothing',
-			status: 'Out of stock'
-		}
-	];
+	let { data }: PageProps = $props();
+	const user = $derived(data.user);
 </script>
 
 <DashboardLayout title="Products" {user}>
-	{$Products.data.products.edges[0].node.id}
+	<!-- ID: {products?.edges[0]?.node.id} -->
 	<div class="mb-8 rounded-lg bg-white shadow-md">
 		<div class="flex items-center justify-between border-b border-gray-100 px-6 py-4">
 			<h2 class="text-lg font-semibold text-gray-800">Products</h2>
@@ -130,7 +84,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each produces as product}
+				{#each data.products as product}
 					<tr class="border-t border-gray-100 hover:bg-gray-50">
 						<td class="px-6 py-4">
 							<div class="flex items-center">

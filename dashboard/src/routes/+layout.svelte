@@ -1,8 +1,9 @@
 <script lang="ts">
-	let { children, data } = $props();
-	const user = $derived(data.user);
-
+	import type { LayoutProps } from './$types';
 	import '../app.css';
+
+	let { children, data }: LayoutProps = $props();
+	const user = $derived(data.user);
 </script>
 
 {#if user}

@@ -3,7 +3,22 @@ query Products {
 		edges {
 			node {
 				id
+				title
+				description
 				createdAt
+				updatedAt
+				category {
+					title
+				}
+				status
+				priceRange {
+					start {
+						amount
+					}
+					stop {
+						amount
+					}
+				}
 			}
 		}
 	}

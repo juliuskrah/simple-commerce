@@ -2,8 +2,8 @@ plugins {
     id("io.spring.dependency-management")
 }
 
-extra["springModulithVersion"] = "1.3.1"
-extra["springStatemachineVersion"] = "4.0.0"
+extra["springModulithVersion"] = "1.4.2"
+extra["springStatemachineVersion"] = "4.0.1"
 
 allprojects {
     group = "com.simplecommerce"
