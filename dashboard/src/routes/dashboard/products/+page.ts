@@ -2,7 +2,7 @@ import type { PageLoad } from './$types';
 
 export const load: PageLoad = ({ params }) => {
 	return {
-		products: [
+		items: [
 			{
 				id: 1,
 				name: 'Classy men wristwatch',

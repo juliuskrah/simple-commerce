@@ -10,7 +10,6 @@ query Products {
 				category {
 					title
 				}
-				status
 				priceRange {
 					start {
 						amount

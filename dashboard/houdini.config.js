@@ -12,7 +12,9 @@ const config = {
 	},
 	runtimeDir: '.houdini',
 	plugins: {
-		'houdini-svelte': {}
+		'houdini-svelte': {
+			forceRunesMode: true
+		}
 	},
 	scalars: {
 		// the name of the scalar we are configuring

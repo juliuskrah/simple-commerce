@@ -8,7 +8,6 @@ export const load: LayoutServerLoad = ({ locals }) => {
 	}
 
 	return {
-		user: locals.user,
-		products: [{ price: 0, inventory: 0, category: '', status: '', name: '' }]
+		user: locals.user
 	};
 };

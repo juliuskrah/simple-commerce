@@ -1,14 +1,19 @@
 <script lang="ts">
-	import type { Products } from '$houdini';
 	import DashboardLayout from '$lib/components/DashboardLayout.svelte';
-	import type { PageProps } from '../$types';
+	import type { PageData } from './$houdini';
 
-	let { data }: PageProps = $props();
+	interface Props {
+		data: PageData;
+	}
+
+	/** @type { import('undefined').Props } */
+	let { data }: Props = $props();
 	const user = $derived(data.user);
+	let { Products } = $derived(data);
 </script>
 
 <DashboardLayout title="Products" {user}>
-	<!-- ID: {products?.edges[0]?.node.id} -->
+	ID: {$Products.data?.products.edges[0]?.node.id}
 	<div class="mb-8 rounded-lg bg-white shadow-md">
 		<div class="flex items-center justify-between border-b border-gray-100 px-6 py-4">
 			<h2 class="text-lg font-semibold text-gray-800">Products</h2>
@@ -84,7 +89,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each data.products as product}
+				{#each data.items as product}
 					<tr class="border-t border-gray-100 hover:bg-gray-50">
 						<td class="px-6 py-4">
 							<div class="flex items-center">
