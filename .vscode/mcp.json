@@ -1,13 +1,5 @@
 {
 	"servers": {
-		"shopify-dev": {
-			"command": "npx",
-			"args": [
-				"-y",
-				"@shopify/dev-mcp@latest"
-			],
-			"type": "stdio"
-		},
 		"github": {
 			"url": "https://api.githubcopilot.com/mcp/",
 			"type": "http"
@@ -20,13 +12,19 @@
 				"figma-developer-mcp@0.5.0",
 				"--figma-api-key=${input:figmaApiKey}",
 				"--stdio"
-			],
-			"env": {}
+			]
+		},
+		"playwright": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"@playwright/mcp@latest"
+			]
 		}
 	},
 	"inputs": [
 		{
-            "id": "figmaApiKey",
+			"id": "figmaApiKey",
 			"type": "promptString",
 			"description": "Figma API Key",
 			"password": true

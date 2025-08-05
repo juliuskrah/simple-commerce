@@ -78,7 +78,8 @@ input ProductInput {
 
 enum ProductStatus {
     DRAFT
-    PUBLISHED
+    PUBLISHED,
+    ARCHIVED
 }
 
 enum ProductOrderField {

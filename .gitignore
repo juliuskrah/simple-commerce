@@ -36,8 +36,8 @@ out/
 /.nb-gradle/
 
 ### VS Code ###
-.vscode/
 !.vscode/mcp.json
+.vscode/
 *.jar
 
 ### NPM ###

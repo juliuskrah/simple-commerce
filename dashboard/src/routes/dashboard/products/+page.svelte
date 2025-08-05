@@ -89,7 +89,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each data.items as product}
+				{#each data.items as product (product.id)}
 					<tr class="border-t border-gray-100 hover:bg-gray-50">
 						<td class="px-6 py-4">
 							<div class="flex items-center">

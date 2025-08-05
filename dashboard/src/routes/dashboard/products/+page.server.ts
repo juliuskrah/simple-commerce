@@ -1,6 +1,6 @@
-import type { PageLoad } from './$types';
+import type { PageServerLoad } from './$types';
 
-export const load: PageLoad = ({ params }) => {
+export const load: PageServerLoad = () => {
 	return {
 		items: [
 			{
