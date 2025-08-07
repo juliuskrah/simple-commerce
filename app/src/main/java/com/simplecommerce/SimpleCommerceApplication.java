@@ -1,7 +1,10 @@
 package com.simplecommerce;
 
-import org.springframework.boot.SpringApplication;
+import com.simplecommerce.cli.Command;
+import com.simplecommerce.cli.MigrateCommand;
+import com.simplecommerce.cli.ServeCommand;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import picocli.CommandLine;
 
 /**
  * @since 1.0
@@ -11,7 +14,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class SimpleCommerceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SimpleCommerceApplication.class, args);
+      new CommandLine(new Command())
+          .addSubcommand(new ServeCommand(SimpleCommerceApplication.class))
+          .addSubcommand(new MigrateCommand(SimpleCommerceApplication.class))
+          .execute(args);
     }
 
 }

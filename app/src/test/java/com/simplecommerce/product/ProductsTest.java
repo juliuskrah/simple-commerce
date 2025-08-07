@@ -17,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
 
@@ -24,6 +25,7 @@ import org.springframework.test.context.event.RecordApplicationEvents;
  * @author julius.krah
  */
 @DataPostgresTest
+@ActiveProfiles("test")
 @RecordApplicationEvents
 class ProductsTest {
   @Autowired

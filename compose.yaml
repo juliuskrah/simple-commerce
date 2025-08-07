@@ -1,13 +1,29 @@
 name: "simple-commerce"
 
 services:
-  simple_commerce:
-    image: juliuskrah/simple-commerce
+  simple-commerce-migrate:
+    image: ${SIMPLE_COMMERCE_IMAGE:-juliuskrah/simple-commerce:latest}
+    command: ["migrate", "--seed"]
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/simple_commerce
       SPRING_DATASOURCE_USERNAME: simple_commerce
       SPRING_DATASOURCE_PASSWORD: simple_commerce
-      MINIO_ENDPOINT: http://objectStore:9000
+      MINIO_ENDPOINT: http://object-store:9000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      object-store:
+        condition: service_started
+    profiles:
+      - app
+  simple-commerce:
+    image: ${SIMPLE_COMMERCE_IMAGE:-juliuskrah/simple-commerce:latest}
+    command: ["serve"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/simple_commerce
+      SPRING_DATASOURCE_USERNAME: simple_commerce
+      SPRING_DATASOURCE_PASSWORD: simple_commerce
+      MINIO_ENDPOINT: http://object-store:9000
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://oidc:5556/dex/keys
       SPRING_PROFILES_ACTIVE: oidc-authn, keto-authz
     ports:
@@ -15,8 +31,10 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      objectStore:
+      object-store:
         condition: service_started
+      simple-commerce-migrate:
+        condition: service_completed_successfully
     profiles:
       - app
   postgres:
@@ -35,7 +53,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-  objectStore:
+  object-store:
     image: quay.io/minio/minio:RELEASE.2024-08-03T04-33-23Z-cpuv1
     command: ["server", "--console-address", ":9001"]
     environment:

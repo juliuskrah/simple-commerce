@@ -1,9 +1,11 @@
 [versions]
 mockito = "5.14.2"
-minio = "8.5.11"
+minio = "8.5.17"
 moneta = "1.4.4"
+picocli = "4.7.7"
 
 [libraries]
 mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 minio = { module = "io.minio:minio", version.ref = "minio" }
 moneta = { module = "org.javamoney:moneta", version.ref = "moneta" }
+picocli = { module = "info.picocli:picocli", version.ref = "picocli" }

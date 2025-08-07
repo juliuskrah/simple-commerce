@@ -3,6 +3,7 @@ package com.simplecommerce.shared.config;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 import jakarta.servlet.DispatcherType;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +20,7 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 @Configuration(proxyBeanMethods = false)
 @EnableMethodSecurity(mode = AdviceMode.ASPECTJ)
+@ConditionalOnProperty(name = "spring.main.web-application-type", havingValue = "servlet")
 class SecurityConfiguration {
   private static final String[] GRAPHQL_PATH_PATTERNS = {
       "/graphiql",

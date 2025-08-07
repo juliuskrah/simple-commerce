@@ -12,11 +12,13 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * @author julius.krah
  */
 @DataPostgresTest
+@ActiveProfiles("test")
 class MediaTest {
   @Autowired
   private Media mediaRepository;

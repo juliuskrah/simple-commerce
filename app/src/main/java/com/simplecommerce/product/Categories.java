@@ -1,7 +1,5 @@
 package com.simplecommerce.product;
 
-import static org.springframework.data.jpa.domain.Specification.where;
-
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import java.util.Set;
@@ -134,7 +132,7 @@ interface Categories extends Repository<CategoryEntity, UUID>, JpaSpecificationE
   Window<CategoryEntity> findBy(Limit limit, Sort sort, ScrollPosition position);
 
   default Window<CategoryEntity> findAncestorsById(UUID id, Limit limit, Sort sort, ScrollPosition position) {
-    return findBy(where(ancestorsForId(id)), function -> {
+    return findBy(ancestorsForId(id), function -> {
       if (limit.isLimited()) {
         return function.limit(limit.max()).sortBy(sort).scroll(position);
       }
@@ -144,7 +142,7 @@ interface Categories extends Repository<CategoryEntity, UUID>, JpaSpecificationE
 
 
   default Window<CategoryEntity> findDescendantsById(UUID id, Limit limit, Sort sort, ScrollPosition position) {
-    return findBy(where(descendantsForId(id)), function -> {
+    return findBy(descendantsForId(id), function -> {
       if (limit.isLimited()) {
         return function.limit(limit.max()).sortBy(sort).scroll(position);
       }

@@ -12,6 +12,7 @@ import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.support.WindowIterator;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * The test classes in this file follow the category taxonomy below:
@@ -58,6 +59,7 @@ import org.springframework.data.support.WindowIterator;
  * </pre>
  * @author julius.krah
  */
+@ActiveProfiles("test")
 @DataPostgresTest
 class CategoriesTest {
   @Autowired Categories categoryRepository;

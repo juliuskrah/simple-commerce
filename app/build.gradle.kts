@@ -1,5 +1,6 @@
 plugins {
     id("org.springframework.boot")
+    application
 }
 
 val graphQlJavaVersion by extra("22.0")
@@ -32,6 +33,7 @@ dependencies {
     implementation("com.graphql-java:graphql-java-extended-scalars:$graphQlJavaVersion")
     implementation("com.graphql-java:graphql-java-extended-validation:$graphQlJavaVersion")
     implementation(project(":minio-docker-compose"))
+    implementation(libs.picocli)
     implementation(libs.minio)
     implementation(libs.moneta)
     developmentOnly("org.springframework.boot:spring-boot-devtools")
@@ -77,4 +79,12 @@ tasks.withType<JavaCompile> {
 
 tasks.withType<JavaExec> {
     jvmArgs(enablePreview, "-javaagent:${configurations["springInstrument"].singleFile}")
+}
+
+application {
+    mainClass.set("com.simplecommerce.SimpleCommerceApplication")
+    applicationDefaultJvmArgs = listOf(
+        enablePreview,
+        "-javaagent:${configurations["springInstrument"].singleFile}"
+    )
 }

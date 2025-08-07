@@ -182,7 +182,14 @@ public class SeedingService {
   @Async
   @EventListener
   void on(ApplicationReadyEvent event) {
-    // Add method body or move to different class
+    try {
+      LOG.info("Starting database seeding process...");
+      seed();
+      LOG.info("Database seeding completed successfully");
+    } catch (IOException e) {
+      LOG.error("Failed to seed database", e);
+      throw new RuntimeException("Database seeding failed", e);
+    }
   }
 
   record Product(String syntheticId, String naturalId) {

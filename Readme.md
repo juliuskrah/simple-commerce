@@ -14,24 +14,69 @@ Simple Commerce is a headless commerce platform that performs a minimal set of c
 
 ## Running Locally
 
-You can start up Simple Commerce locally using `gradle` and `java`:
+Simple Commerce now supports CLI commands for different operations:
+
+### CLI Commands
+
+- **serve**: Start the GraphQL web server (default if no command specified)
+- **migrate**: Run database migrations only
+- **migrate --seed**: Run database migrations and seed the database
+
+#### Using Gradle
 
 ```bash
+# Start the server (default behavior)
 SPRING_PROFILES_ACTIVE=oidc-authn,keto-authz ./gradlew bootRun
+
+# Start the server explicitly
+SPRING_PROFILES_ACTIVE=oidc-authn,keto-authz ./gradlew bootRun --args="serve"
+
+# Run migrations only
+./gradlew bootRun --args="migrate"
+
+# Run migrations and seed the database
+./gradlew bootRun --args="migrate --seed"
+```
+
+#### Using JAR directly
+
+```bash
+# Build the application
+./gradlew build
+
+# Start the server
+java -jar app/build/libs/app-*.jar serve
+
+# Run migrations only
+java -jar app/build/libs/app-*.jar migrate
+
+# Run migrations and seed the database
+java -jar app/build/libs/app-*.jar migrate --seed
 ```
 
 ### Docker Compose
 
-Starting the docker containers is as simple as running:
+Build docker image for use in docker compose:
 
 ```bash
-docker compose --profile keto-authz --profile oidc-authn up -d
+docker build -t juliuskrah/simple-commerce .
 ```
 
-Stopping the docker containers is as simple as running:
+#### Starting the full stack
 
 ```bash
-docker compose --profile keto-authz --profile oidc-authn down --remove-orphans 
+docker compose --profile keto-authz --profile oidc-authn --profile app up -d
+```
+
+This will:
+1. Start dependencies (PostgreSQL, MinIO, OIDC, Keto)
+2. Run database migrations with seeding (`simple-commerce-migrate`)
+3. Start the web server (`simple-commerce`)
+
+#### Stopping the docker containers
+
+```bash
+docker compose --profile keto-authz --profile oidc-authn --profile app down --remove-orphans 
 ```
 
 ## Contributing
