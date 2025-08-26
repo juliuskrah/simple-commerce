@@ -1,8 +1,12 @@
 package com.simplecommerce.file;
 
+import static com.simplecommerce.shared.Types.NODE_DIGITAL_CONTENT;
 import static com.simplecommerce.shared.Types.NODE_MEDIA_FILE;
 
 import com.simplecommerce.product.Product;
+import com.simplecommerce.product.ProductVariant;
+import com.simplecommerce.product.ProductVariantManagement;
+import com.simplecommerce.product.ProductVariantService;
 import com.simplecommerce.shared.GlobalId;
 import java.util.List;
 import java.util.Optional;
@@ -20,11 +24,14 @@ import org.springframework.util.function.SingletonSupplier;
 @Controller
 class FileController {
   private final ObjectProvider<FileService> fileService;
+  private final ObjectProvider<ProductVariantService> variantService;
   // Defer creation of the FileService to avoid early initialization of aspectj proxy
   private final Supplier<FileService> fileServiceSupplier = SingletonSupplier.of(FileManagement::new);
+  private final Supplier<ProductVariantService> variantServiceSupplier = SingletonSupplier.of(ProductVariantManagement::new);
 
-  FileController(ObjectProvider<FileService> fileService) {
+  FileController(ObjectProvider<FileService> fileService, ObjectProvider<ProductVariantService> variantService) {
     this.fileService = fileService;
+    this.variantService = variantService;
   }
 
   @SchemaMapping(typeName = "MediaFile")
@@ -37,9 +44,20 @@ class FileController {
     return fileService.getIfAvailable(fileServiceSupplier).productMedia(product.id());
   }
 
-  @SchemaMapping(typeName = "Product")
-  Optional<DigitalContent> digitalContent() {
-    return Optional.of(new DigitalContent());
+  @SchemaMapping(typeName = "ProductVariant")
+  Optional<DigitalContent> digitalContent(ProductVariant source) {
+    var digitalContent = fileService.getIfAvailable(fileServiceSupplier).findDigitalContentByVariant(source.id());
+    return Optional.ofNullable(digitalContent);
+  }
+
+  @SchemaMapping(typeName = "DigitalContent")
+  String id(DigitalContent source) {
+    return new GlobalId(NODE_DIGITAL_CONTENT, source.id()).encode();
+  }
+
+  @SchemaMapping(typeName = "DigitalContent")
+  ProductVariant variant(DigitalContent source) {
+    return variantService.getIfAvailable(variantServiceSupplier).findVariant(source.variantId());
   }
 
   @MutationMapping
@@ -53,7 +71,7 @@ class FileController {
   }
 
   @MutationMapping
-  DigitalContent addDigitalContent(@Argument String productId, @Argument FileInput file) {
-    return new DigitalContent();
+  DigitalContent addVariantDigitalContent(@Argument String variantId, @Argument FileInput file) {
+    return fileService.getIfAvailable(fileServiceSupplier).addDigitalContentToVariant(variantId, file);
   }
 }

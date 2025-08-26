@@ -1,6 +1,4 @@
 extend type Mutation {
-    "Add digital content to a product. This is useful for products that are delivered electronically."
-    addDigitalContent(productId: ID!, file: FileInput!): DigitalContent
     """
     Add media to a product. The product's media can be used to showcase the product. The following types of
     media can be added: images, videos, 3D models, and audio files.
@@ -29,18 +27,18 @@ extend type Mutation {
 }
 
 extend type Product {
-    digitalContent: DigitalContent
     "Public URI to the product's media."
     media: [MediaFile!]
 }
 
-"A downloadable file that is associated with a product."
+"A downloadable file that is associated with a product variant."
 type DigitalContent implements Node & File {
     id: ID!
     createdAt: DateTime!
-    product: Product!
+    variant: ProductVariant!
     updatedAt: DateTime!
     url: URL!
+    contentType: String
 }
 
 "A file that is associated with a product. This can be an image, video, 3D model, or audio file."

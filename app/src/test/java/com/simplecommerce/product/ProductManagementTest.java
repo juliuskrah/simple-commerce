@@ -35,6 +35,8 @@ class ProductManagementTest {
   @Mock
   private Products productRepository;
   @Mock
+  private ProductVariants variantRepository;
+  @Mock
   private Event<ProductEvent> event;
   @InjectMocks
   ProductManagement productService;

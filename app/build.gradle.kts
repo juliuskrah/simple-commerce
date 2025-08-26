@@ -32,6 +32,7 @@ dependencies {
     implementation("org.springframework.modulith:spring-modulith-starter-jpa")
     implementation("com.graphql-java:graphql-java-extended-scalars:$graphQlJavaVersion")
     implementation("com.graphql-java:graphql-java-extended-validation:$graphQlJavaVersion")
+    implementation("org.flywaydb:flyway-core")
     implementation(project(":minio-docker-compose"))
     implementation(libs.picocli)
     implementation(libs.minio)
@@ -45,7 +46,6 @@ dependencies {
         isTransitive = false
     }
     runtimeOnly("org.postgresql:postgresql")
-    runtimeOnly("org.flywaydb:flyway-core")
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
     runtimeOnly("org.springframework.security:spring-security-aspects")
     testImplementation("org.springframework.boot:spring-boot-starter-webflux")

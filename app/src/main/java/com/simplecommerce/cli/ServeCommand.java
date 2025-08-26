@@ -34,6 +34,7 @@ public class ServeCommand implements Runnable {
       // Get the original arguments from the parse result
       args = parseResult.originalArgs().toArray(String[]::new);
     }
+    System.setProperty("spring.jpa.hibernate.ddl-auto", "validate");
     // Set profiles for serving mode
     ConfigurableApplicationContext context = new SpringApplicationBuilder(applicationClass).profiles("serve")
         .run(args);

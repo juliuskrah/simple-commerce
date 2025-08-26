@@ -1,7 +1,19 @@
 package com.simplecommerce.file;
 
+import java.net.URL;
+import java.time.OffsetDateTime;
+
 /**
- * Digital content is the downloadable content that customers can purchase.
+ * Represents digital content for a product variant.
  * @author julius.krah
  */
-record DigitalContent() { }
+public record DigitalContent(
+    String id,
+    OffsetDateTime createdAt,
+    OffsetDateTime updatedAt,
+    String variantId,
+    URL url,
+    String contentType
+) implements File {
+
+}

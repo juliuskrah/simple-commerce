@@ -20,6 +20,19 @@
 			"args": [
 				"@playwright/mcp@latest"
 			]
+		},
+		"postgres": {
+			"type": "stdio",
+			"command": "docker",
+			"args": [
+				"run",
+				"--rm",
+				"-i",
+				"--network",
+				"simple-commerce_default",
+				"mcp/postgres",
+				"${input:postgresConnection}",
+			]
 		}
 	},
 	"inputs": [
@@ -28,6 +41,12 @@
 			"type": "promptString",
 			"description": "Figma API Key",
 			"password": true
+		},
+		{
+			"id": "postgresConnection",
+			"type": "promptString",
+			"description": "Postgres Connection String",
+			"default": "postgresql://simple_commerce:simple_commerce@simple-commerce-postgres-1:5432/simple_commerce"
 		}
 	]
 }

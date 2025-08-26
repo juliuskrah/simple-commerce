@@ -9,4 +9,6 @@ package com.simplecommerce.file;
 record StagedUploadInput(
     String filename,
     String contentType
-) { }
+) {
+
+}
