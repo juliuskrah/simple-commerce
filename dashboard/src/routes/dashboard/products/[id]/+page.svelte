@@ -3,6 +3,7 @@
 	import type { PageData } from './$houdini';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
+	import { DeleteProductVariantStore } from '$houdini';
 
 	interface Props {
 		data: PageData;
@@ -14,6 +15,9 @@
 
 	const product = $derived($ProductDetail.data?.product);
 	const variants = $derived(product?.variants?.edges || []);
+
+	// Initialize GraphQL mutation store for deleting variants
+	const deleteVariantMutation = new DeleteProductVariantStore();
 
 	// Helper function to format currency
 	function formatCurrency(amount: number, currency: string = 'USD'): string {
@@ -32,9 +36,26 @@
 		goto(`/dashboard/products/${$page.params.id}/variants/new`);
 	}
 
-	function deleteVariant(variantId: string) {
-		// TODO: Implement delete variant mutation
-		console.log('Delete variant:', variantId);
+	async function deleteVariant(variantId: string) {
+		if (!confirm('Are you sure you want to delete this variant? This action cannot be undone.')) {
+			return;
+		}
+
+		try {
+			const result = await deleteVariantMutation.mutate({
+				id: variantId
+			});
+
+			if (result.errors) {
+				throw new Error(result.errors.map((e: any) => e.message).join(', '));
+			}
+
+			// Reload the page data to reflect the deletion
+			await ProductDetail.fetch();
+		} catch (error) {
+			console.error('Error deleting variant:', error);
+			alert('Failed to delete variant. Please try again.');
+		}
 	}
 </script>
 

@@ -1,5 +1,5 @@
 import { getSession } from '$lib/server/session';
-import { setSession } from '$houdini';
+import { setSession } from '$houdini/plugins/houdini-svelte/runtime/session';
 import type { Handle, HandleFetch } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -12,7 +12,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 		if (session) {
 			// Add the session to the event locals
-			setSession(event, { session });
+			setSession(event, session);
 			event.locals.session = session;
 			event.locals.user = session.userInfo;
 		}
@@ -24,8 +24,13 @@ export const handle: Handle = async ({ event, resolve }) => {
 export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
 	// Only modify GraphQL requests
 	if (request.url.includes('/graphql')) {
-		// Clone the request and strip out problematic headers
+		// Clone the request headers
 		const headers = new Headers(request.headers);
+		
+		// Add authorization header if session exists
+		if (event.locals.session?.accessToken) {
+			headers.set('Authorization', `Bearer ${event.locals.session.accessToken}`);
+		}
 
 		const newRequest = new Request(request, {
 			headers

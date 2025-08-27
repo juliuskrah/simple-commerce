@@ -4,7 +4,7 @@ description: Provide project context and coding guidelines that AI should follow
 ---
 # Spring Boot Instructions
 
-1. **Configuration Classes**: All configuration classes should have the attribute `proxyBeanMethods` set to `false`.
+- **Configuration Classes**: All configuration classes should have the attribute `proxyBeanMethods` set to `false`.
 
 ## Spring for GraphQL Instructions
 
@@ -25,3 +25,7 @@ description: Provide project context and coding guidelines that AI should follow
   - Instead, use separate files for GraphQL queries and mutations located in the `src/test/resources/graphql-test` directory.
 - Integration tests should have the suffix `IT` and be located in the `src/test/java` directory.
 - Integration tests must be annotated with `@SpringBootTest` and should start the entire Spring context.
+
+## Starting the GraphQL Server
+
+- Start the server by running `SPRING_PROFILES_ACTIVE=oidc-authn,keto-authz ./gradlew bootRun --args="serve"`.

@@ -1,0 +1,22 @@
+query ProductVariantDetail($id: ID!) {
+	variant(id: $id) {
+		id
+		title
+		sku
+		price {
+			amount
+			currency
+		}
+		digitalContent {
+			id
+			url
+			contentType
+		}
+		createdAt
+		updatedAt
+		product {
+			id
+			title
+		}
+	}
+}

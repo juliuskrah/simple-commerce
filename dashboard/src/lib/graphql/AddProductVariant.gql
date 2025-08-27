@@ -7,11 +7,6 @@ mutation AddProductVariant($productId: ID!, $input: ProductVariantInput!) {
 			amount
 			currency
 		}
-		digitalContent {
-			id
-			url
-			contentType
-		}
 		createdAt
 		updatedAt
 		product {
