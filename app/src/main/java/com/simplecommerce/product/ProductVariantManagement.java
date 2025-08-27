@@ -74,8 +74,7 @@ public class ProductVariantManagement implements ProductVariantService, NodeServ
   @Override
   @Transactional(readOnly = true)
   public ProductVariant findVariant(String id) {
-    var gid = GlobalId.decode(id);
-    var variant = callInScope(() -> variantRepository.findById(UUID.fromString(gid.id())));
+    var variant = callInScope(() -> variantRepository.findById(UUID.fromString(id)));
     return variant.map(this::fromEntity).orElseThrow(NotFoundException::new);
   }
 

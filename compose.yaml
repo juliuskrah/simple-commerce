@@ -38,7 +38,7 @@ services:
     profiles:
       - app
   postgres:
-    image: postgres:17.2-alpine
+    image: postgres:17.6-alpine
     hostname: postgres
     environment:
       POSTGRES_DB: simple_commerce
@@ -54,7 +54,7 @@ services:
       timeout: 5s
       retries: 3
   object-store:
-    image: quay.io/minio/minio:RELEASE.2024-08-03T04-33-23Z-cpuv1
+    image: quay.io/minio/minio:RELEASE.2025-07-23T15-54-02Z-cpuv1
     command: ["server", "--console-address", ":9001"]
     environment:
       MINIO_CONFIG_ENV_FILE: /etc/config.env
@@ -69,7 +69,7 @@ services:
     labels:
       com.simplecommerce.endpoint.scheme: http
   oidc:
-    image: ghcr.io/dexidp/dex:v2.41.1-distroless
+    image: ghcr.io/dexidp/dex:v2.43.1-distroless
     command: ["dex", "serve", "/etc/dex.yaml"]
     volumes:
       - ./dex/config.yaml:/etc/dex.yaml
@@ -82,7 +82,7 @@ services:
     profiles:
       - oidc-authn
   keto:
-    image: oryd/keto:v0.12.0-distroless
+    image: oryd/keto:v0.14.0-distroless
     command: ["serve", "--config", "/home/ory/keto.yaml"]
     volumes:
       - ./keto/keto.yaml:/home/ory/keto.yaml
@@ -97,7 +97,7 @@ services:
     profiles:
       - keto-authz
   keto-migrate:
-    image: oryd/keto:v0.12.0-distroless
+    image: oryd/keto:v0.14.0-distroless
     command: ["migrate", "up", "--format", "table", "--yes", "--config", "/home/ory/keto.yaml"]
     volumes:
       - ./keto/keto.yaml:/home/ory/keto.yaml

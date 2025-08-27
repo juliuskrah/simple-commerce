@@ -1,6 +1,6 @@
 extend type Query {
     "Find a category by its ID. This allows you to access a taxonomy category, attributes and values of the loaded taxonomy tree"
-    category(id: ID): Category
+    category(id: ID!): Category
     "Find all categories."
     categories(first: Int @Positive, after: String, last: Int @Positive, before: String,
         orderBy: [CategoryOrderField], orderDirection: OrderDirection = ASC):

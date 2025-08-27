@@ -175,8 +175,7 @@ class FileManagement implements FileService, NodeService {
 
   @Override
   public DigitalContent findDigitalContentByVariant(String variantId) {
-    var gid = GlobalId.decode(variantId);
-    var variantUuid = UUID.fromString(gid.id());
+    var variantUuid = UUID.fromString(variantId);
 
     return callInScope(() -> digitalContentRepository.findByVariantId(variantUuid))
         .map(this::fromEntity).orElseThrow(NotFoundException::new);

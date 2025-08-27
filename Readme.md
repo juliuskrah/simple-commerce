@@ -55,6 +55,9 @@ java -jar app/build/libs/app-*.jar migrate
 
 # Run migrations and seed the database
 java -jar app/build/libs/app-*.jar migrate --seed
+
+# Clean database and run migrations
+java -jar app/build/libs/app-*.jar migrate --clean
 ```
 
 ### Docker Compose

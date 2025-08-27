@@ -39,7 +39,7 @@ class ProductVariantController {
 
   @QueryMapping
   ProductVariant variant(@Argument String id) {
-    return variantService.getIfAvailable(variantServiceSupplier).findVariant(id);
+    return variantService.getIfAvailable(variantServiceSupplier).findVariant(GlobalId.decode(id).id());
   }
 
   @SchemaMapping

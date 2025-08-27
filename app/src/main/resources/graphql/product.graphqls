@@ -1,8 +1,8 @@
 extend type Query {
     "Find a product by its ID."
-    product("Product ID" id: ID): Product
+    product("Product ID" id: ID!): Product
     "Find a product variant by its ID."
-    variant("Product Variant ID" id: ID): ProductVariant
+    variant("Product Variant ID" id: ID!): ProductVariant
     "Find all products."
     products(first: Int @Positive, after: String, last: Int @Positive, before: String,
         orderBy: [ProductOrderField], orderDirection: OrderDirection = ASC):
@@ -74,7 +74,7 @@ type ProductVariant implements Node {
     "Stock Keeping Unit - a unique identifier for this variant."
     sku: String!
     "The title of this variant. If null, inherits from the product title."
-    title: String
+    title: String!
     "The price of this variant."
     price: Money
     "Digital content associated with this variant."
@@ -114,7 +114,7 @@ input ProductInput {
 
 input ProductVariantInput {
     sku: String!
-    title: String
+    title: String!
     price: MoneyInput
 }
 
