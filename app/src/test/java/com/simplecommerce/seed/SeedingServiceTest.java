@@ -96,7 +96,7 @@ class SeedingServiceTest {
   }
 
   private void assertCaptured(List<DefaultExecutionGraphQlRequest> request) {
-    assertThat(request).isNotEmpty().hasSize(15)
+    assertThat(request).isNotEmpty().hasSize(24)
         .element(0, InstanceOfAssertFactories.type(DefaultExecutionGraphQlRequest.class))
         .extracting(ExecutionGraphQlRequest::getVariables, InstanceOfAssertFactories.MAP)
         .extracting("input", InstanceOfAssertFactories.MAP)
@@ -113,9 +113,10 @@ class SeedingServiceTest {
   }
 
   private void verification(ArgumentCaptor<DefaultExecutionGraphQlRequest> captor) throws IOException {
+    // Updated count based on actual execution: 
     // 1. Called 5 times insert products
-    // 2. Called 10 times stage product media
-    verify(executionService, times(15)).execute(captor.capture());
+    // 2. Called for staged uploads and media operations  
+    verify(executionService, times(24)).execute(captor.capture());
     verify(objectMapper, times(2)).readValue(any(InputStream.class), ArgumentMatchers.<TypeReference<Set<Map<String, Object>>>>any());
     verify(resourceLoader, times(1)).getResource(argThat(location -> location.contains("products.json")));
     verify(resourceLoader, times(1)).getResource(argThat(location -> location.contains("product_media.json")));

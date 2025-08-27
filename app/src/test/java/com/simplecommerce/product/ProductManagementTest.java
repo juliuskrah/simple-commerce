@@ -76,7 +76,7 @@ class ProductManagementTest {
         .thenReturn(Window.from(List.of(entity), ignored -> null));
     var products = productService.findProducts(1, Sort.unsorted(), ScrollPosition.keyset());
 
-    var expected = new Product(null, "Opti Core", null, null, null, null);
+    var expected = new Product(null, "Opti Core", null, null, null, null, ProductStatus.DRAFT);
     assertThat(products).isNotEmpty().hasSize(1)
         .usingRecursiveComparison().comparingOnlyFields("title")
         .isEqualTo(Window.from(List.of(expected), ignored -> null));
@@ -91,7 +91,7 @@ class ProductManagementTest {
         .thenReturn(Window.from(List.of(entity), ignored -> ScrollPosition.keyset()));
     var products = productService.findProductsByCategory(UUID.randomUUID().toString(), 1, Sort.unsorted(), ScrollPosition.keyset());
 
-    var expected = new Product(null, "Opti Core", null, null, null, null);
+    var expected = new Product(null, "Opti Core", null, null, null, null, ProductStatus.DRAFT);
     assertThat(products).isNotEmpty().hasSize(1)
         .usingRecursiveComparison().comparingOnlyFields("title")
         .isEqualTo(Window.from(List.of(expected), ignored -> ScrollPosition.keyset()));

@@ -1,6 +1,7 @@
 package com.simplecommerce.product;
 
 import com.simplecommerce.node.Node;
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 /**
@@ -13,7 +14,9 @@ public record ProductVariant(
     OffsetDateTime updatedAt,
     String productId,
     String sku,
-    String title
+    String title,
+    BigDecimal priceAmount,
+    String priceCurrency
 ) implements Node {
 
 }

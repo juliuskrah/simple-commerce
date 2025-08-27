@@ -34,6 +34,11 @@ public class ProductVariantManagement implements ProductVariantService, NodeServ
     this.variantRepository = variantRepository.getObject();
   }
 
+  // For testing - allow direct repository injection
+  public void setVariantRepositoryDirect(ProductVariants variantRepository) {
+    this.variantRepository = variantRepository;
+  }
+
   private ProductVariantEntity toEntity(UUID productId, ProductVariantInput input) {
     var entity = new ProductVariantEntity();
     var product = new ProductEntity();
@@ -59,7 +64,9 @@ public class ProductVariantManagement implements ProductVariantService, NodeServ
         entity.getLastModifiedDate().orElseGet(epoch),
         entity.getProduct().getId().toString(),
         entity.getSku(),
-        entity.getTitle()
+        entity.getTitle(),
+        entity.getPriceAmount(),
+        entity.getPriceCurrency()
     );
   }
 

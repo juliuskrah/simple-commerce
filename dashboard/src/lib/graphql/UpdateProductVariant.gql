@@ -1,0 +1,21 @@
+mutation UpdateProductVariant($id: ID!, $input: ProductVariantInput!) {
+	updateProductVariant(id: $id, input: $input) {
+		id
+		title
+		sku
+		price {
+			amount
+			currency
+		}
+		digitalContent {
+			id
+			url
+			contentType
+		}
+		createdAt
+		updatedAt
+		product {
+			id
+		}
+	}
+}

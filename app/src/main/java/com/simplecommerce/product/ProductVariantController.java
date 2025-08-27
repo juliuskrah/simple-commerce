@@ -5,7 +5,6 @@ import static com.simplecommerce.shared.Types.NODE_PRODUCT_VARIANT;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.MonetaryUtils;
 import com.simplecommerce.shared.Money;
-import java.math.BigDecimal;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -57,15 +56,16 @@ class ProductVariantController {
   @SchemaMapping(typeName = "ProductVariant")
   Product product(ProductVariant source) {
     // Return a minimal Product record for the variant's product
-    return new Product(source.productId(), null, null, null, null, null);
+    return new Product(source.productId(), null, null, null, null, null, ProductStatus.DRAFT);
   }
 
   @SchemaMapping(typeName = "ProductVariant")
   Optional<Money> price(ProductVariant source, Locale locale) {
-    // This will be implemented by querying the variant entity for price info
-    // For now, return a placeholder
-    var usd = MonetaryUtils.getCurrency("USD", locale);
-    return Optional.of(new Money(usd, new BigDecimal("99.99")));
+    if (source.priceAmount() == null || source.priceCurrency() == null) {
+      return Optional.empty();
+    }
+    var currency = MonetaryUtils.getCurrency(source.priceCurrency(), locale);
+    return Optional.of(new Money(currency, source.priceAmount()));
   }
 
   @MutationMapping

@@ -1,0 +1,9 @@
+mutation AddVariantDigitalContent($variantId: ID!, $file: FileInput!) {
+	addVariantDigitalContent(variantId: $variantId, file: $file) {
+		id
+		url
+		contentType
+		createdAt
+		updatedAt
+	}
+}

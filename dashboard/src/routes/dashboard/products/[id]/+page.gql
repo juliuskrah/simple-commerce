@@ -1,0 +1,45 @@
+query ProductDetail($id: ID!) {
+	product(id: $id) {
+		id
+		title
+		description
+		slug
+		status
+		priceRange {
+			start {
+				amount
+				currency
+			}
+			stop {
+				amount
+				currency
+			}
+		}
+		category {
+			id
+			title
+		}
+		createdAt
+		updatedAt
+		variants(first: 20) {
+			edges {
+				node {
+					id
+					sku
+					title
+					price {
+						amount
+						currency
+					}
+					digitalContent {
+						id
+						url
+						contentType
+					}
+					createdAt
+					updatedAt
+				}
+			}
+		}
+	}
+}

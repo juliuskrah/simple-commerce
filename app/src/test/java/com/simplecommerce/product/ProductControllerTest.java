@@ -50,7 +50,7 @@ class ProductControllerTest {
   void shouldFetchProduct() {
     when(productService.findProduct(anyString()))
         .thenReturn(new Product("18d25652-5870-4555-8146-5166fec97c3f", "Product", "product",
-            null, null, null));
+            null, null, null, ProductStatus.DRAFT));
     graphQlTester.documentName("productDetails")
         .variable("id", "gid://SimpleCommerce/Product/some-random-id-1234567")
         .operationName("productDetails")
@@ -87,7 +87,7 @@ class ProductControllerTest {
     ArgumentCaptor<Integer> firstCaptor = ArgumentCaptor.captor();
     when(productService.findProduct(anyString()))
         .thenReturn(new Product(id, "Cyber Cafe", "cyber-cafe",
-            null, null, null));
+            null, null, null, ProductStatus.DRAFT));
     when(productService.findTags(anySet(), firstCaptor.capture()))
         .thenReturn(List.of(new ProductWithTags() {
           @Override
@@ -122,7 +122,7 @@ class ProductControllerTest {
   void shouldFetchProductWithPriceSet() {
     when(productService.findProduct(anyString())).thenReturn(
         new Product("c6f56e4a-bb2e-4ca2-b267-ea398ae8cb34", "Cyber Cafe", "cyber-cafe",
-        null, null, null));
+        null, null, null, ProductStatus.DRAFT));
     var entity = new ParameterizedTypeReference<Map<String, Object>>() {};
     graphQlTester.documentName("productDetails")
         .variable("id", "gid://SimpleCommerce/Product/some-random-id-1234567")
@@ -146,7 +146,7 @@ class ProductControllerTest {
   @DisplayName("Should fetch products")
   void shouldFetchProducts() {
     var entities = List.of(new Product(UUID.randomUUID().toString(), "Cyberdyne Rover", "cyberdyne-rover",
-        null, null, null));
+        null, null, null, ProductStatus.DRAFT));
     when(productService.findProducts(anyInt(), any(Sort.class), any(ScrollPosition.class)))
         .thenReturn(Window.from(entities, ignored -> ScrollPosition.keyset()));
     graphQlTester.documentName("products")
@@ -163,7 +163,7 @@ class ProductControllerTest {
   void shouldAddProduct() {
     when(productService.createProduct(any(ProductInput.class)))
         .thenReturn(new Product("1", "Product 1", "product-1",
-            null, null, null));
+            null, null, null, ProductStatus.DRAFT));
     graphQlTester.documentName("addProduct")
         .variable("input", Map.of("title", "Product 1"))
         .execute()
@@ -180,7 +180,7 @@ class ProductControllerTest {
   void shouldUpdateProduct() {
     when(productService.updateProduct(anyString(), any(ProductInput.class)))
         .thenReturn(new Product("1", "Neu Garne", "neu-garne",
-            null, null, null));
+            null, null, null, ProductStatus.DRAFT));
     graphQlTester.documentName("updateProduct")
         .variable("id", "1")
         .variable("input", Map.of("title", "Neu Garne"))
@@ -209,8 +209,8 @@ class ProductControllerTest {
     var id = "79d9cf75-0d30-4d1f-886b-7827deb98508";
     when(categoryService.findCategory(anyString())).thenReturn(new Category(id, null, null, null, null, null));
     var entities = List.of(
-        new Product(UUID.randomUUID().toString(), "Product One", null, null, null, null),
-        new Product(UUID.randomUUID().toString(), "Product Two", null, null, null, null)
+        new Product(UUID.randomUUID().toString(), "Product One", null, null, null, null, ProductStatus.DRAFT),
+        new Product(UUID.randomUUID().toString(), "Product Two", null, null, null, null, ProductStatus.DRAFT)
     );
     when(productService.findProductsByCategory(anyString(), anyInt(), any(Sort.class), any(ScrollPosition.class)))
         .thenReturn(Window.from(entities, ignored -> ScrollPosition.keyset()));

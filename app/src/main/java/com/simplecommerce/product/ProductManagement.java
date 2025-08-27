@@ -69,7 +69,8 @@ class ProductManagement implements ProductService, NodeService {
         entity.getSlug(),
         entity.getCreatedDate().orElseGet(epoch),
         entity.getDescription(),
-        entity.getLastModifiedDate().orElseGet(epoch)
+        entity.getLastModifiedDate().orElseGet(epoch),
+        entity.getStatus() != null ? entity.getStatus() : ProductStatus.DRAFT
     );
   }
 
