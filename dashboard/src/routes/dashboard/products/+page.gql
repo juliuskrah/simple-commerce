@@ -5,6 +5,7 @@ query Products {
 				id
 				title
 				description
+				status
 				createdAt
 				updatedAt
 				category {

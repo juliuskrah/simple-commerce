@@ -1,6 +1,7 @@
 <script lang="ts">
 	import DashboardLayout from '$lib/components/DashboardLayout.svelte';
 	import type { PageData } from './$houdini';
+	import { goto } from '$app/navigation';
 
 	interface Props {
 		data: PageData;
@@ -89,7 +90,9 @@
 			</thead>
 			<tbody>
 				{#if $Products.data?.products.edges.length}
-					{#each $Products.data.products.edges as { node: product } (product.id)}
+					{#each $Products.data.products.edges as edge (edge?.node.id)}
+						{#if edge?.node}
+							{@const product = edge.node}
 						<tr class="border-t border-gray-100 hover:bg-gray-50">
 							<td class="px-6 py-4">
 								<div class="flex items-center">
@@ -136,7 +139,7 @@
 							</td>
 							<td class="px-6 py-4">
 								<div class="flex space-x-2">
-									<button class="hover:text-primary-600 text-gray-400" aria-label="Edit product">
+									<button class="hover:text-primary-600 text-gray-400" aria-label="Edit product" onclick={() => goto(`/dashboard/products/${product.id}`)}>
 										<svg
 											xmlns="http://www.w3.org/2000/svg"
 											class="h-5 w-5"
@@ -165,6 +168,7 @@
 								</div>
 							</td>
 						</tr>
+						{/if}
 					{/each}
 				{:else}
 					<tr>

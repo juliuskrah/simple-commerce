@@ -28,4 +28,4 @@ description: Provide project context and coding guidelines that AI should follow
 
 ## Starting the GraphQL Server
 
-- Start the server by running `SPRING_PROFILES_ACTIVE=oidc-authn,keto-authz ./gradlew bootRun --args="serve"`.
+- Start the server by running `./gradlew bootRun --args='serve --spring.profiles.active=oidc-authn,keto-authz'`.

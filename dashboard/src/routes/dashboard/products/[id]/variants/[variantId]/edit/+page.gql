@@ -7,11 +7,6 @@ query ProductVariantDetail($id: ID!) {
 			amount
 			currency
 		}
-		digitalContent {
-			id
-			url
-			contentType
-		}
 		createdAt
 		updatedAt
 		product {

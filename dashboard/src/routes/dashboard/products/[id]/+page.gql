@@ -31,11 +31,6 @@ query ProductDetail($id: ID!) {
 						amount
 						currency
 					}
-					digitalContent {
-						id
-						url
-						contentType
-					}
 					createdAt
 					updatedAt
 				}

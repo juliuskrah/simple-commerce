@@ -5,10 +5,11 @@
 	import { goto } from '$app/navigation';
 	import { enhance } from '$app/forms';
 	import type { PageData, ActionData } from './$houdini';
+	import { superForm } from 'sveltekit-superforms/client';
 
 	interface Props {
 		data: PageData;
-		form?: ActionData;
+		form?: any;
 	}
 
 	let { data, form }: Props = $props();
@@ -55,35 +56,21 @@
 	</div>
 
 	<!-- Hidden form for server action -->
-	<form
-		bind:this={formElement}
-		method="POST"
-		use:enhance={({ formElement, formData, action, cancel, submitter }) => {
-			isSubmitting = true;
-			return async ({ result, update }) => {
-				isSubmitting = false;
-				if (result.type === 'error') {
-					console.error('Form submission error:', result.error);
-					alert('Failed to create variant. Please try again.');
-				} else if (result.type === 'failure') {
-					console.error('Form validation failure:', result.data);
-					alert(result.data?.message || 'Failed to create variant. Please check your input.');
-				}
-				await update();
-			};
-		}}
-		style="display: none;"
-	>
-		<input type="hidden" name="title" />
-		<input type="hidden" name="sku" />
-		<input type="hidden" name="amount" />
-		<input type="hidden" name="currency" />
+<!-- Superform hidden form -->
+{#if form}
+	<form method="POST" use:enhance bind:this={formElement} style="display:none;">
+		<input type="hidden" name="title" value={form?.data?.title}>
+		<input type="hidden" name="sku" value={form?.data?.sku}>
+		<input type="hidden" name="amount" value={form?.data?.amount}>
+		<input type="hidden" name="currency" value={form?.data?.currency}>
 	</form>
+{/if}
 
 	<VariantForm
 		{productId}
 		onSubmit={handleSubmit}
 		onCancel={handleCancel}
 		{isSubmitting}
+		errors={form?.errors}
 	/>
 </DashboardLayout>

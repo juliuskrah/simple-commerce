@@ -4,6 +4,7 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { DeleteProductVariantStore } from '$houdini';
+	import { notifications } from '$lib/stores/notifications';
 
 	interface Props {
 		data: PageData;
@@ -14,7 +15,38 @@
 	let { ProductDetail } = $derived(data);
 
 	const product = $derived($ProductDetail.data?.product);
-	const variants = $derived(product?.variants?.edges || []);
+	const baseEdges = $derived(product?.variants?.edges || []);
+	let variantEdges = $state<any[]>([]);
+	$effect(() => { variantEdges = baseEdges; });
+
+	let successMessage = $state<string | null>(null);
+	let notificationRegion: HTMLElement | null = null;
+	let successBanner: HTMLElement | null = null;
+
+	// Refetch logic when coming from create/update operations & focus success banner
+	$effect(() => {
+		(async () => {
+			const url = $page.url;
+			if (!product) return;
+			const created = url.searchParams.get('variantCreated');
+			const updated = url.searchParams.get('updated');
+			if (created || updated) {
+				try {
+					await ProductDetail.fetch({ policy: 'NetworkOnly' });
+					successMessage = created
+						? 'Variant created successfully.'
+						: 'Variant updated successfully.';
+					const clean = new URL(url.toString());
+					clean.searchParams.delete('variantCreated');
+					clean.searchParams.delete('updated');
+					history.replaceState({}, '', clean.pathname + clean.search);
+					setTimeout(() => successBanner?.focus(), 0);
+				} catch (e) {
+					console.error('Refetch after mutation failed', e);
+				}
+			}
+		})();
+	});
 
 	// Initialize GraphQL mutation store for deleting variants
 	const deleteVariantMutation = new DeleteProductVariantStore();
@@ -49,12 +81,16 @@
 			if (result.errors) {
 				throw new Error(result.errors.map((e: any) => e.message).join(', '));
 			}
-
-			// Reload the page data to reflect the deletion
-			await ProductDetail.fetch();
+			// Optimistically remove from UI before refetch
+			variantEdges = variantEdges.filter((edge) => edge?.node.id !== variantId);
+			notifications.push({ type: 'success', message: 'Variant deleted.' });
+			setTimeout(() => notificationRegion?.focus(), 0);
+			// Background refetch to ensure consistency
+			ProductDetail.fetch({ policy: 'NetworkOnly' }).catch((e) => console.warn('Refetch after delete failed', e));
 		} catch (error) {
 			console.error('Error deleting variant:', error);
-			alert('Failed to delete variant. Please try again.');
+			notifications.push({ type: 'error', message: 'Failed to delete variant.' });
+			setTimeout(() => notificationRegion?.focus(), 0);
 		}
 	}
 </script>
@@ -63,6 +99,32 @@
 	{#if product}
 		<!-- Product Header -->
 		<div class="mb-6">
+			<!-- Inline success after create/update -->
+			{#if successMessage}
+				<div
+					class="mb-4 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 outline-none"
+					role="status"
+					aria-live="polite"
+					tabindex="-1"
+					bind:this={successBanner}
+				>{successMessage}</div>
+			{/if}
+			<!-- Notifications stack -->
+			<div
+				class="space-y-2 outline-none"
+				aria-live="polite"
+				aria-relevant="additions"
+				role="status"
+				tabindex="-1"
+				bind:this={notificationRegion}
+			>
+				{#each $notifications as note (note.id)}
+					<div class="flex items-start justify-between rounded-md border px-4 py-3 text-sm {note.type === 'success' ? 'border-green-200 bg-green-50 text-green-800' : note.type === 'error' ? 'border-red-200 bg-red-50 text-red-800' : 'border-blue-200 bg-blue-50 text-blue-800'}">
+						<p>{note.message}</p>
+						<button class="ml-4 text-xs opacity-70 hover:opacity-100" onclick={() => notifications.dismiss(note.id)}>Dismiss</button>
+					</div>
+				{/each}
+			</div>
 			<div class="flex items-center justify-between">
 				<div>
 					<nav class="mb-2 text-sm text-gray-500">
@@ -181,7 +243,7 @@
 					</div>
 					<div>
 						<span class="text-sm font-medium text-gray-500">Variants</span>
-						<p class="text-lg font-semibold text-gray-900">{variants.length}</p>
+						<p class="text-lg font-semibold text-gray-900">{variantEdges.length}</p>
 					</div>
 				</div>
 			</div>
@@ -211,21 +273,21 @@
 				</button>
 			</div>
 
-			{#if variants.length > 0}
+			{#if variantEdges.length > 0}
 				<!-- Variants Table -->
 				<div class="overflow-x-auto">
-					<table class="w-full">
+					<table class="w-full" aria-describedby="variant-table-caption">
+						<caption id="variant-table-caption" class="sr-only">Product variants list</caption>
 						<thead>
 							<tr class="bg-gray-50 text-left">
-								<th class="px-6 py-3 text-sm font-medium text-gray-500">Variant</th>
-								<th class="px-6 py-3 text-sm font-medium text-gray-500">SKU</th>
-								<th class="px-6 py-3 text-sm font-medium text-gray-500">Price</th>
-								<th class="px-6 py-3 text-sm font-medium text-gray-500">Digital Content</th>
-								<th class="px-6 py-3 text-sm font-medium text-gray-500">Actions</th>
+								<th scope="col" class="px-6 py-3 text-sm font-medium text-gray-500">Variant</th>
+								<th scope="col" class="px-6 py-3 text-sm font-medium text-gray-500">SKU</th>
+								<th scope="col" class="px-6 py-3 text-sm font-medium text-gray-500">Price</th>
+								<th scope="col" class="px-6 py-3 text-sm font-medium text-gray-500">Actions</th>
 							</tr>
 						</thead>
 						<tbody>
-							{#each variants as variantEdge (variantEdge?.node.id)}
+							{#each variantEdges as variantEdge (variantEdge?.node.id)}
 								{#if variantEdge?.node}
 									{@const variant = variantEdge.node}
 								<tr class="border-t border-gray-100 hover:bg-gray-50">
@@ -238,20 +300,7 @@
 									<td class="px-6 py-4 text-gray-800">
 										{variant.price ? formatCurrency(variant.price.amount, variant.price.currency) : 'N/A'}
 									</td>
-									<td class="px-6 py-4">
-										{#if variant.digitalContent}
-											<a
-												href={variant.digitalContent.url}
-												target="_blank"
-												rel="noopener noreferrer"
-												class="text-primary-600 hover:text-primary-700 text-sm"
-											>
-												View Content
-											</a>
-										{:else}
-											<span class="text-gray-500 text-sm">None</span>
-										{/if}
-									</td>
+								
 									<td class="px-6 py-4">
 										<div class="flex space-x-2">
 											<button

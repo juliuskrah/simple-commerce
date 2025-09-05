@@ -1,15 +1,14 @@
 <script lang="ts">
 	import DashboardLayout from '$lib/components/DashboardLayout.svelte';
 	import VariantForm from '$lib/components/VariantForm.svelte';
+	import { UpdateProductVariantStore } from '$houdini';
+	import { notifications } from '$lib/stores/notifications';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import type { PageData } from './$types';
 
-	interface Props {
-		data: PageData;
-	}
-
-	let { data }: Props = $props();
+	interface Props { data: PageData; form?: any }
+	let { data, form }: Props = $props();
 	const user = $derived(data.user);
 	let { ProductVariantDetail } = $derived(data);
 	
@@ -18,33 +17,31 @@
 
 	let isSubmitting = $state(false);
 
+	const updateVariantMutation = new UpdateProductVariantStore();
+
 	async function handleSubmit(formData: any) {
 		if (!variant) return;
-		
 		isSubmitting = true;
 		try {
-			// Convert form data to GraphQL input
 			const input: any = {
 				title: formData.title,
 				sku: formData.sku
 			};
-
-			// Add price if provided
 			if (formData.price && formData.price.amount > 0) {
 				input.price = {
 					amount: formData.price.amount,
 					currency: formData.price.currency
 				};
 			}
-
-			// For now, simulate the mutation - TODO: implement actual GraphQL call
-			console.log('Would update variant with:', { id: variant.id, input });
-			alert('Variant updated successfully!');
-
-			goto(`/dashboard/products/${productId}`);
+			const result = await updateVariantMutation.mutate({ id: variant.id, input });
+			if (result.errors) {
+				throw new Error(result.errors.map((e: any) => e.message).join(', '));
+			}
+			notifications.push({ type: 'success', message: 'Variant updated.' });
+			goto(`/dashboard/products/${productId}?updated=1`);
 		} catch (error) {
 			console.error('Error updating variant:', error);
-			alert('Failed to update variant. Please try again.');
+			notifications.push({ type: 'error', message: 'Failed to update variant.' });
 		} finally {
 			isSubmitting = false;
 		}
@@ -74,6 +71,7 @@
 			onSubmit={handleSubmit}
 			onCancel={handleCancel}
 			{isSubmitting}
+			errors={form?.errors}
 		/>
 	{:else}
 		<!-- Loading or Error State -->
