@@ -29,4 +29,19 @@ interface FileService {
    * @return list of media files associated with the product
    */
   List<MediaFile> productMedia(String productId);
+
+  /**
+   * Add digital content to a variant.
+   * @param variantId the variant id
+   * @param file the url of file to be added
+   * @return digital content object containing the file details
+   */
+  DigitalContent addDigitalContentToVariant(String variantId, FileInput file);
+
+  /**
+   * Get digital content for a variant.
+   * @param variantId the variant id
+   * @return digital content associated with the variant, if any
+   */
+  DigitalContent findDigitalContentByVariant(String variantId);
 }

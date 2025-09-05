@@ -112,6 +112,54 @@ public class SeedingService {
         .log();
   }
 
+  private void seedProductVariants(Flux<Product> products) {
+    var addVariant = """
+        mutation addVariant($productId: ID!, $input: ProductVariantInput!) {
+          addProductVariant(productId: $productId, input: $input) {
+            id
+            sku
+            title
+          }
+        }
+        """;
+
+    // Create additional variants for the first few products for demo purposes
+    // Process sequentially to avoid connection pool exhaustion
+    products.take(3)
+        .filter(product -> product.naturalId() != null) // Only process successfully created products
+        .flatMap(product -> {
+      // Create 2 additional variants per product
+      return Flux.range(1, 2).map(i -> {
+        Map<String, Object> variantInput = Map.of(
+            "sku", product.syntheticId() + "-variant-" + i,
+            "title", "Variant " + i,
+            "price", Map.of(
+                "amount", String.valueOf(9.99 + (i * 5.00)), // 14.99, 19.99
+                "currency", "USD"
+            )
+        );
+        Map<String, Object> variables = Map.of(
+            "productId", product.naturalId(),
+            "input", variantInput
+        );
+        return executionService.execute(new DefaultExecutionGraphQlRequest(
+            addVariant, null, variables, null, id(), null));
+      });
+    }, 1) // Process one at a time
+        .flatMap(result -> result)
+        .doOnNext(response -> {
+          try {
+            var sku = response.field("addProductVariant.sku").getValue();
+            LOG.info("Created variant: {}", String.valueOf(sku));
+          } catch (Exception e) {
+            LOG.warn("Could not extract variant SKU from response", e);
+          }
+        })
+        .doOnError(error -> LOG.error("Failed to create variant", error))
+        .onErrorContinue((error, item) -> LOG.error("Skipping variant creation due to error", error))
+        .blockLast();
+  }
+
   private void removeId(Map<String, Object> products, Set<String> keysToRemove) {
     products.keySet().removeAll(keysToRemove);
   }
@@ -173,6 +221,7 @@ public class SeedingService {
     // TODO drop existing data
     var products = seedProduct();
     seedProductMedia(products);
+    seedProductVariants(products);
   }
 
   /**

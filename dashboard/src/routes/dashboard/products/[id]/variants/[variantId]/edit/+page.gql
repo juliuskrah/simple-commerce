@@ -1,0 +1,17 @@
+query ProductVariantDetail($variantId: ID!) {
+	variant(id: $variantId) {
+		id
+		title
+		sku
+		price {
+			amount
+			currency
+		}
+		createdAt
+		updatedAt
+		product {
+			id
+			title
+		}
+	}
+}

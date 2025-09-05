@@ -13,7 +13,8 @@ public record Product(
     String slug,
     OffsetDateTime createdAt,
     String description,
-    OffsetDateTime updatedAt
+    OffsetDateTime updatedAt,
+    ProductStatus status
 ) implements Node {
 
 }

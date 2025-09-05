@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.simplecommerce.file.MediaFile;
 import com.simplecommerce.product.Category;
 import com.simplecommerce.product.Product;
+import com.simplecommerce.product.ProductStatus;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Optional;
@@ -48,7 +49,7 @@ class NodeControllerTest {
   @Test
   @DisplayName("Should resolve product node")
   void shouldResolveProductNode() {
-    when(nodeServiceSupplier.get()).thenReturn(id -> new Product(id, "Product", "product", null, "{}", null));
+    when(nodeServiceSupplier.get()).thenReturn(id -> new Product(id, "Product", "product", null, "{}", null, ProductStatus.DRAFT));
     nodeServiceSupplierMock.when(() -> NodeServiceSupplier.findFirst(any()))
         .thenReturn(Optional.of(nodeServiceSupplier));
     graphQlTester.documentName("nodeDetails")

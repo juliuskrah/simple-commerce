@@ -7,6 +7,8 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -50,6 +52,9 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> implemen
   private List<String> tags = new ArrayList<>();
   @ManyToOne(fetch = LAZY)
   private CategoryEntity category;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private ProductStatus status = ProductStatus.DRAFT;
 
   /**
    * Publishes a {@link ProductEvent} of type {@link ProductEventType#CREATED}.
@@ -184,6 +189,14 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> implemen
 
   public void setCategory(CategoryEntity category) {
     this.category = category;
+  }
+
+  public ProductStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(ProductStatus status) {
+    this.status = status;
   }
 
   @Override

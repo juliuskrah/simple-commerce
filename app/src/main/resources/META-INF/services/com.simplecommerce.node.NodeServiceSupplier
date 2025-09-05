@@ -1,3 +1,4 @@
 com.simplecommerce.product.ProductNodeServiceSupplier
+com.simplecommerce.product.ProductVariantNodeServiceSupplier
 com.simplecommerce.product.CategoryNodeServiceSupplier
 com.simplecommerce.file.FileNodeServiceSupplier

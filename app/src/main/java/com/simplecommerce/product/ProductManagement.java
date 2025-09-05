@@ -41,9 +41,13 @@ class ProductManagement implements ProductService, NodeService {
   public void setEvent(ObjectFactory<Event<ProductEvent>> event) {
     this.event = event.getObject();
   }
+  public void setVariantRepository(ObjectFactory<ProductVariants> variantRepository) {
+    this.variantRepository = variantRepository.getObject();
+  }
 
   private Products productRepository;
   private Event<ProductEvent> event;
+  private ProductVariants variantRepository;
 
   private ProductEntity toEntity(ProductInput product) {
     var category = new CategoryEntity();
@@ -65,7 +69,8 @@ class ProductManagement implements ProductService, NodeService {
         entity.getSlug(),
         entity.getCreatedDate().orElseGet(epoch),
         entity.getDescription(),
-        entity.getLastModifiedDate().orElseGet(epoch)
+        entity.getLastModifiedDate().orElseGet(epoch),
+        entity.getStatus() != null ? entity.getStatus() : ProductStatus.DRAFT
     );
   }
 
@@ -158,7 +163,27 @@ class ProductManagement implements ProductService, NodeService {
     var productEntity = toEntity(product);
     productEntity.publishProductCreatedEvent();
     runInScope(() -> productRepository.saveAndFlush(productEntity));
+    
+    // Create default variant
+    createDefaultVariant(productEntity, product);
+    
     return fromEntity(productEntity);
+  }
+
+  private void createDefaultVariant(ProductEntity productEntity, ProductInput productInput) {
+    var variant = new ProductVariantEntity();
+    variant.setProduct(productEntity);
+    variant.setSku(productEntity.getSlug() + "-default");
+    variant.setTitle(productEntity.getTitle());
+    variant.setSystemGenerated(true);
+    
+    // Set price from product input if provided
+    if (productInput.price() != null) {
+      variant.setPriceAmount(productInput.price());
+      variant.setPriceCurrency("USD"); // Default to USD
+    }
+    
+    runInScope(() -> variantRepository.saveAndFlush(variant));
   }
 
   /**

@@ -1,0 +1,16 @@
+mutation AddProductVariant($productId: ID!, $input: ProductVariantInput!) {
+	addProductVariant(productId: $productId, input: $input) {
+		id
+		title
+		sku
+		price {
+			amount
+			currency
+		}
+		createdAt
+		updatedAt
+		product {
+			id
+		}
+	}
+}

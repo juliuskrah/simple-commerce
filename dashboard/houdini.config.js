@@ -29,7 +29,43 @@ const config = {
 			marshal(date) {
 				return date && date.getTime();
 			}
-		}
+		},
+		JsonString: {
+			type: 'string',
+			unmarshal(val) {
+				return val;
+			},
+			marshal(val) {
+				return val;
+			}
+		},
+			Decimal: {
+			type: 'number',
+			unmarshal(val) {
+				return val ? parseFloat(val) : null;
+			},
+			marshal(val) {
+				return val ? val.toString() : null;
+			}
+			},
+			Currency: {
+				type: 'string',
+				unmarshal(val) {
+					return typeof val === 'string' ? val : null;
+				},
+				marshal(val) {
+					return val;
+				}
+			},
+			URL: {
+				type: 'string',
+				unmarshal(val) {
+					return typeof val === 'string' ? val : null;
+				},
+				marshal(val) {
+					return val;
+				}
+			}
 	}
 };
 
