@@ -110,7 +110,7 @@
 		<div class="flex border-b">
 			<button
 				class="px-6 py-3 text-sm font-medium {activeTab === 'profile'
-					? 'text-primary-600 border-primary-600 border-b-2'
+					? 'border-b-2 border-primary-600 text-primary-600'
 					: 'text-gray-500 hover:text-gray-700'}"
 				onclick={() => setActiveTab('profile')}
 			>
@@ -118,7 +118,7 @@
 			</button>
 			<button
 				class="px-6 py-3 text-sm font-medium {activeTab === 'store'
-					? 'text-primary-600 border-primary-600 border-b-2'
+					? 'border-b-2 border-primary-600 text-primary-600'
 					: 'text-gray-500 hover:text-gray-700'}"
 				onclick={() => setActiveTab('store')}
 			>
@@ -126,7 +126,7 @@
 			</button>
 			<button
 				class="px-6 py-3 text-sm font-medium {activeTab === 'payment'
-					? 'text-primary-600 border-primary-600 border-b-2'
+					? 'border-b-2 border-primary-600 text-primary-600'
 					: 'text-gray-500 hover:text-gray-700'}"
 				onclick={() => setActiveTab('payment')}
 			>
@@ -134,7 +134,7 @@
 			</button>
 			<button
 				class="px-6 py-3 text-sm font-medium {activeTab === 'notification'
-					? 'text-primary-600 border-primary-600 border-b-2'
+					? 'border-b-2 border-primary-600 text-primary-600'
 					: 'text-gray-500 hover:text-gray-700'}"
 				onclick={() => setActiveTab('notification')}
 			>
@@ -148,7 +148,7 @@
 				<form onsubmit={preventDefault(saveProfile)} class="space-y-6">
 					<div class="mb-6 flex items-center space-x-6">
 						<div
-							class="bg-primary-100 text-primary-700 flex h-24 w-24 items-center justify-center rounded-full text-2xl font-medium"
+							class="flex h-24 w-24 items-center justify-center rounded-full bg-primary-100 text-2xl font-medium text-primary-700"
 						>
 							{profileForm.firstName[0]}{profileForm.lastName[0]}
 						</div>
@@ -158,7 +158,7 @@
 								{profileForm.lastName}
 							</h3>
 							<p class="text-gray-500">{profileForm.email}</p>
-							<button class="text-primary-600 hover:text-primary-800 mt-2 text-sm font-medium">
+							<button class="mt-2 text-sm font-medium text-primary-600 hover:text-primary-800">
 								Change Profile Picture
 							</button>
 						</div>
@@ -173,7 +173,7 @@
 								type="text"
 								id="firstName"
 								bind:value={profileForm.firstName}
-								class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+								class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 							/>
 						</div>
 						<div>
@@ -184,7 +184,7 @@
 								type="text"
 								id="lastName"
 								bind:value={profileForm.lastName}
-								class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+								class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 							/>
 						</div>
 						<div>
@@ -195,7 +195,7 @@
 								type="email"
 								id="email"
 								bind:value={profileForm.email}
-								class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+								class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 							/>
 						</div>
 						<div>
@@ -206,7 +206,7 @@
 								type="text"
 								id="phone"
 								bind:value={profileForm.phone}
-								class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+								class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 							/>
 						</div>
 						<div>
@@ -217,7 +217,7 @@
 								type="text"
 								id="country"
 								bind:value={profileForm.country}
-								class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+								class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 							/>
 						</div>
 						<div>
@@ -226,7 +226,7 @@
 								type="text"
 								id="city"
 								bind:value={profileForm.city}
-								class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+								class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 							/>
 						</div>
 						<div>
@@ -237,7 +237,7 @@
 								type="text"
 								id="address"
 								bind:value={profileForm.address}
-								class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+								class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 							/>
 						</div>
 						<div>
@@ -248,7 +248,7 @@
 								type="text"
 								id="postalCode"
 								bind:value={profileForm.postalCode}
-								class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+								class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 							/>
 						</div>
 					</div>
@@ -259,14 +259,14 @@
 							id="bio"
 							bind:value={profileForm.bio}
 							rows="4"
-							class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+							class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 						></textarea>
 					</div>
 
 					<div class="flex justify-end">
 						<button
 							type="submit"
-							class="bg-primary-600 hover:bg-primary-700 rounded-lg px-6 py-2 text-white"
+							class="rounded-lg bg-primary-600 px-6 py-2 text-white hover:bg-primary-700"
 						>
 							Save Changes
 						</button>
@@ -288,7 +288,7 @@
 								type="text"
 								id="storeName"
 								bind:value={storeForm.storeName}
-								class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+								class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 							/>
 						</div>
 						<div>
@@ -299,7 +299,7 @@
 								type="email"
 								id="storeEmail"
 								bind:value={storeForm.storeEmail}
-								class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+								class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 							/>
 						</div>
 						<div>
@@ -310,7 +310,7 @@
 								type="text"
 								id="storePhone"
 								bind:value={storeForm.storePhone}
-								class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+								class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 							/>
 						</div>
 						<div>
@@ -321,7 +321,7 @@
 								type="text"
 								id="storeAddress"
 								bind:value={storeForm.storeAddress}
-								class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+								class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 							/>
 						</div>
 						<div>
@@ -331,7 +331,7 @@
 							<select
 								id="currency"
 								bind:value={storeForm.currency}
-								class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+								class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 							>
 								<option value="GHS">Ghana Cedi (GHS)</option>
 								<option value="USD">US Dollar (USD)</option>
@@ -348,7 +348,7 @@
 								type="text"
 								id="taxRate"
 								bind:value={storeForm.taxRate}
-								class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+								class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 							/>
 						</div>
 					</div>
@@ -367,7 +367,7 @@
 										type="text"
 										id={`shipping-name-${index}`}
 										bind:value={option.name}
-										class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+										class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 										placeholder="e.g. Standard Shipping"
 									/>
 								</div>
@@ -380,7 +380,7 @@
 										type="text"
 										id={`shipping-price-${index}`}
 										bind:value={option.price}
-										class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+										class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 										placeholder="15"
 									/>
 								</div>
@@ -393,7 +393,7 @@
 										type="text"
 										id={`shipping-days-${index}`}
 										bind:value={option.days}
-										class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+										class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 										placeholder="3-5"
 									/>
 								</div>
@@ -421,7 +421,7 @@
 
 						<button
 							type="button"
-							class="text-primary-600 hover:text-primary-800 flex items-center"
+							class="flex items-center text-primary-600 hover:text-primary-800"
 							onclick={addShippingOption}
 						>
 							<svg
@@ -443,7 +443,7 @@
 					<div class="mt-6 flex justify-end">
 						<button
 							type="submit"
-							class="bg-primary-600 hover:bg-primary-700 rounded-lg px-6 py-2 text-white"
+							class="rounded-lg bg-primary-600 px-6 py-2 text-white hover:bg-primary-700"
 						>
 							Save Store Settings
 						</button>
@@ -462,7 +462,7 @@
 								type="checkbox"
 								id="acceptCreditCards"
 								bind:checked={paymentForm.acceptCreditCards}
-								class="text-primary-600 focus:ring-primary-500 h-4 w-4 rounded border-gray-300"
+								class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
 							/>
 							<label for="acceptCreditCards" class="ml-2 block text-sm text-gray-700">
 								Accept Credit/Debit Cards
@@ -474,7 +474,7 @@
 								type="checkbox"
 								id="acceptMobileMoney"
 								bind:checked={paymentForm.acceptMobileMoney}
-								class="text-primary-600 focus:ring-primary-500 h-4 w-4 rounded border-gray-300"
+								class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
 							/>
 							<label for="acceptMobileMoney" class="ml-2 block text-sm text-gray-700">
 								Accept Mobile Money
@@ -486,7 +486,7 @@
 								type="checkbox"
 								id="acceptCashOnDelivery"
 								bind:checked={paymentForm.acceptCashOnDelivery}
-								class="text-primary-600 focus:ring-primary-500 h-4 w-4 rounded border-gray-300"
+								class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
 							/>
 							<label for="acceptCashOnDelivery" class="ml-2 block text-sm text-gray-700">
 								Accept Cash on Delivery
@@ -506,7 +506,7 @@
 									type="text"
 									id="bankName"
 									bind:value={paymentForm.bankAccount.bankName}
-									class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+									class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 								/>
 							</div>
 							<div>
@@ -517,7 +517,7 @@
 									type="text"
 									id="accountName"
 									bind:value={paymentForm.bankAccount.accountName}
-									class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+									class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 								/>
 							</div>
 							<div>
@@ -528,7 +528,7 @@
 									type="text"
 									id="accountNumber"
 									bind:value={paymentForm.bankAccount.accountNumber}
-									class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+									class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 								/>
 							</div>
 							<div>
@@ -539,7 +539,7 @@
 									type="text"
 									id="branchCode"
 									bind:value={paymentForm.bankAccount.branchCode}
-									class="focus:ring-primary-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none"
+									class="w-full rounded-lg border px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 								/>
 							</div>
 						</div>
@@ -548,7 +548,7 @@
 					<div class="mt-6 flex justify-end">
 						<button
 							type="submit"
-							class="bg-primary-600 hover:bg-primary-700 rounded-lg px-6 py-2 text-white"
+							class="rounded-lg bg-primary-600 px-6 py-2 text-white hover:bg-primary-700"
 						>
 							Save Payment Settings
 						</button>
@@ -567,7 +567,7 @@
 								<h4 class="text-sm font-medium text-gray-700">Email Notifications</h4>
 								<p class="text-sm text-gray-500">Receive notifications via email</p>
 							</div>
-							<div class="relative mr-2 inline-block w-10 align-middle select-none">
+							<div class="relative mr-2 inline-block w-10 select-none align-middle">
 								<input
 									type="checkbox"
 									id="emailNotifications"
@@ -594,7 +594,7 @@
 								<h4 class="text-sm font-medium text-gray-700">SMS Notifications</h4>
 								<p class="text-sm text-gray-500">Receive notifications via text message</p>
 							</div>
-							<div class="relative mr-2 inline-block w-10 align-middle select-none">
+							<div class="relative mr-2 inline-block w-10 select-none align-middle">
 								<input
 									type="checkbox"
 									id="smsNotifications"
@@ -621,7 +621,7 @@
 								<h4 class="text-sm font-medium text-gray-700">Order Confirmations</h4>
 								<p class="text-sm text-gray-500">Receive notifications when orders are placed</p>
 							</div>
-							<div class="relative mr-2 inline-block w-10 align-middle select-none">
+							<div class="relative mr-2 inline-block w-10 select-none align-middle">
 								<input
 									type="checkbox"
 									id="orderConfirmations"
@@ -648,7 +648,7 @@
 								<h4 class="text-sm font-medium text-gray-700">Order Status Updates</h4>
 								<p class="text-sm text-gray-500">Receive notifications when order status changes</p>
 							</div>
-							<div class="relative mr-2 inline-block w-10 align-middle select-none">
+							<div class="relative mr-2 inline-block w-10 select-none align-middle">
 								<input
 									type="checkbox"
 									id="orderStatusUpdates"
@@ -677,7 +677,7 @@
 									Receive notifications when new customers register
 								</p>
 							</div>
-							<div class="relative mr-2 inline-block w-10 align-middle select-none">
+							<div class="relative mr-2 inline-block w-10 select-none align-middle">
 								<input
 									type="checkbox"
 									id="customerSignups"
@@ -704,7 +704,7 @@
 								<h4 class="text-sm font-medium text-gray-700">Promotional Emails</h4>
 								<p class="text-sm text-gray-500">Receive marketing and promotional emails</p>
 							</div>
-							<div class="relative mr-2 inline-block w-10 align-middle select-none">
+							<div class="relative mr-2 inline-block w-10 select-none align-middle">
 								<input
 									type="checkbox"
 									id="promotionalEmails"
@@ -730,7 +730,7 @@
 					<div class="mt-6 flex justify-end">
 						<button
 							type="submit"
-							class="bg-primary-600 hover:bg-primary-700 rounded-lg px-6 py-2 text-white"
+							class="rounded-lg bg-primary-600 px-6 py-2 text-white hover:bg-primary-700"
 						>
 							Save Notification Settings
 						</button>

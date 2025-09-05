@@ -1,8 +1,8 @@
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
-		webServer: {
-			command: 'bash -c "cp .env.test .env && npm run build && npm run preview"',
+	webServer: {
+		command: 'bash -c "cp .env.test .env && npm run build && npm run preview"',
 		port: 4173,
 		reuseExistingServer: true,
 		timeout: 120_000,

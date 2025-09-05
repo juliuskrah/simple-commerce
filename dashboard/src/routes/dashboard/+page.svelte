@@ -79,7 +79,7 @@
 	<div class="mb-8 rounded-lg bg-white shadow-md">
 		<div class="flex items-center justify-between border-b border-gray-100 px-6 py-4">
 			<h2 class="text-lg font-semibold text-gray-800">Orders</h2>
-			<a href="/dashboard/orders" class="text-primary-600 flex items-center text-sm">
+			<a href="/dashboard/orders" class="flex items-center text-sm text-primary-600">
 				View more
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -111,7 +111,7 @@
 				<tbody>
 					{#each recentOrders as order}
 						<tr class="border-b border-gray-100 hover:bg-gray-50">
-							<td class="text-primary-600 px-6 py-4 font-medium">{order.product}</td>
+							<td class="px-6 py-4 font-medium text-primary-600">{order.product}</td>
 							<td class="px-6 py-4">
 								<span
 									class="rounded-full px-2 py-1 text-xs {order.status === 'Paid'
@@ -156,7 +156,7 @@
 			<div class="space-y-4">
 				<div class="flex items-start">
 					<div
-						class="bg-primary-100 text-primary-600 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
+						class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-600"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"

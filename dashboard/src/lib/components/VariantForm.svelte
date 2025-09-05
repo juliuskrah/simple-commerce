@@ -7,7 +7,13 @@
 		errors?: Record<string, string[] | string> | null;
 	}
 
-	let { variant = null, productId, onCancel, isSubmitting = false, errors = null }: Props = $props();
+	let {
+		variant = null,
+		productId,
+		onCancel,
+		isSubmitting = false,
+		errors = null
+	}: Props = $props();
 
 	let titleVal = $state(variant?.title || '');
 	let skuVal = $state(variant?.sku || '');
@@ -30,20 +36,40 @@
 <!-- Dynamic action: create vs update -->
 <form method="POST" action={variant ? '?/update' : '?/create'} class="space-y-6" novalidate>
 	{#if errors && (errors.title || errors.sku || errors.amount || errors.currency)}
-		<div class="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800" role="alert" aria-live="assertive">
-			<p class="font-semibold mb-2">Please fix the following:</p>
-			<ul class="list-disc list-inside space-y-1">
+		<div
+			class="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800"
+			role="alert"
+			aria-live="assertive"
+		>
+			<p class="mb-2 font-semibold">Please fix the following:</p>
+			<ul class="list-inside list-disc space-y-1">
 				{#if errors.title}
-					<li><a href="#title" class="underline">Title: {Array.isArray(errors.title) ? errors.title[0] : errors.title}</a></li>
+					<li>
+						<a href="#title" class="underline"
+							>Title: {Array.isArray(errors.title) ? errors.title[0] : errors.title}</a
+						>
+					</li>
 				{/if}
 				{#if errors.sku}
-					<li><a href="#sku" class="underline">SKU: {Array.isArray(errors.sku) ? errors.sku[0] : errors.sku}</a></li>
+					<li>
+						<a href="#sku" class="underline"
+							>SKU: {Array.isArray(errors.sku) ? errors.sku[0] : errors.sku}</a
+						>
+					</li>
 				{/if}
 				{#if errors.amount}
-					<li><a href="#amount" class="underline">Amount: {Array.isArray(errors.amount) ? errors.amount[0] : errors.amount}</a></li>
+					<li>
+						<a href="#amount" class="underline"
+							>Amount: {Array.isArray(errors.amount) ? errors.amount[0] : errors.amount}</a
+						>
+					</li>
 				{/if}
 				{#if errors.currency}
-					<li><a href="#currency" class="underline">Currency: {Array.isArray(errors.currency) ? errors.currency[0] : errors.currency}</a></li>
+					<li>
+						<a href="#currency" class="underline"
+							>Currency: {Array.isArray(errors.currency) ? errors.currency[0] : errors.currency}</a
+						>
+					</li>
 				{/if}
 			</ul>
 		</div>
@@ -67,7 +93,9 @@
 					placeholder="e.g., Large / Red"
 				/>
 				{#if errors?.title}
-					<p id="title-error" class="mt-1 text-xs text-red-600">{Array.isArray(errors.title) ? errors.title[0] : errors.title}</p>
+					<p id="title-error" class="mt-1 text-xs text-red-600">
+						{Array.isArray(errors.title) ? errors.title[0] : errors.title}
+					</p>
 				{/if}
 			</div>
 			<div>
@@ -85,7 +113,9 @@
 					placeholder="e.g., PROD-001-LG-RED"
 				/>
 				{#if errors?.sku}
-					<p id="sku-error" class="mt-1 text-xs text-red-600">{Array.isArray(errors.sku) ? errors.sku[0] : errors.sku}</p>
+					<p id="sku-error" class="mt-1 text-xs text-red-600">
+						{Array.isArray(errors.sku) ? errors.sku[0] : errors.sku}
+					</p>
 				{/if}
 			</div>
 		</div>
@@ -110,7 +140,9 @@
 					placeholder="0.00"
 				/>
 				{#if errors?.amount}
-					<p id="amount-error" class="mt-1 text-xs text-red-600">{Array.isArray(errors.amount) ? errors.amount[0] : errors.amount}</p>
+					<p id="amount-error" class="mt-1 text-xs text-red-600">
+						{Array.isArray(errors.amount) ? errors.amount[0] : errors.amount}
+					</p>
 				{/if}
 			</div>
 			<div>
@@ -131,7 +163,9 @@
 					<option value="AUD">AUD</option>
 				</select>
 				{#if errors?.currency}
-					<p id="currency-error" class="mt-1 text-xs text-red-600">{Array.isArray(errors.currency) ? errors.currency[0] : errors.currency}</p>
+					<p id="currency-error" class="mt-1 text-xs text-red-600">
+						{Array.isArray(errors.currency) ? errors.currency[0] : errors.currency}
+					</p>
 				{/if}
 			</div>
 		</div>
@@ -149,7 +183,7 @@
 		</button>
 		<button
 			type="submit"
-			class="bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 rounded-md px-4 py-2 text-sm font-medium text-white"
+			class="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:bg-primary-400"
 			disabled={isSubmitting}
 		>
 			{isSubmitting ? 'Saving...' : variant ? 'Update Variant' : 'Create Variant'}

@@ -32,7 +32,7 @@ my-project/
 └ vite.config.js
 ```
 2. **Coding Standards**: Follow established coding standards and best practices for TypeScript and Svelte.
-   2.1. Use Svelte 5 runes.
+2.1. Always use Svelte 5 runes.
 3. **Component Design**: Adhere to the principles of component-based design, promoting reusability and maintainability.
 4. **State Management**: Utilize appropriate state management techniques for Svelte applications.
 5. **Styling**: Follow the project's styling guidelines, including the use of CSS frameworks or methodologies.

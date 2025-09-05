@@ -1,8 +1,19 @@
 <script lang="ts">
-	// Sidebar component for home
-	let activeItem = 'home';
+	import { page } from '$app/stores';
 
 	export let user: any = null;
+
+	// Derive active item from current route
+	$: activeItem = (() => {
+		const pathname = $page.url.pathname;
+		if (pathname === '/dashboard' || pathname === '/dashboard/') return 'home';
+		if (pathname.includes('/products')) return 'products';
+		if (pathname.includes('/orders')) return 'orders';
+		if (pathname.includes('/customers')) return 'customers';
+		if (pathname.includes('/analytics')) return 'analytics';
+		if (pathname.includes('/settings')) return 'settings';
+		return 'home';
+	})();
 
 	const menuItems = [
 		{ id: 'home', label: 'Home', icon: 'home' },
@@ -12,15 +23,11 @@
 		{ id: 'analytics', label: 'Analytics', icon: 'bar-chart-2' },
 		{ id: 'settings', label: 'Settings', icon: 'settings' }
 	];
-
-	function setActive(id: string) {
-		activeItem = id;
-	}
 </script>
 
 <div class="h-full w-64 bg-white shadow-lg">
 	<div class="flex h-20 items-center justify-center border-b">
-		<div class="text-primary-600 text-2xl font-bold">Simple Commerce</div>
+		<div class="text-2xl font-bold text-primary-600">Simple Commerce</div>
 	</div>
 
 	<div class="py-4">
@@ -30,9 +37,8 @@
 					<a
 						href={`/dashboard/${item.id === 'home' ? '' : item.id}`}
 						class="flex items-center px-6 py-3 {activeItem === item.id
-							? 'bg-primary-50 text-primary-600 border-primary-600 border-r-4'
+							? 'border-r-4 border-primary-600 bg-primary-50 text-primary-600'
 							: 'text-gray-600 hover:bg-gray-100'}"
-						onclick={() => setActive(item.id)}
 					>
 						<span class="mr-3">
 							<i class="feather-{item.icon}"></i>

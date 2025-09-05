@@ -26,7 +26,7 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
 	if (request.url.includes('/graphql')) {
 		// Clone the request headers
 		const headers = new Headers(request.headers);
-		
+
 		// Add authorization header if session exists
 		if (event.locals.session?.accessToken) {
 			headers.set('Authorization', `Bearer ${event.locals.session.accessToken}`);

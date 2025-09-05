@@ -29,7 +29,10 @@ export const actions: Actions = {
 			if (form.data.amount && form.data.amount > 0) {
 				input.price = { amount: form.data.amount, currency: form.data.currency || 'USD' };
 			}
-			const result = await addVariantMutation.mutate({ productId: event.params.id, input }, { event });
+			const result = await addVariantMutation.mutate(
+				{ productId: event.params.id, input },
+				{ event }
+			);
 			if (result.errors) {
 				return fail(500, { form, message: result.errors.map((e: any) => e.message).join(', ') });
 			}

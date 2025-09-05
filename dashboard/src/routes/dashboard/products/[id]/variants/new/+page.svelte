@@ -1,16 +1,21 @@
 <script lang="ts">
-import DashboardLayout from '$lib/components/DashboardLayout.svelte';
-import VariantForm from '$lib/components/VariantForm.svelte';
-import { page } from '$app/stores';
-import type { PageData } from './$houdini';
-import { goto } from '$app/navigation';
+	import DashboardLayout from '$lib/components/DashboardLayout.svelte';
+	import VariantForm from '$lib/components/VariantForm.svelte';
+	import { page } from '$app/stores';
+	import type { PageData } from './$houdini';
+	import { goto } from '$app/navigation';
 
-interface Props { data: PageData; form?: any }
-let { data, form }: Props = $props();
-const user = $derived(data.user);
-const productId = $page.params.id;
+	interface Props {
+		data: PageData;
+		form?: any;
+	}
+	let { data, form }: Props = $props();
+	const user = $derived(data.user);
+	const productId = $page.params.id;
 
-function handleCancel(){ goto(`/dashboard/products/${productId}`); }
+	function handleCancel() {
+		goto(`/dashboard/products/${productId}`);
+	}
 </script>
 
 <DashboardLayout title="Add Product Variant" {user}>
@@ -26,6 +31,6 @@ function handleCancel(){ goto(`/dashboard/products/${productId}`); }
 	</div>
 
 	<!-- Hidden form for server action -->
-<!-- Superform hidden form -->
+	<!-- Superform hidden form -->
 	<VariantForm {productId} onCancel={handleCancel} errors={form?.errors} />
 </DashboardLayout>

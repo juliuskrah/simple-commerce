@@ -64,7 +64,7 @@
 		<h1 class="text-2xl font-semibold text-gray-800">Analytics Dashboard</h1>
 		<div class="flex space-x-2">
 			<select
-				class="focus:ring-primary-500 rounded-lg border px-3 py-2 text-gray-600 focus:ring-2 focus:outline-none"
+				class="rounded-lg border px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
 				bind:value={selectedPeriod}
 			>
 				{#each periods as period}
@@ -99,10 +99,10 @@
 					<p class="text-sm text-gray-500">Total Revenue</p>
 					<h3 class="mt-1 text-2xl font-semibold text-gray-800">GHS 310,000</h3>
 				</div>
-				<div class="bg-primary-100 rounded-lg p-3">
+				<div class="rounded-lg bg-primary-100 p-3">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
-						class="text-primary-600 h-6 w-6"
+						class="h-6 w-6 text-primary-600"
 						fill="none"
 						viewBox="0 0 24 24"
 						stroke="currentColor"
@@ -275,11 +275,11 @@
 					{#each monthlySales as item}
 						<div class="flex flex-1 flex-col items-center">
 							<div
-								class="bg-primary-100 hover:bg-primary-200 w-full rounded-t-sm"
+								class="w-full rounded-t-sm bg-primary-100 hover:bg-primary-200"
 								style="height: {(item.amount / maxSales) * 100}%"
 							>
 								<div
-									class="bg-primary-500 h-full w-full transform rounded-t-sm transition-transform hover:translate-y-1"
+									class="h-full w-full transform rounded-t-sm bg-primary-500 transition-transform hover:translate-y-1"
 								></div>
 							</div>
 							<div class="mt-2 text-xs text-gray-500">{item.month}</div>

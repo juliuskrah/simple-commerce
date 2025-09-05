@@ -79,7 +79,7 @@
 	<div class="mb-6 flex items-center justify-between">
 		<h1 class="text-2xl font-semibold text-gray-800">Customers</h1>
 		<button
-			class="bg-primary-600 hover:bg-primary-700 flex items-center rounded-lg px-4 py-2 text-white"
+			class="flex items-center rounded-lg bg-primary-600 px-4 py-2 text-white hover:bg-primary-700"
 		>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
@@ -103,11 +103,11 @@
 				<input
 					type="text"
 					placeholder="Search customers..."
-					class="focus:ring-primary-500 rounded-lg border py-2 pr-4 pl-10 focus:border-transparent focus:ring-2 focus:outline-none"
+					class="rounded-lg border py-2 pl-10 pr-4 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 				/>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
-					class="absolute top-2.5 left-3 h-5 w-5 text-gray-400"
+					class="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
 					viewBox="0 0 20 20"
 					fill="currentColor"
 				>
@@ -121,14 +121,14 @@
 
 			<div class="flex space-x-2">
 				<select
-					class="focus:ring-primary-500 rounded-lg border px-3 py-2 text-gray-600 focus:ring-2 focus:outline-none"
+					class="rounded-lg border px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
 				>
 					<option>All Status</option>
 					<option>Active</option>
 					<option>Inactive</option>
 				</select>
 				<select
-					class="focus:ring-primary-500 rounded-lg border px-3 py-2 text-gray-600 focus:ring-2 focus:outline-none"
+					class="rounded-lg border px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
 				>
 					<option>All Locations</option>
 					<option>Accra</option>
@@ -158,7 +158,7 @@
 						<td class="px-6 py-4">
 							<div class="flex items-center">
 								<div
-									class="bg-primary-100 text-primary-700 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full font-medium"
+									class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary-100 font-medium text-primary-700"
 								>
 									{customer.name
 										.split(' ')
@@ -187,7 +187,7 @@
 						<td class="px-6 py-4">
 							<div class="flex space-x-2">
 								<button
-									class="hover:text-primary-600 text-gray-400"
+									class="text-gray-400 hover:text-primary-600"
 									aria-label="View customer details"
 									onclick={() => showCustomerDetails(customer)}
 								>
@@ -230,7 +230,7 @@
 				<button class="disabled rounded-md bg-gray-100 px-3 py-1 text-gray-600" disabled
 					>Previous</button
 				>
-				<button class="bg-primary-600 rounded-md px-3 py-1 text-white">1</button>
+				<button class="rounded-md bg-primary-600 px-3 py-1 text-white">1</button>
 				<button class="disabled rounded-md bg-gray-100 px-3 py-1 text-gray-600" disabled
 					>Next</button
 				>
@@ -239,7 +239,7 @@
 	</div>
 
 	{#if selectedCustomer}
-		<div class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
+		<div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
 			<div class="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white shadow-xl">
 				<div class="flex items-center justify-between border-b p-6">
 					<h2 class="text-xl font-semibold text-gray-800">Customer Details</h2>
@@ -268,7 +268,7 @@
 				<div class="space-y-6 p-6">
 					<div class="flex items-center">
 						<div
-							class="bg-primary-100 text-primary-700 flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full text-xl font-medium"
+							class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-primary-100 text-xl font-medium text-primary-700"
 						>
 							{selectedCustomer.name
 								.split(' ')
@@ -342,7 +342,7 @@
 							</thead>
 							<tbody>
 								<tr class="border-t border-gray-100">
-									<td class="text-primary-600 px-4 py-3 font-medium">#ORD-001</td>
+									<td class="px-4 py-3 font-medium text-primary-600">#ORD-001</td>
 									<td class="px-4 py-3 text-gray-800">2025-07-25</td>
 									<td class="px-4 py-3 text-gray-800">GHS 500</td>
 									<td class="px-4 py-3">
@@ -353,7 +353,7 @@
 								</tr>
 								{#if selectedCustomer.orderCount > 1}
 									<tr class="border-t border-gray-100">
-										<td class="text-primary-600 px-4 py-3 font-medium">#ORD-002</td>
+										<td class="px-4 py-3 font-medium text-primary-600">#ORD-002</td>
 										<td class="px-4 py-3 text-gray-800">2025-07-22</td>
 										<td class="px-4 py-3 text-gray-800">GHS 350</td>
 										<td class="px-4 py-3">
@@ -365,7 +365,7 @@
 								{/if}
 								{#if selectedCustomer.orderCount > 2}
 									<tr class="border-t border-gray-100">
-										<td class="text-primary-600 px-4 py-3 font-medium">#ORD-003</td>
+										<td class="px-4 py-3 font-medium text-primary-600">#ORD-003</td>
 										<td class="px-4 py-3 text-gray-800">2025-07-18</td>
 										<td class="px-4 py-3 text-gray-800">GHS 250</td>
 										<td class="px-4 py-3">

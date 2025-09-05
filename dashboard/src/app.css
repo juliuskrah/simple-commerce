@@ -1,13 +1,19 @@
 @import 'tailwindcss';
-@import '@tailwindcss/forms';
-@import '@tailwindcss/typography';
 
 body {
 	background-color: #f8fafc;
 }
 
 /* Fallback for primary color classes if Tailwind custom palette not yet built */
-.bg-primary-600 { background-color: #4f46e5; }
-.hover\:bg-primary-700:hover { background-color: #4338ca; }
-.text-primary-600 { color: #4f46e5; }
-.hover\:text-primary-700:hover { color: #4338ca; }
+.bg-primary-600 {
+	background-color: #4f46e5;
+}
+.hover\:bg-primary-700:hover {
+	background-color: #4338ca;
+}
+.text-primary-600 {
+	color: #4f46e5;
+}
+.hover\:text-primary-700:hover {
+	color: #4338ca;
+}

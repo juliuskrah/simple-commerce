@@ -17,11 +17,13 @@
 	const product = $derived($ProductDetail.data?.product);
 	const baseEdges = $derived(product?.variants?.edges || []);
 	let variantEdges = $state<any[]>([]);
-	$effect(() => { variantEdges = baseEdges; });
+	$effect(() => {
+		variantEdges = baseEdges;
+	});
 
 	let successMessage = $state<string | null>(null);
-	let notificationRegion: HTMLElement | null = null;
-	let successBanner: HTMLElement | null = null;
+	let notificationRegion: HTMLElement | null = $state(null);
+	let successBanner: HTMLElement | null = $state(null);
 
 	// Refetch logic when coming from create/update operations & focus success banner
 	$effect(() => {
@@ -74,7 +76,9 @@
 	// Auto-dismiss success banner after a few seconds
 	$effect(() => {
 		if (successMessage) {
-			const timer = setTimeout(() => { successMessage = null; }, 5000);
+			const timer = setTimeout(() => {
+				successMessage = null;
+			}, 5000);
 			return () => clearTimeout(timer);
 		}
 	});
@@ -97,7 +101,9 @@
 			notifications.push({ type: 'success', message: 'Variant deleted.' });
 			setTimeout(() => notificationRegion?.focus(), 0);
 			// Background refetch to ensure consistency
-			ProductDetail.fetch({ policy: 'NetworkOnly' }).catch((e) => console.warn('Refetch after delete failed', e));
+			ProductDetail.fetch({ policy: 'NetworkOnly' }).catch((e) =>
+				console.warn('Refetch after delete failed', e)
+			);
 		} catch (error) {
 			console.error('Error deleting variant:', error);
 			notifications.push({ type: 'error', message: 'Failed to delete variant.' });
@@ -140,9 +146,19 @@
 				bind:this={notificationRegion}
 			>
 				{#each $notifications as note (note.id)}
-					<div class="flex items-start justify-between rounded-md border px-4 py-3 text-sm {note.type === 'success' ? 'border-green-200 bg-green-50 text-green-800' : note.type === 'error' ? 'border-red-200 bg-red-50 text-red-800' : 'border-blue-200 bg-blue-50 text-blue-800'}">
+					<div
+						class="flex items-start justify-between rounded-md border px-4 py-3 text-sm {note.type ===
+						'success'
+							? 'border-green-200 bg-green-50 text-green-800'
+							: note.type === 'error'
+								? 'border-red-200 bg-red-50 text-red-800'
+								: 'border-blue-200 bg-blue-50 text-blue-800'}"
+					>
 						<p>{note.message}</p>
-						<button class="ml-4 text-xs opacity-70 hover:opacity-100" onclick={() => notifications.dismiss(note.id)}>Dismiss</button>
+						<button
+							class="ml-4 text-xs opacity-70 hover:opacity-100"
+							onclick={() => notifications.dismiss(note.id)}>Dismiss</button
+						>
 					</div>
 				{/each}
 			</div>
@@ -163,7 +179,7 @@
 					</button>
 					<button
 						onclick={addVariant}
-						class="bg-primary-600 hover:bg-primary-700 flex items-center rounded-md px-4 py-2 text-sm font-medium text-white"
+						class="flex items-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -206,11 +222,12 @@
 					<div>
 						<span class="text-sm font-medium text-gray-500">Status</span>
 						<span
-							class="inline-flex rounded-full px-2 py-1 text-xs font-medium {product.status === 'PUBLISHED'
+							class="inline-flex rounded-full px-2 py-1 text-xs font-medium {product.status ===
+							'PUBLISHED'
 								? 'bg-green-100 text-green-800'
 								: product.status === 'DRAFT'
-								? 'bg-yellow-100 text-yellow-800'
-								: 'bg-red-100 text-red-800'}"
+									? 'bg-yellow-100 text-yellow-800'
+									: 'bg-red-100 text-red-800'}"
 						>
 							{product.status}
 						</span>
@@ -227,10 +244,16 @@
 							<span class="text-sm font-medium text-gray-500">Price Range</span>
 							<p class="text-lg font-semibold text-gray-900">
 								{#if product.priceRange.start && product.priceRange.stop}
-									{formatCurrency(product.priceRange.start.amount, product.priceRange.start.currency)} - 
+									{formatCurrency(
+										product.priceRange.start.amount,
+										product.priceRange.start.currency
+									)} -
 									{formatCurrency(product.priceRange.stop.amount, product.priceRange.stop.currency)}
 								{:else if product.priceRange.start}
-									From {formatCurrency(product.priceRange.start.amount, product.priceRange.start.currency)}
+									From {formatCurrency(
+										product.priceRange.start.amount,
+										product.priceRange.start.currency
+									)}
 								{:else}
 									Not set
 								{/if}
@@ -276,7 +299,7 @@
 				<h2 class="text-lg font-semibold text-gray-800">Product Variants</h2>
 				<button
 					onclick={addVariant}
-					class="bg-primary-600 hover:bg-primary-700 flex items-center rounded-md px-4 py-2 text-sm font-medium text-white"
+					class="flex items-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -311,56 +334,58 @@
 							{#each variantEdges as variantEdge (variantEdge?.node.id)}
 								{#if variantEdge?.node}
 									{@const variant = variantEdge.node}
-								<tr class="border-t border-gray-100 hover:bg-gray-50">
-									<td class="px-6 py-4">
-										<div>
-											<p class="font-medium text-gray-800">{variant.title}</p>
-										</div>
-									</td>
-									<td class="px-6 py-4 text-gray-800">{variant.sku || 'N/A'}</td>
-									<td class="px-6 py-4 text-gray-800">
-										{variant.price ? formatCurrency(variant.price.amount, variant.price.currency) : 'N/A'}
-									</td>
-								
-									<td class="px-6 py-4">
-										<div class="flex space-x-2">
-											<button
-												onclick={() => editVariant(variant.id)}
-												class="hover:text-primary-600 text-gray-400"
-												aria-label="Edit variant"
-											>
-												<svg
-													xmlns="http://www.w3.org/2000/svg"
-													class="h-5 w-5"
-													viewBox="0 0 20 20"
-													fill="currentColor"
+									<tr class="border-t border-gray-100 hover:bg-gray-50">
+										<td class="px-6 py-4">
+											<div>
+												<p class="font-medium text-gray-800">{variant.title}</p>
+											</div>
+										</td>
+										<td class="px-6 py-4 text-gray-800">{variant.sku || 'N/A'}</td>
+										<td class="px-6 py-4 text-gray-800">
+											{variant.price
+												? formatCurrency(variant.price.amount, variant.price.currency)
+												: 'N/A'}
+										</td>
+
+										<td class="px-6 py-4">
+											<div class="flex space-x-2">
+												<button
+													onclick={() => editVariant(variant.id)}
+													class="text-gray-400 hover:text-primary-600"
+													aria-label="Edit variant"
 												>
-													<path
-														d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"
-													/>
-												</svg>
-											</button>
-											<button
-												onclick={() => deleteVariant(variant.id)}
-												class="text-gray-400 hover:text-red-600"
-												aria-label="Delete variant"
-											>
-												<svg
-													xmlns="http://www.w3.org/2000/svg"
-													class="h-5 w-5"
-													viewBox="0 0 20 20"
-													fill="currentColor"
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														class="h-5 w-5"
+														viewBox="0 0 20 20"
+														fill="currentColor"
+													>
+														<path
+															d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"
+														/>
+													</svg>
+												</button>
+												<button
+													onclick={() => deleteVariant(variant.id)}
+													class="text-gray-400 hover:text-red-600"
+													aria-label="Delete variant"
 												>
-													<path
-														fill-rule="evenodd"
-														d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-														clip-rule="evenodd"
-													/>
-												</svg>
-											</button>
-										</div>
-									</td>
-								</tr>
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														class="h-5 w-5"
+														viewBox="0 0 20 20"
+														fill="currentColor"
+													>
+														<path
+															fill-rule="evenodd"
+															d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+															clip-rule="evenodd"
+														/>
+													</svg>
+												</button>
+											</div>
+										</td>
+									</tr>
 								{/if}
 							{/each}
 						</tbody>
@@ -387,7 +412,7 @@
 					<p class="mt-1 text-sm text-gray-500">Get started by creating a new variant.</p>
 					<button
 						onclick={addVariant}
-						class="bg-primary-600 hover:bg-primary-700 mt-4 inline-flex items-center rounded-md px-4 py-2 text-sm font-medium text-white"
+						class="mt-4 inline-flex items-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -416,7 +441,7 @@
 				</p>
 				<a
 					href="/dashboard/products"
-					class="bg-primary-600 hover:bg-primary-700 mt-4 inline-flex items-center rounded-md px-4 py-2 text-sm font-medium text-white"
+					class="mt-4 inline-flex items-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
 				>
 					Back to Products
 				</a>
