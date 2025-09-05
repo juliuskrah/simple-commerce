@@ -6,14 +6,9 @@ export const variantSchema = z.object({
     .min(2, 'SKU must be at least 2 characters')
     .max(64, 'SKU too long')
     .regex(/^[A-Z0-9._-]+$/, 'SKU may contain A-Z, 0-9, dash, underscore and dot'),
-  amount: z
-    .union([
-      z.string().transform(val => (val === '' ? 0 : parseFloat(val))),
-      z.number()
-    ])
-    .refine(v => !isNaN(Number(v)) && Number(v) >= 0, 'Amount must be a positive number')
-    .optional()
-    .transform(v => (v ? Number(v) : 0)),
+
+  amount: z.coerce.number().nonnegative().optional().default(0),
+
   currency: z.string().optional().default('USD')
 }).superRefine((data, ctx) => {
   if (data.amount && data.amount > 0 && !data.currency) {
