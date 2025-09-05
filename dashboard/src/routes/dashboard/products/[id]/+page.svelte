@@ -61,12 +61,23 @@
 
 	// Handle variant actions
 	function editVariant(variantId: string) {
-		goto(`/dashboard/products/${$page.params.id}/variants/${variantId}/edit`);
+		const pid = encodeURIComponent($page.params.id);
+		const vid = encodeURIComponent(variantId);
+		goto(`/dashboard/products/${pid}/variants/${vid}/edit`);
 	}
 
 	function addVariant() {
-		goto(`/dashboard/products/${$page.params.id}/variants/new`);
+		const pid = encodeURIComponent($page.params.id);
+		goto(`/dashboard/products/${pid}/variants/new`);
 	}
+
+	// Auto-dismiss success banner after a few seconds
+	$effect(() => {
+		if (successMessage) {
+			const timer = setTimeout(() => { successMessage = null; }, 5000);
+			return () => clearTimeout(timer);
+		}
+	});
 
 	async function deleteVariant(variantId: string) {
 		if (!confirm('Are you sure you want to delete this variant? This action cannot be undone.')) {
@@ -102,12 +113,22 @@
 			<!-- Inline success after create/update -->
 			{#if successMessage}
 				<div
-					class="mb-4 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 outline-none"
+					class="mb-4 flex items-start justify-between gap-4 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 outline-none"
 					role="status"
 					aria-live="polite"
 					tabindex="-1"
 					bind:this={successBanner}
-				>{successMessage}</div>
+				>
+					<span>{successMessage}</span>
+					<button
+						class="ml-auto text-xs font-medium text-green-700 hover:text-green-900 focus:outline-none"
+						type="button"
+						aria-label="Dismiss success message"
+						onclick={() => (successMessage = null)}
+					>
+						Dismiss
+					</button>
+				</div>
 			{/if}
 			<!-- Notifications stack -->
 			<div

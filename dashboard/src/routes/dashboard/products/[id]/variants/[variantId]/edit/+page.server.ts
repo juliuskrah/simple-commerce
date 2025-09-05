@@ -13,7 +13,7 @@ export const load: ServerLoad = async (event) => {
 };
 
 export const actions: Actions = {
-  default: async (event) => {
+  update: async (event) => {
     const form = await superValidate(event, zod(variantSchema));
     if (!form.valid) {
       return fail(400, { form });
@@ -24,8 +24,8 @@ export const actions: Actions = {
       if (form.data.amount && form.data.amount > 0) {
         input.price = { amount: form.data.amount, currency: form.data.currency || 'USD' };
       }
-  const variantId = event.params.variantId as string;
-  const result = await updateStore.mutate({ id: variantId, input }, { event });
+      const variantId = event.params.variantId as string;
+      const result = await updateStore.mutate({ id: variantId, input }, { event });
       if (result.errors) {
         return fail(500, { form, message: result.errors.map((e: any) => e.message).join(', ') });
       }

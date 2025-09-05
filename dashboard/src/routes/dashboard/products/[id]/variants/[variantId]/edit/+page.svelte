@@ -1,55 +1,18 @@
 <script lang="ts">
-	import DashboardLayout from '$lib/components/DashboardLayout.svelte';
-	import VariantForm from '$lib/components/VariantForm.svelte';
-	import { UpdateProductVariantStore } from '$houdini';
-	import { notifications } from '$lib/stores/notifications';
-	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
-	import type { PageData } from './$types';
+import DashboardLayout from '$lib/components/DashboardLayout.svelte';
+import VariantForm from '$lib/components/VariantForm.svelte';
+import { page } from '$app/stores';
+import type { PageData } from './$types';
+import { goto } from '$app/navigation';
 
-	interface Props { data: PageData; form?: any }
-	let { data, form }: Props = $props();
-	const user = $derived(data.user);
-	let { ProductVariantDetail } = $derived(data);
-	
-	const variant = $derived($ProductVariantDetail.data?.variant);
-	const productId = $page.params.id;
+interface Props { data: PageData; form?: any }
+let { data, form }: Props = $props();
+const user = $derived(data.user);
+let { ProductVariantDetail } = $derived(data);
+const variant = $derived($ProductVariantDetail.data?.variant);
+const productId = $page.params.id;
 
-	let isSubmitting = $state(false);
-
-	const updateVariantMutation = new UpdateProductVariantStore();
-
-	async function handleSubmit(formData: any) {
-		if (!variant) return;
-		isSubmitting = true;
-		try {
-			const input: any = {
-				title: formData.title,
-				sku: formData.sku
-			};
-			if (formData.price && formData.price.amount > 0) {
-				input.price = {
-					amount: formData.price.amount,
-					currency: formData.price.currency
-				};
-			}
-			const result = await updateVariantMutation.mutate({ id: variant.id, input });
-			if (result.errors) {
-				throw new Error(result.errors.map((e: any) => e.message).join(', '));
-			}
-			notifications.push({ type: 'success', message: 'Variant updated.' });
-			goto(`/dashboard/products/${productId}?updated=1`);
-		} catch (error) {
-			console.error('Error updating variant:', error);
-			notifications.push({ type: 'error', message: 'Failed to update variant.' });
-		} finally {
-			isSubmitting = false;
-		}
-	}
-
-	function handleCancel() {
-		goto(`/dashboard/products/${productId}`);
-	}
+function handleCancel(){ goto(`/dashboard/products/${productId}`); }
 </script>
 
 <DashboardLayout title="Edit Product Variant" {user}>
@@ -65,14 +28,7 @@
 			<h1 class="text-2xl font-bold text-gray-900">Edit Product Variant</h1>
 		</div>
 
-		<VariantForm
-			{variant}
-			{productId}
-			onSubmit={handleSubmit}
-			onCancel={handleCancel}
-			{isSubmitting}
-			errors={form?.errors}
-		/>
+		<VariantForm {variant} {productId} onCancel={handleCancel} errors={form?.errors} />
 	{:else}
 		<!-- Loading or Error State -->
 		<div class="flex items-center justify-center py-12">

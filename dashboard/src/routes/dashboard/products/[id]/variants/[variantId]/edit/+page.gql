@@ -1,5 +1,5 @@
-query ProductVariantDetail($id: ID!) {
-	variant(id: $id) {
+query ProductVariantDetail($variantId: ID!) {
+	variant(id: $variantId) {
 		id
 		title
 		sku
