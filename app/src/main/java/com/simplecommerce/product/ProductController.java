@@ -5,15 +5,12 @@ import static java.util.stream.Collectors.toMap;
 
 import com.simplecommerce.shared.Actor;
 import com.simplecommerce.shared.GlobalId;
-import com.simplecommerce.shared.MonetaryUtils;
-import com.simplecommerce.shared.Money;
-import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import org.dataloader.DataLoader;
@@ -44,11 +41,18 @@ class ProductController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProductController.class);
     private final ObjectProvider<ProductService> productService;
+    // TODO: Add search functionality when service layer is ready
+    // private final SearchQueryParser searchQueryParser;
+    // private final SearchQueryTranslator searchQueryTranslator;
+    // TODO: Add state machine when service layer is ready
+    // private final ProductStateMachineService stateMachineService;
+    private final PriceResolutionService priceResolutionService;
     // Defer creation of the ProductService to avoid early initialization of aspectj proxy
     private final Supplier<ProductService> productServiceSupplier = SingletonSupplier.of(ProductManagement::new);
 
-    ProductController(BatchLoaderRegistry registry, ObjectProvider<ProductService> productService) {
+    ProductController(BatchLoaderRegistry registry, ObjectProvider<ProductService> productService, PriceResolutionService priceResolutionService) {
       this.productService = productService;
+      this.priceResolutionService = priceResolutionService;
       registry.<String, List<String>>forName("tagsDataLoader")
           .registerMappedBatchLoader((productIds, env) -> {
               var keyContext = env.getKeyContextsList().getFirst();
@@ -67,12 +71,15 @@ class ProductController {
     }
 
     @QueryMapping
-    Window<Product> products(ScrollSubrange subrange, Sort sort) {
+    Window<Product> products(ScrollSubrange subrange, Sort sort, @Argument String query) {
         var limit = subrange.count().orElse(100);
         var scroll = subrange.position().orElse(ScrollPosition.keyset());
-        LOG.info("Fetching {} products with scroll {}", limit, scroll);
+        
+        LOG.info("Fetching {} products with scroll {} and query: {}", limit, scroll, query);
         LOG.debug("Sorting with: {{}}", sort);
-        return productService.getIfAvailable(productServiceSupplier).findProducts(limit, sort, scroll);
+        
+        // Use search-enabled method that supports ANTLR query parsing
+        return productService.getIfAvailable(productServiceSupplier).findProducts(limit, sort, scroll, query);
     }
 
     @SchemaMapping
@@ -95,12 +102,24 @@ class ProductController {
     }
 
     @SchemaMapping(typeName = "Product")
-    Optional<PriceRange> priceRange(Locale locale) {
-        var usd = MonetaryUtils.getCurrency("USD", locale);
-        return Optional.of(new PriceRange(
-            new Money(usd, new BigDecimal("100.00")),
-            new Money(usd, new BigDecimal("200.00"))
-        ));
+    Optional<PriceRange> priceRange(Product source, Locale locale, @Argument String currency) {
+        // Use provided currency or default to USD
+        var currencyCode = currency != null ? currency : "USD";
+        var priceContext = PriceContext.defaultContext(currencyCode);
+        
+        LOG.debug("Calculating price range for product {} with context {}", source.id(), priceContext);
+        
+        // Get the ProductEntity by decoding the global ID
+        try {
+            var gid = GlobalId.decode(source.id());
+            var productEntity = new ProductEntity();
+            productEntity.setId(UUID.fromString(gid.id()));
+            
+            return priceResolutionService.calculatePriceRange(productEntity, priceContext, locale);
+        } catch (Exception e) {
+            LOG.error("Error calculating price range for product {}: {}", source.id(), e.getMessage());
+            return Optional.empty();
+        }
     }
 
     @SchemaMapping(typeName = "Product")
@@ -113,17 +132,7 @@ class ProductController {
         return Optional.empty();
     }
 
-    @SchemaMapping(typeName = "Product")
-    Optional<PriceSet> priceSet(Locale locale) {
-        var usd = MonetaryUtils.getCurrency("USD", locale);
-        var now = OffsetDateTime.now();
-        return Optional.of(new PriceSet(
-            "c6f56e4a-bb2e-4ca2-b267-ea398ae8cb34",
-            now,
-            List.of(new Money(usd, new BigDecimal("200.50"))),
-            now
-        ));
-    }
+    // PriceSet has been moved to ProductVariant level - removed from Product
 
     @MutationMapping
     String deleteProduct(@Argument String id) {
@@ -141,5 +150,29 @@ class ProductController {
         LOG.debug("Creating product: {}", input);
         return productService.getIfAvailable(productServiceSupplier).createProduct(input);
     }
+
+    // TODO: Implement state machine mutations when service layer is ready
+    /*
+    @MutationMapping
+    Product publishProduct(@Argument String id) {
+        LOG.info("Publishing product: {}", id);
+        // TODO: Implement product publishing with state machine validation
+        throw new UnsupportedOperationException("Product state machine not yet implemented");
+    }
+
+    @MutationMapping
+    Product archiveProduct(@Argument String id) {
+        LOG.info("Archiving product: {}", id);
+        // TODO: Implement product archiving with state machine validation
+        throw new UnsupportedOperationException("Product state machine not yet implemented");
+    }
+
+    @MutationMapping
+    Product reactivateProduct(@Argument String id) {
+        LOG.info("Reactivating product: {}", id);
+        // TODO: Implement product reactivation with state machine validation
+        throw new UnsupportedOperationException("Product state machine not yet implemented");
+    }
+    */
 
 }

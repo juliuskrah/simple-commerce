@@ -9,12 +9,13 @@ import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.Repository;
 
 /**
  * @author julius.krah
  */
-interface Products extends Repository<ProductEntity, UUID> {
+interface Products extends Repository<ProductEntity, UUID>, JpaSpecificationExecutor<ProductEntity> {
 
   @Query("SELECT p.tags FROM Product p WHERE p.id = :id")
   List<String> findTags(UUID id, Limit limit);

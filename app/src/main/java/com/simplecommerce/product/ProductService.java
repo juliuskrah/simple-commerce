@@ -47,6 +47,16 @@ interface ProductService {
   Window<Product> findProducts(int limit, Sort sort, ScrollPosition scroll);
 
   /**
+   * Find a list of products with search query using cursor-based pagination.
+   * @param limit The maximum number of products to return.
+   * @param sort The sort order.
+   * @param scroll The scroll position.
+   * @param searchQuery The search query string using GitHub-style syntax.
+   * @return The slice of products matching the search criteria.
+   */
+  Window<Product> findProducts(int limit, Sort sort, ScrollPosition scroll, String searchQuery);
+
+  /**
    * Find a list of products by category using cursor-based pagination.
    * @param categoryId The ID of the category.
    * @param limit The maximum number of products to return.

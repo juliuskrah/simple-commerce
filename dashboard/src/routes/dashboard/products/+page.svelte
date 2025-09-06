@@ -2,6 +2,7 @@
 	import DashboardLayout from '$lib/components/DashboardLayout.svelte';
 	import type { PageData } from './$houdini';
 	import { goto } from '$app/navigation';
+	import { CategoriesStore } from '$houdini';
 
 	interface Props {
 		data: PageData;
@@ -11,6 +12,134 @@
 	let { data }: Props = $props();
 	const user = $derived(data.user);
 	let { Products } = $derived(data);
+	
+	// Load categories from database
+	const categories = new CategoriesStore();
+	categories.fetch();
+
+	// Search and filter state
+	let searchQuery = $state('');
+	let selectedCategory = $state('All Categories');
+	let selectedStatus = $state('All Status');
+	
+	// Pagination state
+	let currentCursor = $state(null);
+	let isForwardPaging = $state(true);
+
+	// Debounced search function
+	let searchTimeout: NodeJS.Timeout;
+	function handleSearch() {
+		clearTimeout(searchTimeout);
+		searchTimeout = setTimeout(() => {
+			updateQuery();
+		}, 300);
+	}
+
+	// Update GraphQL query based on filters
+	function updateQuery(resetPagination = true) {
+		let queryParts: string[] = [];
+		
+		// Add text search if provided
+		if (searchQuery.trim()) {
+			queryParts.push(`"${searchQuery.trim()}"`);
+		}
+		
+		// Add status filter if not "All Status"
+		if (selectedStatus !== 'All Status') {
+			const statusMapping: Record<string, string> = {
+				'Active': 'PUBLISHED',
+				'Low stock': 'DRAFT',
+				'Out of stock': 'ARCHIVED'
+			};
+			const mappedStatus = statusMapping[selectedStatus] || selectedStatus.toUpperCase();
+			queryParts.push(`status:${mappedStatus}`);
+		}
+		
+		// Add category filter if not "All Categories"
+		if (selectedCategory !== 'All Categories') {
+			queryParts.push(`category:${selectedCategory.toLowerCase()}`);
+		}
+		
+		const searchString = queryParts.join(' AND ');
+		
+		// Reset pagination when filters change
+		if (resetPagination) {
+			currentCursor = null;
+			isForwardPaging = true;
+		}
+		
+		// Build variables for GraphQL query
+		const variables: any = {
+			query: searchString || undefined,
+			first: isForwardPaging ? 10 : undefined,
+			last: !isForwardPaging ? 10 : undefined,
+			after: isForwardPaging ? currentCursor : undefined,
+			before: !isForwardPaging ? currentCursor : undefined
+		};
+		
+		// Update the GraphQL query
+		Products.fetch({ variables });
+	}
+
+	// Handle filter changes
+	function handleCategoryChange(event: Event) {
+		const target = event.target as HTMLSelectElement;
+		selectedCategory = target.value;
+		updateQuery();
+	}
+
+	function handleStatusChange(event: Event) {
+		const target = event.target as HTMLSelectElement;
+		selectedStatus = target.value;
+		updateQuery();
+	}
+
+	// Clear individual filters
+	function clearCategoryFilter() {
+		selectedCategory = 'All Categories';
+		updateQuery();
+	}
+
+	function clearStatusFilter() {
+		selectedStatus = 'All Status';
+		updateQuery();
+	}
+
+	function clearSearchQuery() {
+		searchQuery = '';
+		updateQuery();
+	}
+
+	function clearAllFilters() {
+		searchQuery = '';
+		selectedCategory = 'All Categories';
+		selectedStatus = 'All Status';
+		updateQuery();
+	}
+
+	// Pagination functions
+	function handleNextPage() {
+		if ($Products.data?.products.pageInfo.hasNextPage) {
+			currentCursor = $Products.data.products.pageInfo.endCursor;
+			isForwardPaging = true;
+			updateQuery(false);
+		}
+	}
+
+	function handlePreviousPage() {
+		if ($Products.data?.products.pageInfo.hasPreviousPage) {
+			currentCursor = $Products.data.products.pageInfo.startCursor;
+			isForwardPaging = false;
+			updateQuery(false);
+		}
+	}
+
+	// Get active filters for display
+	const activeFilters = $derived([
+		...(searchQuery.trim() ? [{ type: 'search', label: `"${searchQuery.trim()}"`, clear: clearSearchQuery }] : []),
+		...(selectedCategory !== 'All Categories' ? [{ type: 'category', label: `Category: ${selectedCategory}`, clear: clearCategoryFilter }] : []),
+		...(selectedStatus !== 'All Status' ? [{ type: 'status', label: `Status: ${selectedStatus}`, clear: clearStatusFilter }] : [])
+	]);
 </script>
 
 <DashboardLayout title="Products" {user}>
@@ -39,45 +168,88 @@
 	</div>
 
 	<div class="overflow-hidden rounded-lg bg-white shadow-md">
-		<div class="flex items-center justify-between border-b p-4">
-			<div class="relative">
-				<input
-					type="text"
-					placeholder="Search products..."
-					class="rounded-lg border py-2 pl-10 pr-4 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
-				/>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					class="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
-					viewBox="0 0 20 20"
-					fill="currentColor"
-				>
-					<path
-						fill-rule="evenodd"
-						d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-						clip-rule="evenodd"
+		<div class="border-b p-4">
+			<div class="flex items-center justify-between">
+				<div class="relative">
+					<input
+						type="text"
+						placeholder="Search products..."
+						bind:value={searchQuery}
+						oninput={handleSearch}
+						class="rounded-lg border py-2 pl-10 pr-4 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
 					/>
-				</svg>
-			</div>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+						viewBox="0 0 20 20"
+						fill="currentColor"
+					>
+						<path
+							fill-rule="evenodd"
+							d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+							clip-rule="evenodd"
+						/>
+					</svg>
+				</div>
 
-			<div class="flex space-x-2">
-				<select
-					class="rounded-lg border px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
-				>
-					<option>All Categories</option>
-					<option>Accessories</option>
-					<option>Electronics</option>
-					<option>Clothing</option>
-				</select>
-				<select
-					class="rounded-lg border px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
-				>
-					<option>All Status</option>
-					<option>Active</option>
-					<option>Low stock</option>
-					<option>Out of stock</option>
-				</select>
+				<div class="flex space-x-2">
+					<select
+						bind:value={selectedCategory}
+						onchange={handleCategoryChange}
+						class="rounded-lg border px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+					>
+						<option>All Categories</option>
+						{#if $categories.data?.categories?.edges}
+							{#each $categories.data.categories.edges as edge}
+								{#if edge?.node}
+									<option value={edge.node.title}>{edge.node.title}</option>
+								{/if}
+							{/each}
+						{/if}
+					</select>
+					<select
+						bind:value={selectedStatus}
+						onchange={handleStatusChange}
+						class="rounded-lg border px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+					>
+						<option>All Status</option>
+						<option>Active</option>
+						<option>Low stock</option>
+						<option>Out of stock</option>
+					</select>
+				</div>
 			</div>
+			
+			<!-- Active Filters Display -->
+			{#if activeFilters.length > 0}
+				<div class="mt-3 flex flex-wrap items-center gap-2">
+					<span class="text-sm font-medium text-gray-600">Active filters:</span>
+					{#each activeFilters as filter (filter.type)}
+						<span class="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800">
+							{filter.label}
+							<button
+								type="button"
+								onclick={filter.clear}
+								class="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full hover:bg-blue-200"
+								aria-label="Remove {filter.label} filter"
+							>
+								<svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+									<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+								</svg>
+							</button>
+						</span>
+					{/each}
+					{#if activeFilters.length > 1}
+						<button
+							type="button"
+							onclick={clearAllFilters}
+							class="text-sm text-blue-600 hover:text-blue-800 underline"
+						>
+							Clear all
+						</button>
+					{/if}
+				</div>
+			{/if}
 		</div>
 
 		<table class="w-full">
@@ -200,18 +372,41 @@
 						.length === 1
 						? ''
 						: 's'}
+					{#if searchQuery.trim() || selectedCategory !== 'All Categories' || selectedStatus !== 'All Status'}
+						<span class="ml-2 text-blue-600">
+							(filtered)
+						</span>
+					{/if}
+				{:else if $Products.fetching}
+					Loading products...
+				{:else if searchQuery.trim() || selectedCategory !== 'All Categories' || selectedStatus !== 'All Status'}
+					No products match your search criteria
 				{:else}
 					No products to show
 				{/if}
 			</p>
 			<div class="flex space-x-1">
-				<button class="disabled rounded-md bg-gray-100 px-3 py-1 text-gray-600" disabled
-					>Previous</button
+				<button 
+					class="rounded-md px-3 py-1 {$Products.data?.products.pageInfo.hasPreviousPage 
+						? 'bg-primary-600 text-white hover:bg-primary-700' 
+						: 'bg-gray-100 text-gray-600 cursor-not-allowed'}"
+					disabled={!$Products.data?.products.pageInfo.hasPreviousPage}
+					onclick={handlePreviousPage}
 				>
-				<button class="rounded-md bg-primary-600 px-3 py-1 text-white">1</button>
-				<button class="disabled rounded-md bg-gray-100 px-3 py-1 text-gray-600" disabled
-					>Next</button
+					Previous
+				</button>
+				<span class="flex items-center px-3 py-1 text-gray-600 bg-gray-50 rounded-md">
+					Page {currentCursor ? '...' : '1'}
+				</span>
+				<button 
+					class="rounded-md px-3 py-1 {$Products.data?.products.pageInfo.hasNextPage 
+						? 'bg-primary-600 text-white hover:bg-primary-700' 
+						: 'bg-gray-100 text-gray-600 cursor-not-allowed'}"
+					disabled={!$Products.data?.products.pageInfo.hasNextPage}
+					onclick={handleNextPage}
 				>
+					Next
+				</button>
 			</div>
 		</div>
 	</div>

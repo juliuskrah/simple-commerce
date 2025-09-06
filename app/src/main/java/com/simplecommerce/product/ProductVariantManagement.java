@@ -51,6 +51,9 @@ public class ProductVariantManagement implements ProductVariantService, NodeServ
     if (input.price() != null) {
       entity.setPriceAmount(input.price().amount());
       entity.setPriceCurrency(input.price().currency());
+      
+      // Create default price set and rule for contextual pricing
+      createDefaultPriceSet(entity, input.price());
     }
     
     return entity;
@@ -120,9 +123,15 @@ public class ProductVariantManagement implements ProductVariantService, NodeServ
           if (input.price() != null) {
             entity.setPriceAmount(input.price().amount());
             entity.setPriceCurrency(input.price().currency());
+            
+            // Update or create default price set and rule for contextual pricing
+            updateOrCreateDefaultPriceSet(entity, input.price());
           } else {
             entity.setPriceAmount(null);
             entity.setPriceCurrency(null);
+            
+            // Remove default price set if price is removed
+            removeDefaultPriceSet(entity);
           }
           
           return fromEntity(entity);
@@ -170,6 +179,9 @@ public class ProductVariantManagement implements ProductVariantService, NodeServ
     if (price != null) {
       entity.setPriceAmount(price.amount());
       entity.setPriceCurrency(price.currency());
+      
+      // Create default price set and rule for contextual pricing
+      createDefaultPriceSet(entity, price);
     }
     
     runInScope(() -> variantRepository.saveAndFlush(entity));
@@ -189,5 +201,78 @@ public class ProductVariantManagement implements ProductVariantService, NodeServ
       }
       counter++;
     }
+  }
+
+  /**
+   * Creates a default price set and rule for simple pricing scenarios.
+   * This ensures compatibility with the contextual pricing system.
+   */
+  private void createDefaultPriceSet(ProductVariantEntity variant, MoneyInput price) {
+    var priceSet = new PriceSetEntity();
+    priceSet.setVariant(variant);
+    priceSet.setName("Default Pricing");
+    priceSet.setPriority(0);
+    priceSet.setActive(true);
+
+    var priceRule = new PriceRuleEntity();
+    priceRule.setPriceSet(priceSet);
+    priceRule.setContextType(PriceContextType.DEFAULT);
+    priceRule.setContextValue(null);
+    priceRule.setPriceAmount(price.amount());
+    priceRule.setPriceCurrency(price.currency());
+    priceRule.setMinQuantity(1);
+    priceRule.setMaxQuantity(null);
+    priceRule.setValidFrom(null);
+    priceRule.setValidUntil(null);
+
+    priceSet.addRule(priceRule);
+    variant.addPriceSet(priceSet);
+  }
+
+  /**
+   * Updates or creates the default price set for a variant.
+   */
+  private void updateOrCreateDefaultPriceSet(ProductVariantEntity variant, MoneyInput price) {
+    // Find existing default price set
+    var defaultPriceSet = variant.getPriceSets().stream()
+        .filter(ps -> "Default Pricing".equals(ps.getName()))
+        .findFirst();
+
+    if (defaultPriceSet.isPresent()) {
+      // Update existing default price rule
+      var priceSet = defaultPriceSet.get();
+      var defaultRule = priceSet.getRules().stream()
+          .filter(rule -> rule.getContextType() == PriceContextType.DEFAULT)
+          .findFirst();
+
+      if (defaultRule.isPresent()) {
+        var rule = defaultRule.get();
+        rule.setPriceAmount(price.amount());
+        rule.setPriceCurrency(price.currency());
+      } else {
+        // Create new default rule if it doesn't exist
+        var priceRule = new PriceRuleEntity();
+        priceRule.setPriceSet(priceSet);
+        priceRule.setContextType(PriceContextType.DEFAULT);
+        priceRule.setContextValue(null);
+        priceRule.setPriceAmount(price.amount());
+        priceRule.setPriceCurrency(price.currency());
+        priceRule.setMinQuantity(1);
+        priceRule.setMaxQuantity(null);
+        priceRule.setValidFrom(null);
+        priceRule.setValidUntil(null);
+        priceSet.addRule(priceRule);
+      }
+    } else {
+      // Create new default price set
+      createDefaultPriceSet(variant, price);
+    }
+  }
+
+  /**
+   * Removes the default price set from a variant.
+   */
+  private void removeDefaultPriceSet(ProductVariantEntity variant) {
+    variant.getPriceSets().removeIf(ps -> "Default Pricing".equals(ps.getName()));
   }
 }

@@ -1,0 +1,11 @@
+query Categories {
+  categories(first: 50) {
+    edges {
+      node {
+        id
+        title
+        slug
+      }
+    }
+  }
+}

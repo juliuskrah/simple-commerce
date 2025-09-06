@@ -1,0 +1,22 @@
+query ProductEdit($id: ID!) {
+	product(id: $id) {
+		id
+		title
+		description
+		slug
+		status
+		tags(limit: 10)
+		priceRange {
+			start {
+				amount
+				currency
+			}
+			stop {
+				amount
+				currency
+			}
+		}
+		createdAt
+		updatedAt
+	}
+}

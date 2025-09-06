@@ -77,6 +77,15 @@ class CategoryManagement implements CategoryService, NodeService {
    * {@inheritDoc}
    */
   @Override
+  public Window<Category> findCategories(int limit, ScrollPosition scroll) {
+    return callInScope(() -> categoryRepository.findBy(Limit.of(limit), Sort.by("title"), scroll))
+        .map(this::fromEntity);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public Optional<Category> findProductCategory(String productId) {
     return callInScope(() -> categoryRepository.findOneByProductId(UUID.fromString(productId))
         .map(this::fromEntity));

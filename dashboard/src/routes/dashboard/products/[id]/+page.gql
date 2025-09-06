@@ -1,4 +1,4 @@
-query ProductDetail($id: ID!) {
+query ProductDetail($id: ID!, $first: Int = 10, $after: String, $before: String, $last: Int) {
 	product(id: $id) {
 		id
 		title
@@ -21,7 +21,7 @@ query ProductDetail($id: ID!) {
 		}
 		createdAt
 		updatedAt
-		variants(first: 20) {
+		variants(first: $first, after: $after, before: $before, last: $last) {
 			edges {
 				node {
 					id
@@ -34,6 +34,12 @@ query ProductDetail($id: ID!) {
 					createdAt
 					updatedAt
 				}
+			}
+			pageInfo {
+				hasNextPage
+				hasPreviousPage
+				startCursor
+				endCursor
 			}
 		}
 	}

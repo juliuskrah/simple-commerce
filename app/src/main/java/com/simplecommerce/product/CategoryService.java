@@ -23,6 +23,14 @@ interface CategoryService {
   Category findCategory(String id);
 
   /**
+   * Find all categories.
+   * @param limit The maximum number of categories to return.
+   * @param scroll The scroll position.
+   * @return A window of categories.
+   */
+  Window<Category> findCategories(int limit, ScrollPosition scroll);
+
+  /**
    * Find a category by its product ID.
    * @param productId The title of the category.
    * @return The category when found.

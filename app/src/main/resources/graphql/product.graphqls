@@ -3,9 +3,11 @@ extend type Query {
     product("Product ID" id: ID!): Product
     "Find a product variant by its ID."
     variant("Product Variant ID" id: ID!): ProductVariant
-    "Find all products."
+    "Find all products with optional search query using GitHub-style syntax."
     products(first: Int @Positive, after: String, last: Int @Positive, before: String,
-        orderBy: [ProductOrderField], orderDirection: OrderDirection = ASC):
+        orderBy: [ProductOrderField], orderDirection: OrderDirection = ASC,
+        "Search query using GitHub-style syntax (e.g., 'status:published price:100..200')"
+        query: String):
     ProductConnection! @Expression(value : "${args.containsOneOf('first','last')}")
 }
 
@@ -24,6 +26,18 @@ type Mutation {
     deleteProductVariant("Product Variant ID" id: ID!): ID!
     "Add digital content to a variant."
     addVariantDigitalContent("Product Variant ID" variantId: ID!, file: FileInput!): DigitalContent
+    "Add a price set to a product variant."
+    addVariantPriceSet("Product Variant ID" variantId: ID!, input: PriceSetInput!): PriceSet
+    "Update an existing price set."
+    updatePriceSet("Price Set ID" id: ID!, input: PriceSetInput!): PriceSet
+    "Delete a price set."
+    deletePriceSet("Price Set ID" id: ID!): ID!
+    "Publish a draft product using state machine validation."
+    publishProduct("Product ID" id: ID!): Product
+    "Archive a published product."
+    archiveProduct("Product ID" id: ID!): Product
+    "Reactivate an archived product (moves to draft state)."
+    reactivateProduct("Product ID" id: ID!): Product
 }
 
 """
@@ -47,7 +61,6 @@ type Product implements Node {
     slug: String!
     status: ProductStatus!
     priceRange: PriceRange
-    priceSet: PriceSet
     tags(limit: Int!): [String!]
     title: String!
     updatedAt: DateTime!
@@ -77,6 +90,10 @@ type ProductVariant implements Node {
     title: String!
     "The price of this variant."
     price: Money
+    "Contextual price resolved for this variant based on provided context."
+    resolvedPrice(context: PriceContextInput!): Money
+    "Price sets containing contextual pricing rules for this variant."
+    priceSets: [PriceSet!]!
     "Digital content associated with this variant."
     digitalContent: DigitalContent
 }
@@ -97,11 +114,50 @@ type PriceRange {
     stop: Money
 }
 
+"A collection of pricing rules for a product variant supporting contextual pricing."
 type PriceSet {
     id: ID!
+    name: String!
+    priority: Int!
+    active: Boolean!
+    rules: [PriceRule!]!
     createdAt: DateTime!
-    prices: [Money!]
     updatedAt: DateTime!
+}
+
+"A specific pricing rule within a price set defining pricing for a particular context."
+type PriceRule {
+    id: ID!
+    contextType: PriceContextType!
+    contextValue: String
+    price: Money!
+    minQuantity: Int
+    maxQuantity: Int
+    validFrom: DateTime
+    validUntil: DateTime
+    active: Boolean!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+}
+
+"Input for specifying pricing context when resolving prices."
+input PriceContextInput {
+    customerGroup: String
+    region: String
+    currency: Currency!
+    quantity: Int = 1
+}
+
+"Types of pricing contexts that can be applied to price rules."
+enum PriceContextType {
+    "Geographic context (country, region, state)"
+    GEOGRAPHIC
+    "Currency context for multi-currency pricing"
+    CURRENCY
+    "Customer group context for tiered pricing (B2B, B2C, VIP, etc.)"
+    CUSTOMER_GROUP
+    "Default pricing rule (no specific context)"
+    DEFAULT
 }
 
 input ProductInput {
@@ -116,6 +172,26 @@ input ProductVariantInput {
     sku: String!
     title: String!
     price: MoneyInput
+}
+
+"Input for creating or updating a price set."
+input PriceSetInput {
+    name: String!
+    priority: Int = 0
+    active: Boolean = true
+    rules: [PriceRuleInput!]!
+}
+
+"Input for creating or updating a price rule."
+input PriceRuleInput {
+    contextType: PriceContextType!
+    contextValue: String
+    price: MoneyInput!
+    minQuantity: Int
+    maxQuantity: Int
+    validFrom: DateTime
+    validUntil: DateTime
+    active: Boolean = true
 }
 
 input MoneyInput {

@@ -5,6 +5,8 @@ import static com.simplecommerce.shared.VirtualThreadHelper.runInScope;
 
 import com.simplecommerce.node.NodeService;
 import com.simplecommerce.product.ProductEvent.ProductEventType;
+import com.simplecommerce.search.SearchQueryParser;
+import com.simplecommerce.search.SearchQueryTranslator;
 import com.simplecommerce.shared.Event;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.NotFoundException;
@@ -17,6 +19,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -35,6 +39,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Configurable(autowire = Autowire.BY_TYPE)
 class ProductManagement implements ProductService, NodeService {
 
+  private static final Logger LOG = LoggerFactory.getLogger(ProductManagement.class);
+
   public void setProductRepository(ObjectFactory<Products> productRepository) {
     this.productRepository = productRepository.getObject();
   }
@@ -44,10 +50,18 @@ class ProductManagement implements ProductService, NodeService {
   public void setVariantRepository(ObjectFactory<ProductVariants> variantRepository) {
     this.variantRepository = variantRepository.getObject();
   }
+  public void setSearchQueryParser(ObjectFactory<SearchQueryParser> searchQueryParser) {
+    this.searchQueryParser = searchQueryParser.getObject();
+  }
+  public void setSearchQueryTranslator(ObjectFactory<SearchQueryTranslator> searchQueryTranslator) {
+    this.searchQueryTranslator = searchQueryTranslator.getObject();
+  }
 
   private Products productRepository;
   private Event<ProductEvent> event;
   private ProductVariants variantRepository;
+  private SearchQueryParser searchQueryParser;
+  private SearchQueryTranslator searchQueryTranslator;
 
   private ProductEntity toEntity(ProductInput product) {
     var category = new CategoryEntity();
@@ -129,6 +143,42 @@ class ProductManagement implements ProductService, NodeService {
   public Window<Product> findProducts(int limit, Sort sort, ScrollPosition scroll) {
     return callInScope( () -> productRepository.findBy(Limit.of(limit), sort, scroll))
         .map(this::fromEntity);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Transactional(readOnly = true)
+  @Override
+  public Window<Product> findProducts(int limit, Sort sort, ScrollPosition scroll, String searchQuery) {
+    if (searchQuery == null || searchQuery.trim().isEmpty()) {
+      // Delegate to the simple version if no search query
+      return findProducts(limit, sort, scroll);
+    }
+
+    LOG.debug("Finding products with search query: {}", searchQuery);
+    
+    // Parse the search query
+    var parsedQuery = searchQueryParser.parse(searchQuery);
+    LOG.debug("Parsed search query: {}", parsedQuery);
+    
+    // Translate to JPA Specification
+    var specification = searchQueryTranslator.translateToSpecification(parsedQuery);
+    
+    // Execute search with specification 
+    // TODO: Implement proper cursor-based pagination with specifications
+    // For now, fall back to simple pagination when search is used
+    LOG.warn("Search with specifications enabled but cursor pagination not yet implemented. Using simple approach.");
+    
+    var products = callInScope(() -> productRepository.findAll(specification, sort));
+    var limitedProducts = products.stream()
+        .limit(limit)
+        .map(this::fromEntity)
+        .toList();
+    
+    // Return a basic Window without proper cursor pagination
+    // This is a temporary implementation until proper pagination is added
+    return Window.from(limitedProducts, pos -> null);
   }
 
   /**

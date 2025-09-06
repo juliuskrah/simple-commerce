@@ -39,3 +39,4 @@ my-project/
 6. **Testing**: Write unit tests for new features and ensure existing tests pass.
 7. **GraphQL**: Use houdini for GraphQL queries and mutations.
 8. **Browser Navigation**: Use MCP tools for browser navigation.
+8.1. Always make sure the frontend runs on port `5173`,

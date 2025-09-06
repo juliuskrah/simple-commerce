@@ -30,6 +30,8 @@ SPRING_PROFILES_ACTIVE=oidc-authn,keto-authz ./gradlew bootRun
 
 # Start the server explicitly
 SPRING_PROFILES_ACTIVE=oidc-authn,keto-authz ./gradlew bootRun --args="serve"
+# Or
+./gradlew bootRun --args="serve --spring.profiles.active=oidc-authn,keto-authz"
 
 # Run migrations only
 ./gradlew bootRun --args="migrate"
@@ -58,6 +60,12 @@ java -jar app/build/libs/app-*.jar migrate --seed
 
 # Clean database and run migrations
 java -jar app/build/libs/app-*.jar migrate --clean
+```
+
+### Starting the Frontend
+
+```bash
+cd dashboard && npm run dev
 ```
 
 ### Docker Compose

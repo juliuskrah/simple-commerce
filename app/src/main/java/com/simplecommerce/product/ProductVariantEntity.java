@@ -2,14 +2,18 @@ package com.simplecommerce.product;
 
 import static jakarta.persistence.FetchType.LAZY;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,6 +41,8 @@ public class ProductVariantEntity implements Auditable<String, UUID, OffsetDateT
   private String priceCurrency;
   @Column(name = "system_generated", nullable = false)
   private Boolean systemGenerated = true;
+  @OneToMany(mappedBy = "variant", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<PriceSetEntity> priceSets = new ArrayList<>();
   @CreationTimestamp
   @Column(nullable = false)
   private OffsetDateTime createdAt;
@@ -146,6 +152,24 @@ public class ProductVariantEntity implements Auditable<String, UUID, OffsetDateT
 
   public void setSystemGenerated(Boolean systemGenerated) {
     this.systemGenerated = systemGenerated;
+  }
+
+  public List<PriceSetEntity> getPriceSets() {
+    return priceSets;
+  }
+
+  public void setPriceSets(List<PriceSetEntity> priceSets) {
+    this.priceSets = priceSets;
+  }
+
+  public void addPriceSet(PriceSetEntity priceSet) {
+    priceSets.add(priceSet);
+    priceSet.setVariant(this);
+  }
+
+  public void removePriceSet(PriceSetEntity priceSet) {
+    priceSets.remove(priceSet);
+    priceSet.setVariant(null);
   }
 
   @Override

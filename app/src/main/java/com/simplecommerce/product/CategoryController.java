@@ -41,6 +41,13 @@ class CategoryController {
     return categoryService.getIfAvailable(categoryServiceSupplier).findCategory(id);
   }
 
+  @QueryMapping
+  Window<Category> categories(ScrollSubrange subrange) {
+    var limit = subrange.count().orElse(100);
+    var scroll = subrange.position().orElse(ScrollPosition.keyset());
+    return categoryService.getIfAvailable(categoryServiceSupplier).findCategories(limit, scroll);
+  }
+
   @SchemaMapping
   String id(Category source) {
     return new GlobalId(NODE_CATEGORY, source.id()).encode();

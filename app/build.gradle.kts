@@ -1,5 +1,6 @@
 plugins {
     id("org.springframework.boot")
+    id("antlr")
     application
 }
 
@@ -37,6 +38,9 @@ dependencies {
     implementation(libs.picocli)
     implementation(libs.minio)
     implementation(libs.moneta)
+    // ANTLR for search query parsing
+    antlr("org.antlr:antlr4:4.13.1")
+    implementation("org.antlr:antlr4-runtime:4.13.1")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     springInstrument("org.springframework:spring-instrument") {
         because("Required for Spring Load-Time Weaving")
@@ -87,4 +91,20 @@ application {
         enablePreview,
         "-javaagent:${configurations["springInstrument"].singleFile}"
     )
+}
+
+// ANTLR configuration
+tasks.generateGrammarSource {
+    maxHeapSize = "64m"
+    arguments = arguments + listOf("-visitor", "-listener")
+    outputDirectory = file("build/generated-src/antlr/main")
+}
+
+// Configure source sets to include generated ANTLR sources
+sourceSets {
+    main {
+        java {
+            srcDir("build/generated-src/antlr/main")
+        }
+    }
 }

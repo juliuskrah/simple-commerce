@@ -1,0 +1,21 @@
+mutation AddProduct($input: ProductInput!) {
+  addProduct(input: $input) {
+    id
+    title
+    slug
+    description
+    status
+    createdAt
+    updatedAt
+    priceRange {
+      start {
+        amount
+        currency
+      }
+      stop {
+        amount
+        currency
+      }
+    }
+  }
+}

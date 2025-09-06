@@ -15,11 +15,16 @@
 	let { ProductDetail } = $derived(data);
 
 	const product = $derived($ProductDetail.data?.product);
-	const baseEdges = $derived(product?.variants?.edges || []);
+	const variants = $derived(product?.variants);
+	const baseEdges = $derived(variants?.edges || []);
 	let variantEdges = $state<any[]>([]);
 	$effect(() => {
 		variantEdges = baseEdges;
 	});
+
+	// Pagination state
+	let currentCursor = $state(null);
+	let isForwardPaging = $state(true);
 
 	let successMessage = $state<string | null>(null);
 	let notificationRegion: HTMLElement | null = $state(null);
@@ -110,6 +115,35 @@
 			setTimeout(() => notificationRegion?.focus(), 0);
 		}
 	}
+
+	// Pagination functions
+	function handleNextPage() {
+		if (variants?.pageInfo?.hasNextPage) {
+			currentCursor = variants.pageInfo.endCursor;
+			isForwardPaging = true;
+			fetchVariantsPage();
+		}
+	}
+
+	function handlePreviousPage() {
+		if (variants?.pageInfo?.hasPreviousPage) {
+			currentCursor = variants.pageInfo.startCursor;
+			isForwardPaging = false;
+			fetchVariantsPage();
+		}
+	}
+
+	function fetchVariantsPage() {
+		const variables: any = {
+			id: $page.params.id,
+			first: isForwardPaging ? 10 : undefined,
+			last: !isForwardPaging ? 10 : undefined,
+			after: isForwardPaging ? currentCursor : undefined,
+			before: !isForwardPaging ? currentCursor : undefined
+		};
+		
+		ProductDetail.fetch({ variables });
+	}
 </script>
 
 <DashboardLayout title="Product Details" {user}>
@@ -173,6 +207,7 @@
 				</div>
 				<div class="flex space-x-3">
 					<button
+						onclick={() => goto(`/dashboard/products/${product.id}/edit`)}
 						class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
 					>
 						Edit Product
@@ -391,6 +426,38 @@
 						</tbody>
 					</table>
 				</div>
+
+				<!-- Pagination Controls -->
+				{#if variants?.pageInfo && (variants.pageInfo.hasNextPage || variants.pageInfo.hasPreviousPage)}
+					<div class="flex items-center justify-between border-t px-6 py-4">
+						<p class="text-sm text-gray-500">
+							Showing {variantEdges.length} variant{variantEdges.length === 1 ? '' : 's'}
+						</p>
+						<div class="flex space-x-1">
+							<button 
+								class="rounded-md px-3 py-1 {variants.pageInfo.hasPreviousPage 
+									? 'bg-primary-600 text-white hover:bg-primary-700' 
+									: 'bg-gray-100 text-gray-600 cursor-not-allowed'}"
+								disabled={!variants.pageInfo.hasPreviousPage}
+								onclick={handlePreviousPage}
+							>
+								Previous
+							</button>
+							<span class="flex items-center px-3 py-1 text-gray-600 bg-gray-50 rounded-md">
+								Page {currentCursor ? '...' : '1'}
+							</span>
+							<button 
+								class="rounded-md px-3 py-1 {variants.pageInfo.hasNextPage 
+									? 'bg-primary-600 text-white hover:bg-primary-700' 
+									: 'bg-gray-100 text-gray-600 cursor-not-allowed'}"
+								disabled={!variants.pageInfo.hasNextPage}
+								onclick={handleNextPage}
+							>
+								Next
+							</button>
+						</div>
+					</div>
+				{/if}
 			{:else}
 				<!-- Empty State -->
 				<div class="flex flex-col items-center justify-center py-12">

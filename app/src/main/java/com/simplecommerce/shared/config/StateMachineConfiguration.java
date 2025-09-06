@@ -1,7 +1,7 @@
 package com.simplecommerce.shared.config;
 
 import com.simplecommerce.fsm.Events;
-import com.simplecommerce.fsm.StateMachineListener;
+// import com.simplecommerce.fsm.StateMachineListener; // Removed as part of cleanup
 import com.simplecommerce.fsm.States;
 import java.util.EnumSet;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +24,7 @@ class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter<States
     config
         .withConfiguration()
         .autoStartup(true)
-        .listener(new StateMachineListener());
+        ; // .listener(new StateMachineListener()); // Removed as part of cleanup
   }
 
   @Override
