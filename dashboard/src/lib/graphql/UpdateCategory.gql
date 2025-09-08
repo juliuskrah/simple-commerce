@@ -1,0 +1,18 @@
+mutation UpdateCategory($id: ID!, $input: CategoryInput!) {
+  updateCategory(id: $id, input: $input) {
+    id
+    title
+    slug
+    description
+    createdAt
+    updatedAt
+    isRoot
+    isLeaf
+    level
+    breadCrumb
+    parent {
+      id
+      title
+    }
+  }
+}

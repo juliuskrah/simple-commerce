@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { CategoriesStore } from '$houdini';
+	import CategorySelector from './CategorySelector.svelte';
 
 	interface Props {
 		product?: any | null;
@@ -24,10 +25,11 @@
 	let priceVal = $state(product?.price || 0);
 	let tagsVal = $state(product?.tags?.join(', ') || '');
 	let statusVal = $state(product?.status || 'DRAFT');
+	let categoryIdVal = $state(product?.categoryId || '');
 
 	$effect(() => {
 		if (!errors) return;
-		const order = ['title', 'description', 'price', 'tags', 'status'];
+		const order = ['title', 'description', 'price', 'tags', 'status', 'categoryId'];
 		for (const field of order) {
 			if (errors[field]) {
 				const el = document.getElementById(field);
@@ -149,6 +151,20 @@
 						{Array.isArray(errors.tags) ? errors.tags[0] : errors.tags}
 					</p>
 				{/if}
+			</div>
+
+			<div>
+				<label for="categoryId" class="block text-sm font-medium text-gray-700">Category</label>
+				<input type="hidden" name="categoryId" value={categoryIdVal} />
+				<CategorySelector
+					selectedCategoryId={categoryIdVal}
+					onCategorySelect={(id) => categoryIdVal = id || ''}
+					placeholder="Choose a category to organize your product..."
+					error={errors?.categoryId ? (Array.isArray(errors.categoryId) ? errors.categoryId[0] : errors.categoryId) : undefined}
+				/>
+				<p class="mt-1 text-xs text-gray-500">
+					Select a category to help customers find your product more easily
+				</p>
 			</div>
 		</div>
 	</div>

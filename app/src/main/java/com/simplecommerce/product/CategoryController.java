@@ -7,6 +7,7 @@ import com.simplecommerce.shared.Actor;
 import com.simplecommerce.shared.GlobalId;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Window;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.BatchMapping;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.graphql.data.query.ScrollSubrange;
@@ -53,9 +55,11 @@ class CategoryController {
     return new GlobalId(NODE_CATEGORY, source.id()).encode();
   }
 
-  @SchemaMapping
-  Optional<Category> parent(Category source) {
-    return categoryService.getIfAvailable(categoryServiceSupplier).findCategoryParent(source.id());
+  @BatchMapping
+  List<Optional<Category>> parent(List<Category> categories) {
+    var categoryIds = categories.stream().map(Category::id).collect(toSet());
+    LOG.debug("Fetching category-parent for {} categories: {}", categories.size(), categoryIds);
+    return categoryService.getIfAvailable(categoryServiceSupplier).findCategoryParents(categoryIds);
   }
 
   @SchemaMapping
@@ -73,14 +77,18 @@ class CategoryController {
     return Optional.empty();
   }
 
-  @SchemaMapping
-  boolean isLeaf(Category source) {
-    return categoryService.getIfAvailable(categoryServiceSupplier).isLeaf(source.id());
+  @BatchMapping
+  List<Boolean> isLeaf(List<Category> categories) {
+    var categoryIds = categories.stream().map(Category::id).collect(toSet());
+    LOG.debug("Fetching isLeaf status for {} categories: {}", categories.size(), categoryIds);
+    return categoryService.getIfAvailable(categoryServiceSupplier).findCategoryLeafStatus(categoryIds);
   }
 
-  @SchemaMapping
-  boolean isRoot(Category source) {
-    return categoryService.getIfAvailable(categoryServiceSupplier).isRoot(source.id());
+  @BatchMapping
+  List<Boolean> isRoot(List<Category> categories) {
+    var categoryIds = categories.stream().map(Category::id).collect(toSet());
+    LOG.debug("Fetching isRoot status for {} categories: {}", categories.size(), categoryIds);
+    return categoryService.getIfAvailable(categoryServiceSupplier).findCategoryRootStatus(categoryIds);
   }
 
   @SchemaMapping
@@ -102,5 +110,31 @@ class CategoryController {
     var categoryIds = categories.stream().map(Category::id).collect(toSet());
     LOG.debug("Fetching category-level for {} categories: {}", categories.size(), categoryIds);
     return categoryService.getIfAvailable(categoryServiceSupplier).findCategoryLevels(categoryIds);
+  }
+
+  @BatchMapping
+  List<String> breadCrumb(List<Category> categories) {
+    var categoryIds = categories.stream().map(Category::id).collect(toSet());
+    LOG.debug("Fetching breadcrumbs for {} categories: {}", categories.size(), categoryIds);
+    return categoryService.getIfAvailable(categoryServiceSupplier).getCategoryBreadcrumbs(categoryIds);
+  }
+
+  @MutationMapping
+  Category addCategory(@Argument CategoryInput input) {
+    LOG.debug("Creating category: {}", input);
+    return categoryService.getIfAvailable(categoryServiceSupplier).createCategory(input);
+  }
+
+  @MutationMapping
+  Category updateCategory(@Argument String id, @Argument CategoryInput input) {
+    LOG.debug("Updating category {}: {}", id, input);
+    return categoryService.getIfAvailable(categoryServiceSupplier).updateCategory(id, input);
+  }
+
+  @MutationMapping
+  String deleteCategory(@Argument String id) {
+    LOG.debug("Deleting category: {}", id);
+    var deletedId = categoryService.getIfAvailable(categoryServiceSupplier).deleteCategory(id);
+    return new GlobalId(NODE_CATEGORY, deletedId).encode();
   }
 }

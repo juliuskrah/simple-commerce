@@ -1,0 +1,20 @@
+query CategoryTree {
+  categories(first: 500) {
+    edges {
+      node {
+        id
+        title
+        slug
+        description
+        level
+        isRoot
+        isLeaf
+        breadCrumb
+        parent {
+          id
+          title
+        }
+      }
+    }
+  }
+}

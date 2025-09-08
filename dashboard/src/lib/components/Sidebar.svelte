@@ -8,6 +8,7 @@
 		const pathname = $page.url.pathname;
 		if (pathname === '/dashboard' || pathname === '/dashboard/') return 'home';
 		if (pathname.includes('/products')) return 'products';
+		if (pathname.includes('/categories')) return 'categories';
 		if (pathname.includes('/orders')) return 'orders';
 		if (pathname.includes('/customers')) return 'customers';
 		if (pathname.includes('/analytics')) return 'analytics';
@@ -18,6 +19,7 @@
 	const menuItems = [
 		{ id: 'home', label: 'Home', icon: 'home' },
 		{ id: 'products', label: 'Products', icon: 'shopping-bag' },
+		{ id: 'categories', label: 'Categories', icon: 'folder-tree' },
 		{ id: 'orders', label: 'Orders', icon: 'shopping-cart' },
 		{ id: 'customers', label: 'Customers', icon: 'users' },
 		{ id: 'analytics', label: 'Analytics', icon: 'bar-chart-2' },

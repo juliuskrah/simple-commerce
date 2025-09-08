@@ -1,0 +1,18 @@
+mutation AddCategory($input: CategoryInput!) {
+  addCategory(input: $input) {
+    id
+    title
+    slug
+    description
+    createdAt
+    updatedAt
+    isRoot
+    isLeaf
+    level
+    breadCrumb
+    parent {
+      id
+      title
+    }
+  }
+}

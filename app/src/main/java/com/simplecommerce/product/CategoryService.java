@@ -46,6 +46,13 @@ interface CategoryService {
   Optional<Category> findCategoryParent(String id);
 
   /**
+   * Find the parents of multiple categories in batch.
+   * @param ids The IDs of the categories.
+   * @return The parent categories for each ID, in the same order.
+   */
+  List<Optional<Category>> findCategoryParents(Set<String> ids);
+
+  /**
    * Find the ancestors of a category.
    * @param id The ID of the category.
    * @param limit The maximum number of ancestors to return.
@@ -78,9 +85,65 @@ interface CategoryService {
   boolean isLeaf(String id);
 
   /**
+   * Check if multiple categories are leaf nodes in batch.
+   * @param ids The IDs of the categories.
+   * @return The leaf status for each ID, in the same order.
+   */
+  List<Boolean> findCategoryLeafStatus(Set<String> ids);
+
+  /**
    * Check if a category is a root node.
    * @param id The ID of the category.
    * @return True if the category is a root node.
    */
   boolean isRoot(String id);
+
+  /**
+   * Check if multiple categories are root nodes in batch.
+   * @param ids The IDs of the categories.
+   * @return The root status for each ID, in the same order.
+   */
+  List<Boolean> findCategoryRootStatus(Set<String> ids);
+
+  /**
+   * Create a new category.
+   * @param input The category input data.
+   * @throws IllegalArgumentException If the parent ID is invalid or creates a cycle.
+   * @throws NotFoundException If the parent category is not found.
+   * @return The created category.
+   */
+  Category createCategory(CategoryInput input);
+
+  /**
+   * Update an existing category.
+   * @param id The ID of the category to update.
+   * @param input The updated category data.
+   * @throws IllegalArgumentException If the global ID is invalid or update creates a cycle.
+   * @throws NotFoundException If the category is not found.
+   * @return The updated category.
+   */
+  Category updateCategory(String id, CategoryInput input);
+
+  /**
+   * Delete a category.
+   * @param id The ID of the category to delete.
+   * @throws IllegalArgumentException If the global ID is invalid or category has children.
+   * @throws NotFoundException If the category is not found.
+   * @return The ID of the deleted category.
+   */
+  String deleteCategory(String id);
+
+  /**
+   * Get the breadcrumb trail for a category.
+   * @param id The ID of the category.
+   * @return The full breadcrumb path, e.g., "Animals & Pet Supplies > Pet Supplies > Dog Supplies"
+   */
+  String getCategoryBreadcrumb(String id);
+
+  /**
+   * Get the breadcrumb trails for multiple categories in batch.
+   * @param ids The IDs of the categories.
+   * @return The breadcrumb paths for each ID, in the same order.
+   */
+  List<String> getCategoryBreadcrumbs(Set<String> ids);
 }

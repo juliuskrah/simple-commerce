@@ -1,0 +1,49 @@
+query CategoryDetails($id: ID!) {
+  category(id: $id) {
+    id
+    title
+    slug
+    description
+    createdAt
+    updatedAt
+    isRoot
+    isLeaf  
+    level
+    breadCrumb
+    parent {
+      id
+      title
+      slug
+    }
+    ancestors(first: 50) {
+      edges {
+        node {
+          id
+          title
+          slug
+        }
+      }
+    }
+    children(first: 50) {
+      edges {
+        node {
+          id
+          title
+          slug
+          description
+          level
+          isLeaf
+          children(first: 10) {
+            edges {
+              node {
+                id
+                title
+                slug
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

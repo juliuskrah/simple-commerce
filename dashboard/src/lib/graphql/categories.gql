@@ -5,6 +5,26 @@ query Categories($page: Int = 50) {
         id
         title
         slug
+        description
+        createdAt
+        updatedAt
+        isRoot
+        isLeaf
+        level
+        breadCrumb
+        parent {
+          id
+          title
+        }
+        children(first: 10) {
+          edges {
+            node {
+              id
+              title
+              slug
+            }
+          }
+        }
       }
     }
   }
