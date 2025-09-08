@@ -17,13 +17,6 @@ query productWithTags($id: ID!, $first: Int!) {
 query productWithPrice($id: ID!) {
     product(id: $id){
         id
-        priceSet {
-            id
-            prices {
-                amount
-                currency
-            }
-        }
         priceRange {
             start {
                 amount

@@ -1,0 +1,8 @@
+mutation PublishProduct($id: ID!) {
+  publishProduct(id: $id) {
+    id
+    title
+    status
+    updatedAt
+  }
+}

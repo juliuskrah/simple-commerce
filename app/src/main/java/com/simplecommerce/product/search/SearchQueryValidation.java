@@ -1,4 +1,4 @@
-package com.simplecommerce.search;
+package com.simplecommerce.product.search;
 
 import java.util.List;
 

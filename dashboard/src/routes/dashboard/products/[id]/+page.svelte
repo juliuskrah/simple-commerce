@@ -3,7 +3,7 @@
 	import type { PageData } from './$houdini';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	import { DeleteProductVariantStore } from '$houdini';
+	import { DeleteProductVariantStore, PublishProductStore, ArchiveProductStore, ReactivateProductStore } from '$houdini';
 	import { notifications } from '$lib/stores/notifications';
 
 	interface Props {
@@ -55,8 +55,11 @@
 		})();
 	});
 
-	// Initialize GraphQL mutation store for deleting variants
+	// Initialize GraphQL mutation stores
 	const deleteVariantMutation = new DeleteProductVariantStore();
+	const publishProductMutation = new PublishProductStore();
+	const archiveProductMutation = new ArchiveProductStore();
+	const reactivateProductMutation = new ReactivateProductStore();
 
 	// Helper function to format currency
 	function formatCurrency(amount: number, currency: string = 'USD'): string {
@@ -76,6 +79,86 @@
 	function addVariant() {
 		const pid = encodeURIComponent($page.params.id);
 		goto(`/dashboard/products/${pid}/variants/new`);
+	}
+
+	// Product state transition functions
+	async function publishProduct() {
+		if (!product) return;
+		
+		try {
+			const result = await publishProductMutation.mutate({
+				id: product.id
+			});
+
+			if (result.errors) {
+				throw new Error(result.errors.map((e: any) => e.message).join(', '));
+			}
+
+			await ProductDetail.fetch({ policy: 'NetworkOnly' });
+			notifications.push({ type: 'success', message: 'Product published successfully.' });
+			setTimeout(() => notificationRegion?.focus(), 0);
+		} catch (error) {
+			console.error('Error publishing product:', error);
+			notifications.push({ 
+				type: 'error', 
+				message: `Failed to publish product: ${error instanceof Error ? error.message : 'Unknown error'}` 
+			});
+			setTimeout(() => notificationRegion?.focus(), 0);
+		}
+	}
+
+	async function archiveProduct() {
+		if (!product) return;
+		
+		if (!confirm('Are you sure you want to archive this product? This will make it unavailable to customers.')) {
+			return;
+		}
+
+		try {
+			const result = await archiveProductMutation.mutate({
+				id: product.id
+			});
+
+			if (result.errors) {
+				throw new Error(result.errors.map((e: any) => e.message).join(', '));
+			}
+
+			await ProductDetail.fetch({ policy: 'NetworkOnly' });
+			notifications.push({ type: 'success', message: 'Product archived successfully.' });
+			setTimeout(() => notificationRegion?.focus(), 0);
+		} catch (error) {
+			console.error('Error archiving product:', error);
+			notifications.push({ 
+				type: 'error', 
+				message: `Failed to archive product: ${error instanceof Error ? error.message : 'Unknown error'}` 
+			});
+			setTimeout(() => notificationRegion?.focus(), 0);
+		}
+	}
+
+	async function reactivateProduct() {
+		if (!product) return;
+		
+		try {
+			const result = await reactivateProductMutation.mutate({
+				id: product.id
+			});
+
+			if (result.errors) {
+				throw new Error(result.errors.map((e: any) => e.message).join(', '));
+			}
+
+			await ProductDetail.fetch({ policy: 'NetworkOnly' });
+			notifications.push({ type: 'success', message: 'Product reactivated successfully.' });
+			setTimeout(() => notificationRegion?.focus(), 0);
+		} catch (error) {
+			console.error('Error reactivating product:', error);
+			notifications.push({ 
+				type: 'error', 
+				message: `Failed to reactivate product: ${error instanceof Error ? error.message : 'Unknown error'}` 
+			});
+			setTimeout(() => notificationRegion?.focus(), 0);
+		}
 	}
 
 	// Auto-dismiss success banner after a few seconds
@@ -256,16 +339,55 @@
 					</div>
 					<div>
 						<span class="text-sm font-medium text-gray-500">Status</span>
-						<span
-							class="inline-flex rounded-full px-2 py-1 text-xs font-medium {product.status ===
-							'PUBLISHED'
-								? 'bg-green-100 text-green-800'
-								: product.status === 'DRAFT'
-									? 'bg-yellow-100 text-yellow-800'
-									: 'bg-red-100 text-red-800'}"
-						>
-							{product.status}
-						</span>
+						<div class="flex items-center space-x-2">
+							<span
+								class="inline-flex rounded-full px-2 py-1 text-xs font-medium {product.status ===
+								'PUBLISHED'
+									? 'bg-green-100 text-green-800'
+									: product.status === 'DRAFT'
+										? 'bg-yellow-100 text-yellow-800'
+										: 'bg-red-100 text-red-800'}"
+							>
+								{product.status}
+							</span>
+							
+							<!-- State Transition Buttons -->
+							{#if product.status === 'DRAFT'}
+								<button
+									onclick={publishProduct}
+									class="inline-flex items-center rounded-md bg-green-600 px-2 py-1 text-xs font-medium text-white hover:bg-green-700"
+									title="Publish product"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" class="mr-1 h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+										<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd" />
+									</svg>
+									Publish
+								</button>
+							{:else if product.status === 'PUBLISHED'}
+								<button
+									onclick={archiveProduct}
+									class="inline-flex items-center rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
+									title="Archive product"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" class="mr-1 h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+										<path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z" />
+										<path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd" />
+									</svg>
+									Archive
+								</button>
+							{:else if product.status === 'ARCHIVED'}
+								<button
+									onclick={reactivateProduct}
+									class="inline-flex items-center rounded-md bg-blue-600 px-2 py-1 text-xs font-medium text-white hover:bg-blue-700"
+									title="Reactivate product"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" class="mr-1 h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+										<path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+									</svg>
+									Reactivate
+								</button>
+							{/if}
+						</div>
 					</div>
 				</div>
 			</div>

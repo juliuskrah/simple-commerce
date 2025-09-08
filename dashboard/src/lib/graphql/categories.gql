@@ -1,5 +1,5 @@
-query Categories {
-  categories(first: 50) {
+query Categories($page: Int = 50) {
+  categories(first: $page) {
     edges {
       node {
         id

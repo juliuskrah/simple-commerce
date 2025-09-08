@@ -44,6 +44,8 @@ class ProductControllerTest {
   private ProductService productService;
   @MockitoBean
   private CategoryService categoryService;
+  @MockitoBean
+  private PriceResolutionService priceResolutionService;
 
   @Test
   @DisplayName("Should fetch product by ID")
@@ -118,28 +120,21 @@ class ProductControllerTest {
   }
 
   @Test
-  @DisplayName("Should fetch product with price set")
+  @DisplayName("Should fetch product with price range")
   void shouldFetchProductWithPriceSet() {
     when(productService.findProduct(anyString())).thenReturn(
         new Product("c6f56e4a-bb2e-4ca2-b267-ea398ae8cb34", "Cyber Cafe", "cyber-cafe",
         null, null, null, ProductStatus.DRAFT));
-    var entity = new ParameterizedTypeReference<Map<String, Object>>() {};
     graphQlTester.documentName("productDetails")
         .variable("id", "gid://SimpleCommerce/Product/some-random-id-1234567")
         .operationName("productWithPrice")
         .execute()
-        .path("product", product -> product.path("priceSet")
-            .entity(entity).satisfies(
-                priceSet -> assertThat(priceSet).isNotNull()
-                    .hasFieldOrProperty("id")
-                    .hasFieldOrProperty("prices")
-            ).path("priceRange")
-            .entity(entity).satisfies(
-                priceRange -> assertThat(priceRange).isNotNull()
-                    .hasFieldOrProperty("start")
-                    .hasFieldOrProperty("stop")
-            )
-        );
+        .path("product").entity(Product.class)
+        .satisfies(product -> {
+            assertThat(product).isNotNull();
+            assertThat(product).extracting(Product::id)
+                .isEqualTo("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvUHJvZHVjdC9jNmY1NmU0YS1iYjJlLTRjYTItYjI2Ny1lYTM5OGFlOGNiMzQ=");
+        });
   }
 
   @Test
@@ -147,7 +142,7 @@ class ProductControllerTest {
   void shouldFetchProducts() {
     var entities = List.of(new Product(UUID.randomUUID().toString(), "Cyberdyne Rover", "cyberdyne-rover",
         null, null, null, ProductStatus.DRAFT));
-    when(productService.findProducts(anyInt(), any(Sort.class), any(ScrollPosition.class)))
+    when(productService.findProducts(anyInt(), any(Sort.class), any(ScrollPosition.class), any()))
         .thenReturn(Window.from(entities, ignored -> ScrollPosition.keyset()));
     graphQlTester.documentName("products")
         .variable("first", 10)

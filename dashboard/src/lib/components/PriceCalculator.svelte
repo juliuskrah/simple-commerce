@@ -1,30 +1,27 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
 	import type { PriceContextInput } from '../validation/pricing';
 	import { priceContextInputSchema, formatMoney } from '../validation/pricing';
 	import FormField from './FormField.svelte';
 	import Button from './Button.svelte';
 	import Card from './Card.svelte';
 
-	// Props
-	export let variantId: string;
-	export let disabled = false;
+	interface Props {
+		variantId: string;
+		disabled?: boolean;
+	}
 
-	// Events
-	const dispatch = createEventDispatcher<{
-		calculate: { variantId: string; context: PriceContextInput };
-	}>();
+	let { variantId, disabled = false }: Props = $props();
 
 	// Local state
-	let context: PriceContextInput = {
+	let context = $state<PriceContextInput>({
 		customerGroup: undefined,
 		region: undefined,
 		currency: 'USD',
 		quantity: 1
-	};
-	let calculatedPrice: { amount: number; currency: string } | null = null;
-	let isLoading = false;
-	let error: string | null = null;
+	});
+	let calculatedPrice = $state<{ amount: number; currency: string } | null>(null);
+	let isLoading = $state(false);
+	let error = $state<string | null>(null);
 
 	// Predefined options
 	const currencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY'];
@@ -86,7 +83,6 @@
 			}
 
 			calculatedPrice = result.data.variant.resolvedPrice;
-			dispatch('calculate', { variantId, context });
 
 		} catch (err: any) {
 			error = err.message || 'Failed to calculate price';
@@ -108,7 +104,7 @@
 	}
 
 	// Reactive statements
-	$: canCalculate = context.currency && context.quantity > 0;
+	const canCalculate = $derived(context.currency && context.quantity > 0);
 </script>
 
 <Card class="price-calculator">

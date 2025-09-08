@@ -1,4 +1,4 @@
-package com.simplecommerce.search;
+package com.simplecommerce.product.search;
 
 /**
  * Represents a single search term with field, operator, and value.

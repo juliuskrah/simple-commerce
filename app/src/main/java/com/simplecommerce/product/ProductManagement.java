@@ -5,8 +5,8 @@ import static com.simplecommerce.shared.VirtualThreadHelper.runInScope;
 
 import com.simplecommerce.node.NodeService;
 import com.simplecommerce.product.ProductEvent.ProductEventType;
-import com.simplecommerce.search.SearchQueryParser;
-import com.simplecommerce.search.SearchQueryTranslator;
+import com.simplecommerce.product.search.SearchQueryParser;
+import com.simplecommerce.product.search.SearchQueryTranslator;
 import com.simplecommerce.shared.Event;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.NotFoundException;

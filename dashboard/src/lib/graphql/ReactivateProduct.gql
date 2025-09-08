@@ -1,0 +1,8 @@
+mutation ReactivateProduct($id: ID!) {
+  reactivateProduct(id: $id) {
+    id
+    title
+    status
+    updatedAt
+  }
+}

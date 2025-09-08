@@ -1,4 +1,6 @@
 <script lang="ts">
+	import PriceCalculator from './PriceCalculator.svelte';
+	
 	interface Props {
 		variant?: any | null;
 		productId: string; // kept for potential future use
@@ -170,6 +172,14 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- Price Calculator (only show for existing variants) -->
+	{#if variant?.id}
+		<div class="rounded-lg bg-white p-6 shadow-md">
+			<h3 class="mb-4 text-lg font-semibold text-gray-900">Price Calculator</h3>
+			<PriceCalculator variantId={variant.id} />
+		</div>
+	{/if}
 
 	<!-- Form Actions -->
 	<div class="flex justify-end space-x-3">

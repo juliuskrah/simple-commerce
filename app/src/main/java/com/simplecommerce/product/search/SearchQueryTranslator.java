@@ -1,4 +1,4 @@
-package com.simplecommerce.search;
+package com.simplecommerce.product.search;
 
 import com.simplecommerce.product.ProductEntity;
 import com.simplecommerce.product.ProductStatus;

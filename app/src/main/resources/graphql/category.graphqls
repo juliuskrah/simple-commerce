@@ -47,6 +47,10 @@ type Category implements Node {
     title: String!
     updatedAt: DateTime!
     updatedBy: Actor
+    """
+    The full name of the taxonomy category. For example, Animals & Pet Supplies > Pet Supplies > Dog Supplies > Dog Beds.
+    """
+    breadCrumb: String!
 }
 
 enum CategoryOrderField {

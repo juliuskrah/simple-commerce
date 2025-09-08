@@ -1,8 +1,8 @@
 <script lang="ts">
 	import DashboardLayout from '$lib/components/DashboardLayout.svelte';
+	import PriceRange from '$lib/components/PriceRange.svelte';
 	import type { PageData } from './$houdini';
 	import { goto } from '$app/navigation';
-	import { CategoriesStore } from '$houdini';
 
 	interface Props {
 		data: PageData;
@@ -13,14 +13,16 @@
 	const user = $derived(data.user);
 	let { Products } = $derived(data);
 	
-	// Load categories from database
-	const categories = new CategoriesStore();
-	categories.fetch();
+	// Categories come from the same query as products
+	const categories = $derived($Products.data?.categories);
 
 	// Search and filter state
 	let searchQuery = $state('');
 	let selectedCategory = $state('All Categories');
 	let selectedStatus = $state('All Status');
+	let selectedSort = $state('title-asc');
+	let priceMin = $state('');
+	let priceMax = $state('');
 	
 	// Pagination state
 	let currentCursor = $state(null);
@@ -60,7 +62,19 @@
 			queryParts.push(`category:${selectedCategory.toLowerCase()}`);
 		}
 		
+		// Add price range filter if provided
+		if (String(priceMin).trim() || String(priceMax).trim()) {
+			const min = String(priceMin).trim() || '0';
+			const max = String(priceMax).trim() || '*';
+			queryParts.push(`price:${min}..${max}`);
+		}
+		
 		const searchString = queryParts.join(' AND ');
+		
+		// Parse sorting option
+		const [sortField, sortDirection] = selectedSort.split('-');
+		const orderBy = sortField ? [sortField] : undefined;
+		const orderDirection = sortDirection?.toUpperCase() || 'ASC';
 		
 		// Reset pagination when filters change
 		if (resetPagination) {
@@ -71,6 +85,8 @@
 		// Build variables for GraphQL query
 		const variables: any = {
 			query: searchString || undefined,
+			orderBy,
+			orderDirection,
 			first: isForwardPaging ? 10 : undefined,
 			last: !isForwardPaging ? 10 : undefined,
 			after: isForwardPaging ? currentCursor : undefined,
@@ -94,6 +110,16 @@
 		updateQuery();
 	}
 
+	function handleSortChange(event: Event) {
+		const target = event.target as HTMLSelectElement;
+		selectedSort = target.value;
+		updateQuery();
+	}
+
+	function handlePriceFilter() {
+		updateQuery();
+	}
+
 	// Clear individual filters
 	function clearCategoryFilter() {
 		selectedCategory = 'All Categories';
@@ -110,10 +136,24 @@
 		updateQuery();
 	}
 
+	function clearPriceFilter() {
+		priceMin = '';
+		priceMax = '';
+		updateQuery();
+	}
+
+	function clearSortFilter() {
+		selectedSort = 'title-asc';
+		updateQuery();
+	}
+
 	function clearAllFilters() {
 		searchQuery = '';
 		selectedCategory = 'All Categories';
 		selectedStatus = 'All Status';
+		selectedSort = 'title-asc';
+		priceMin = '';
+		priceMax = '';
 		updateQuery();
 	}
 
@@ -138,7 +178,9 @@
 	const activeFilters = $derived([
 		...(searchQuery.trim() ? [{ type: 'search', label: `"${searchQuery.trim()}"`, clear: clearSearchQuery }] : []),
 		...(selectedCategory !== 'All Categories' ? [{ type: 'category', label: `Category: ${selectedCategory}`, clear: clearCategoryFilter }] : []),
-		...(selectedStatus !== 'All Status' ? [{ type: 'status', label: `Status: ${selectedStatus}`, clear: clearStatusFilter }] : [])
+		...(selectedStatus !== 'All Status' ? [{ type: 'status', label: `Status: ${selectedStatus}`, clear: clearStatusFilter }] : []),
+		...(selectedSort !== 'title-asc' ? [{ type: 'sort', label: `Sort: ${selectedSort.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}`, clear: clearSortFilter }] : []),
+		...((String(priceMin).trim() || String(priceMax).trim()) ? [{ type: 'price', label: `Price: ${priceMin || '0'} - ${priceMax || '∞'}`, clear: clearPriceFilter }] : [])
 	]);
 </script>
 
@@ -199,8 +241,8 @@
 						class="rounded-lg border px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
 					>
 						<option>All Categories</option>
-						{#if $categories.data?.categories?.edges}
-							{#each $categories.data.categories.edges as edge}
+						{#if categories?.edges}
+							{#each categories.edges as edge}
 								{#if edge?.node}
 									<option value={edge.node.title}>{edge.node.title}</option>
 								{/if}
@@ -217,7 +259,44 @@
 						<option>Low stock</option>
 						<option>Out of stock</option>
 					</select>
+					<select
+						bind:value={selectedSort}
+						onchange={handleSortChange}
+						class="rounded-lg border px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+					>
+						<option value="title-asc">Name A-Z</option>
+						<option value="title-desc">Name Z-A</option>
+						<option value="createdAt-desc">Newest First</option>
+						<option value="createdAt-asc">Oldest First</option>
+						<option value="updatedAt-desc">Recently Updated</option>
+					</select>
 				</div>
+			</div>
+			
+			<!-- Price Range Filter -->
+			<div class="mt-4 flex items-center gap-2">
+				<span class="text-sm font-medium text-gray-600">Price Range:</span>
+				<input
+					type="number"
+					placeholder="Min"
+					bind:value={priceMin}
+					onchange={handlePriceFilter}
+					class="w-20 rounded-lg border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+				/>
+				<span class="text-gray-400">-</span>
+				<input
+					type="number"
+					placeholder="Max"
+					bind:value={priceMax}
+					onchange={handlePriceFilter}
+					class="w-20 rounded-lg border px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+				/>
+				<button
+					onclick={handlePriceFilter}
+					class="rounded-lg bg-primary-600 px-3 py-1 text-sm text-white hover:bg-primary-700"
+				>
+					Apply
+				</button>
 			</div>
 			
 			<!-- Active Filters Display -->
@@ -280,20 +359,8 @@
 										</div>
 									</div>
 								</td>
-								<td class="px-6 py-4 text-gray-800">
-									{#if product.priceRange}
-										{#if product.priceRange.start && product.priceRange.stop}
-											{#if product.priceRange.start.amount === product.priceRange.stop.amount}
-												GHS {product.priceRange.start.amount}
-											{:else}
-												GHS {product.priceRange.start.amount} - {product.priceRange.stop.amount}
-											{/if}
-										{:else}
-											-
-										{/if}
-									{:else}
-										-
-									{/if}
+								<td class="px-6 py-4">
+									<PriceRange priceRange={product.priceRange} />
 								</td>
 								<td class="px-6 py-4 text-gray-800">
 									{product.category?.title || '-'}

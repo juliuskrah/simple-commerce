@@ -214,6 +214,42 @@ export const formatMoney = (amount: number, currency: string): string => {
 	}).format(amount);
 };
 
+export const formatPriceRange = (priceRange: {
+	start?: { amount: number; currency: string } | null;
+	stop?: { amount: number; currency: string } | null;
+} | null): string => {
+	if (!priceRange) return '-';
+	
+	const { start, stop } = priceRange;
+	
+	if (!start && !stop) return '-';
+	if (!start) return stop ? formatMoney(stop.amount, stop.currency) : '-';
+	if (!stop) return formatMoney(start.amount, start.currency);
+	
+	// If both prices are the same, show single price
+	if (start.amount === stop.amount && start.currency === stop.currency) {
+		return formatMoney(start.amount, start.currency);
+	}
+	
+	// If different currencies, show both separately
+	if (start.currency !== stop.currency) {
+		return `${formatMoney(start.amount, start.currency)} - ${formatMoney(stop.amount, stop.currency)}`;
+	}
+	
+	// Same currency, different amounts - show range with single currency
+	const formatter = new Intl.NumberFormat('en-US', {
+		style: 'currency',
+		currency: start.currency,
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2
+	});
+	
+	const startFormatted = formatter.format(start.amount);
+	const stopFormatted = formatter.format(stop.amount);
+	
+	return `${startFormatted} - ${stopFormatted}`;
+};
+
 export const parseMoney = (moneyString: string): { amount: number; currency: string } | null => {
 	const match = moneyString.match(/^([A-Z]{3})\s*([0-9,]+\.?[0-9]*)$/);
 	if (!match) return null;

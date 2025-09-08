@@ -1,5 +1,5 @@
-query Products($first: Int = 10, $query: String, $after: String, $before: String, $last: Int) {
-	products(first: $first, query: $query, after: $after, before: $before, last: $last) {
+query Products($first: Int = 10, $query: String, $after: String, $before: String, $last: Int, $orderBy: [ProductOrderField], $orderDirection: OrderDirection) {
+	products(first: $first, query: $query, after: $after, before: $before, last: $last, orderBy: $orderBy, orderDirection: $orderDirection) {
 		edges {
 			node {
 				id
@@ -14,9 +14,11 @@ query Products($first: Int = 10, $query: String, $after: String, $before: String
 				priceRange {
 					start {
 						amount
+						currency
 					}
 					stop {
 						amount
+						currency
 					}
 				}
 			}
@@ -26,6 +28,15 @@ query Products($first: Int = 10, $query: String, $after: String, $before: String
 			hasPreviousPage
 			startCursor
 			endCursor
+		}
+	}
+	categories(first: 50) {
+		edges {
+			node {
+				id
+				title
+				slug
+			}
 		}
 	}
 }
