@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 @ControllerAdvice
 public class ExceptionHandling {
 
-  @GraphQlExceptionHandler(NotFoundException.class)
+  @GraphQlExceptionHandler(com.simplecommerce.shared.exceptions.NotFoundException.class)
   GraphQLError handleNotFound(DataFetchingEnvironment env) {
     return GraphQLError.newError().message("Cannot be found")
         .errorType(ErrorType.NOT_FOUND)

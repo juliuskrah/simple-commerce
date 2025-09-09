@@ -38,6 +38,15 @@ dependencies {
     implementation(libs.picocli)
     implementation(libs.minio)
     implementation(libs.moneta)
+    // gRPC dependencies for Keto and DexIDP integration
+    implementation("io.grpc:grpc-netty-shaded:1.59.0")
+    implementation("io.grpc:grpc-protobuf:1.59.0")
+    implementation("io.grpc:grpc-stub:1.59.0")
+    implementation("io.grpc:grpc-api:1.59.0")
+    implementation("com.google.protobuf:protobuf-java:3.25.0")
+    // Note: Keto and Dex clients will be implemented using basic gRPC clients
+    // as official Java clients may not be available in Maven Central
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
     // ANTLR for search query parsing
     antlr("org.antlr:antlr4:4.13.1")
     implementation("org.antlr:antlr4-runtime:4.13.1")

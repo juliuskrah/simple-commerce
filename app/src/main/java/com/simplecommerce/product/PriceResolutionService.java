@@ -7,11 +7,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service responsible for resolving the appropriate price for a product variant
@@ -21,12 +20,16 @@ import org.springframework.stereotype.Service;
  * @since 1.0
  */
 @Service
+@Transactional(readOnly = true)
 public class PriceResolutionService {
 
   private static final Logger LOG = LoggerFactory.getLogger(PriceResolutionService.class);
   
-  @Autowired
-  private ProductVariants variantRepository;
+  private final ProductVariants variantRepository;
+
+  public PriceResolutionService(ProductVariants variantRepository) {
+    this.variantRepository = variantRepository;
+  }
 
   /**
    * Resolves the price for a product variant based on the given context.

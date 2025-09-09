@@ -3,6 +3,7 @@ package com.simplecommerce.shared;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import com.simplecommerce.shared.types.GlobalId;
 import org.junit.jupiter.api.Test;
 
 /**

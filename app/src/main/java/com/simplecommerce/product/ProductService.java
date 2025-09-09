@@ -91,4 +91,25 @@ interface ProductService {
    * @return The updated product.
    */
   Product updateProduct(String productId, ProductInput product);
+
+  /**
+   * Find a product entity by its ID (for state machine operations).
+   * @param id The ID of the product.
+   * @return The product entity when found, null if not found.
+   */
+  ProductEntity findProductEntity(String id);
+
+  /**
+   * Save a product entity (for state machine operations).
+   * @param productEntity The product entity to save.
+   * @return The saved product entity.
+   */
+  ProductEntity saveProductEntity(ProductEntity productEntity);
+
+  /**
+   * Map a product entity to a product record.
+   * @param productEntity The product entity.
+   * @return The product record.
+   */
+  Product mapToProduct(ProductEntity productEntity);
 }

@@ -1,77 +1,51 @@
 <script lang="ts">
 	import DashboardLayout from '$lib/components/DashboardLayout.svelte';
+	import CustomerForm from '$lib/components/CustomerForm.svelte';
 
 	let { data } = $props();
 	const user = $derived(data.user);
 
-	// Sample data for customers
-	const customers = [
-		{
-			id: 1,
-			name: 'Angel King',
-			email: 'angel.king@example.com',
-			phone: '+233 50 123 4567',
-			location: 'Accra, Ghana',
-			orderCount: 5,
-			totalSpent: 'GHS 1,500',
-			lastOrder: '2025-07-25',
-			status: 'Active'
-		},
-		{
-			id: 2,
-			name: 'Sarah Johnson',
-			email: 'sarah.johnson@example.com',
-			phone: '+233 24 789 0123',
-			location: 'Kumasi, Ghana',
-			orderCount: 3,
-			totalSpent: 'GHS 900',
-			lastOrder: '2025-07-24',
-			status: 'Active'
-		},
-		{
-			id: 3,
-			name: 'Michael Brown',
-			email: 'michael.brown@example.com',
-			phone: '+233 55 456 7890',
-			location: 'Takoradi, Ghana',
-			orderCount: 2,
-			totalSpent: 'GHS 600',
-			lastOrder: '2025-07-23',
-			status: 'Inactive'
-		},
-		{
-			id: 4,
-			name: 'Emma Wilson',
-			email: 'emma.wilson@example.com',
-			phone: '+233 27 901 2345',
-			location: 'Tamale, Ghana',
-			orderCount: 1,
-			totalSpent: 'GHS 250',
-			lastOrder: '2025-07-22',
-			status: 'Active'
-		},
-		{
-			id: 5,
-			name: 'James Taylor',
-			email: 'james.taylor@example.com',
-			phone: '+233 54 567 8901',
-			location: 'Cape Coast, Ghana',
-			orderCount: 4,
-			totalSpent: 'GHS 1,200',
-			lastOrder: '2025-07-21',
-			status: 'Active'
+	// TODO: Load customers from GraphQL when backend is ready
+	const mockCustomersStore = $state({
+		fetching: false,
+		errors: null,
+		data: {
+			customers: {
+				edges: [],
+				pageInfo: {
+					hasNextPage: false,
+					hasPreviousPage: false
+				}
+			}
 		}
-	];
+	});
 
-	// State for customer details
-	let selectedCustomer: (typeof customers)[0] | null = $state(null);
+	// State management
+	let showAddModal = $state(false);
+	let selectedCustomer: any = $state(null);
+	let showDetailsModal = $state(false);
 
-	function showCustomerDetails(customer: (typeof customers)[0]) {
-		selectedCustomer = customer;
+	function showAddCustomer() {
+		selectedCustomer = null;
+		showAddModal = true;
 	}
 
-	function closeCustomerDetails() {
+	function showCustomerDetails(customer: any) {
+		selectedCustomer = customer;
+		showDetailsModal = true;
+	}
+
+	function closeModals() {
+		showAddModal = false;
+		showDetailsModal = false;
 		selectedCustomer = null;
+	}
+
+	function handleCustomerSubmit() {
+		// TODO: Implement customer creation/update
+		closeModals();
+		// Refresh the customer list
+		// TODO: Implement customer refresh when GraphQL is ready
 	}
 </script>
 
@@ -79,6 +53,7 @@
 	<div class="mb-6 flex items-center justify-between">
 		<h1 class="text-2xl font-semibold text-gray-800">Customers</h1>
 		<button
+			onclick={showAddCustomer}
 			class="flex items-center rounded-lg bg-primary-600 px-4 py-2 text-white hover:bg-primary-700"
 		>
 			<svg
@@ -153,7 +128,26 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each customers as customer}
+				{#if mockCustomersStore.fetching}
+					<tr>
+						<td colspan="7" class="px-6 py-8 text-center text-gray-500">
+							Loading customers...
+						</td>
+					</tr>
+				{:else if mockCustomersStore.errors}
+					<tr>
+						<td colspan="7" class="px-6 py-8 text-center text-red-500">
+							Error loading customers: {mockCustomersStore.errors.map(e => e.message).join(', ')}
+						</td>
+					</tr>
+				{:else if !mockCustomersStore.data?.customers?.edges?.length}
+					<tr>
+						<td colspan="7" class="px-6 py-8 text-center text-gray-500">
+							No customers found. Add your first customer to get started.
+						</td>
+					</tr>
+				{:else}
+					{#each mockCustomersStore.data.customers.edges as { node: customer }}
 					<tr class="border-t border-gray-100 hover:bg-gray-50">
 						<td class="px-6 py-4">
 							<div class="flex items-center">
@@ -220,33 +214,79 @@
 							</div>
 						</td>
 					</tr>
-				{/each}
+					{/each}
+				{/if}
 			</tbody>
 		</table>
 
-		<div class="flex items-center justify-between border-t px-6 py-4">
-			<p class="text-sm text-gray-500">Showing 1 to 5 of 5 entries</p>
-			<div class="flex space-x-1">
-				<button class="disabled rounded-md bg-gray-100 px-3 py-1 text-gray-600" disabled
-					>Previous</button
-				>
-				<button class="rounded-md bg-primary-600 px-3 py-1 text-white">1</button>
-				<button class="disabled rounded-md bg-gray-100 px-3 py-1 text-gray-600" disabled
-					>Next</button
-				>
+		{#if mockCustomersStore.data?.customers?.pageInfo}
+			<div class="flex items-center justify-between border-t px-6 py-4">
+				<p class="text-sm text-gray-500">
+					Showing customers
+				</p>
+				<div class="flex space-x-1">
+					<button 
+						class="rounded-md px-3 py-1 text-gray-600 {mockCustomersStore.data.customers.pageInfo.hasPreviousPage ? 'bg-gray-100 hover:bg-gray-200' : 'bg-gray-50 cursor-not-allowed'}" 
+						disabled={!mockCustomersStore.data.customers.pageInfo.hasPreviousPage}
+					>
+						Previous
+					</button>
+					<button class="rounded-md bg-primary-600 px-3 py-1 text-white">1</button>
+					<button 
+						class="rounded-md px-3 py-1 text-gray-600 {mockCustomersStore.data.customers.pageInfo.hasNextPage ? 'bg-gray-100 hover:bg-gray-200' : 'bg-gray-50 cursor-not-allowed'}" 
+						disabled={!mockCustomersStore.data.customers.pageInfo.hasNextPage}
+					>
+						Next
+					</button>
+				</div>
 			</div>
-		</div>
+		{/if}
 	</div>
 
-	{#if selectedCustomer}
+	<!-- Add Customer Modal -->
+	{#if showAddModal}
+		<div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+			<div class="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white shadow-xl">
+				<div class="flex items-center justify-between border-b p-6">
+					<h2 class="text-xl font-semibold text-gray-800">Add Customer</h2>
+					<button
+						class="text-gray-500 hover:text-gray-700"
+						onclick={closeModals}
+						aria-label="Close modal"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							class="h-6 w-6"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M6 18L18 6M6 6l12 12"
+							/>
+						</svg>
+					</button>
+				</div>
+				<div class="p-6">
+					<CustomerForm onCancel={closeModals} />
+				</div>
+			</div>
+		</div>
+	{/if}
+
+	<!-- Customer Details Modal -->
+	{#if showDetailsModal && selectedCustomer}
 		<div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
 			<div class="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white shadow-xl">
 				<div class="flex items-center justify-between border-b p-6">
 					<h2 class="text-xl font-semibold text-gray-800">Customer Details</h2>
 					<button
 						class="text-gray-500 hover:text-gray-700"
-						onclick={closeCustomerDetails}
-						aria-label="Close customer details"
+						onclick={closeModals}
+						aria-label="Close modal"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -383,7 +423,7 @@
 				<div class="flex justify-end space-x-3 border-t bg-gray-50 p-6">
 					<button
 						class="rounded-lg bg-gray-100 px-4 py-2 text-gray-700 hover:bg-gray-200"
-						onclick={closeCustomerDetails}
+						onclick={closeModals}
 					>
 						Close
 					</button>

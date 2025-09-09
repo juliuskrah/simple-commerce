@@ -59,6 +59,34 @@ interface Categories extends Repository<CategoryEntity, UUID>, JpaSpecificationE
       """)
   boolean isRoot(UUID id);
 
+  /**
+   * Find the full path of a category by its ID.
+   * {@code SELECT string_agg(title, ' > ' ORDER BY path) AS bread_crumb
+   *        FROM categories WHERE path @> (SELECT path FROM categories
+   *        WHERE id = ?)}
+   * @param id the id of the category
+   * @return the full path as a string
+   */
+  @Query("""
+      SELECT string_agg(c.title, ' > ') AS breadCrumb
+      FROM Category c
+      WHERE ancestorsof(c.path, (SELECT path FROM Category WHERE id = :id))
+      """)
+  Optional<String> findFullPath(UUID id);
+
+  /**
+   * Find the full paths of multiple categories by their IDs.
+   * {@code SELECT string_agg(ancestors.title, ' > ' ORDER BY ancestors.path) AS bread_crumb
+   *        FROM categories ancestors JOIN categories targets ON ancestors.path @> targets.path
+   *        WHERE targets.id IN (?, ?) group by targets.id}
+   * @param ids the set of category IDs
+   * @return stream of full paths as strings
+   */
+  @Query(value = "SELECT string_agg(ancestors.title, ' > ' ORDER BY ancestors.path) AS breadCrumb " +
+      "FROM categories ancestors JOIN categories targets ON ancestors.path @> targets.path " +
+      "WHERE targets.id IN (:ids) GROUP BY targets.id", nativeQuery = true)
+  Stream<String> findFullPaths(Set<UUID> ids);
+
   CategoryEntity saveAndFlush(CategoryEntity category);
 
   Optional<CategoryEntity> findById(UUID id);
@@ -89,7 +117,7 @@ interface Categories extends Repository<CategoryEntity, UUID>, JpaSpecificationE
   @Query("""
       SELECT COUNT(c)
       FROM Category c
-      WHERE descendantsof(c.path, (SELECT path FROM Category WHERE id = :id))
+      WHERE ancestorsof(c.path, (SELECT path FROM Category WHERE id = :id))
         AND c.id != :id
       """)
   long countChildren(UUID id);

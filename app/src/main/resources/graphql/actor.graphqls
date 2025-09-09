@@ -1,0 +1,96 @@
+extend type Query {
+    me: Actor!
+    actor(id: ID!): Actor
+}
+
+extend type Mutation {
+    createStaff(input: CreateStaffInput!): Staff!
+    createCustomer(input: CreateCustomerInput!): Customer!
+    createBot(input: CreateBotInput!): Bot!
+}
+
+"An `Actor` is an entity that can perform actions in the system."
+interface Actor implements Node {
+    id: ID!
+    username: String!
+    email: String
+    actorType: ActorType!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    lastLogin: DateTime
+}
+
+enum ActorType {
+    STAFF
+    CUSTOMER
+    BOT
+}
+
+"A staff member who can manage the admin dashboard and system functions."
+type Staff implements Node & Actor {
+    id: ID!
+    username: String!
+    email: String
+    actorType: ActorType!
+    department: String
+    role: String
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    lastLogin: DateTime
+}
+
+"A customer who can interact with the storefront and complete purchases."
+type Customer implements Node & Actor {
+    id: ID!
+    username: String!
+    email: String
+    actorType: ActorType!
+    firstName: String
+    lastName: String
+    customerGroup: CustomerGroup!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    lastLogin: DateTime
+}
+
+"A bot used for automation and external application integration."
+type Bot implements Node & Actor {
+    id: ID!
+    username: String!
+    email: String
+    actorType: ActorType!
+    appId: String
+    permissions: [String!]!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    lastLogin: DateTime
+}
+
+enum CustomerGroup {
+    B2C
+    B2B
+    VIP
+    WHOLESALE
+}
+
+input CreateStaffInput {
+    username: String!
+    email: String!
+    department: String
+    role: String
+}
+
+input CreateCustomerInput {
+    username: String!
+    email: String!
+    firstName: String
+    lastName: String
+    customerGroup: CustomerGroup = B2C
+}
+
+input CreateBotInput {
+    username: String!
+    email: String
+    appId: String
+    permissions: [String!]
+}

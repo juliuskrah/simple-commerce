@@ -3,8 +3,11 @@ package com.simplecommerce.product;
 import static com.simplecommerce.shared.Types.NODE_PRODUCT;
 import static java.util.stream.Collectors.toMap;
 
-import com.simplecommerce.shared.Actor;
-import com.simplecommerce.shared.GlobalId;
+import com.simplecommerce.actor.Actor;
+import com.simplecommerce.shared.types.GlobalId;
+import com.simplecommerce.shared.authorization.CheckPermission;
+import com.simplecommerce.shared.authorization.RequireStaffRole;
+import com.simplecommerce.shared.authorization.FilterByOwnership;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -44,15 +47,16 @@ class ProductController {
     // TODO: Add search functionality when service layer is ready
     // private final SearchQueryParser searchQueryParser;
     // private final SearchQueryTranslator searchQueryTranslator;
-    // TODO: Add state machine when service layer is ready
-    // private final ProductStateMachineService stateMachineService;
+    private final ProductStateMachineService stateMachineService;
     private final PriceResolutionService priceResolutionService;
     // Defer creation of the ProductService to avoid early initialization of aspectj proxy
     private final Supplier<ProductService> productServiceSupplier = SingletonSupplier.of(ProductManagement::new);
 
-    ProductController(BatchLoaderRegistry registry, ObjectProvider<ProductService> productService, PriceResolutionService priceResolutionService) {
+    ProductController(BatchLoaderRegistry registry, ObjectProvider<ProductService> productService, 
+                      PriceResolutionService priceResolutionService, ProductStateMachineService stateMachineService) {
       this.productService = productService;
       this.priceResolutionService = priceResolutionService;
+      this.stateMachineService = stateMachineService;
       registry.<String, List<String>>forName("tagsDataLoader")
           .registerMappedBatchLoader((productIds, env) -> {
               var keyContext = env.getKeyContextsList().getFirst();
@@ -103,18 +107,16 @@ class ProductController {
 
     @SchemaMapping(typeName = "Product")
     Optional<PriceRange> priceRange(Product source, Locale locale, @Argument String currency) {
-        // Use provided currency or default to USD
-        var currencyCode = currency != null ? currency : "USD";
+        // Use provided currency or default to EUR
+        var currencyCode = currency != null ? currency : "EUR";
         var priceContext = PriceContext.defaultContext(currencyCode);
         
         LOG.debug("Calculating price range for product {} with context {}", source.id(), priceContext);
         
-        // Get the ProductEntity by decoding the global ID
         try {
-            var gid = GlobalId.decode(source.id());
             var productEntity = new ProductEntity();
-            productEntity.setId(UUID.fromString(gid.id()));
-            
+            productEntity.setId(UUID.fromString(source.id()));
+
             return priceResolutionService.calculatePriceRange(productEntity, priceContext, locale);
         } catch (Exception e) {
             LOG.error("Error calculating price range for product {}: {}", source.id(), e.getMessage());
@@ -132,47 +134,102 @@ class ProductController {
         return Optional.empty();
     }
 
-    // PriceSet has been moved to ProductVariant level - removed from Product
-
     @MutationMapping
+    @CheckPermission(namespace = "Product", relation = "delete")
     String deleteProduct(@Argument String id) {
         var deletedId = productService.getIfAvailable(productServiceSupplier).deleteProduct(id);
         return new GlobalId(NODE_PRODUCT, deletedId).encode();
     }
 
     @MutationMapping
+    @RequireStaffRole
+    @CheckPermission(namespace = "Product", relation = "write")
     Product updateProduct(@Argument String id, @Argument ProductInput input) {
         return productService.getIfAvailable(productServiceSupplier).updateProduct(id, input);
     }
 
     @MutationMapping
+    @RequireStaffRole
     Product addProduct(@Argument ProductInput input) {
         LOG.debug("Creating product: {}", input);
         return productService.getIfAvailable(productServiceSupplier).createProduct(input);
     }
 
-    // TODO: Implement state machine mutations when service layer is ready
-    /*
     @MutationMapping
+    @RequireStaffRole
     Product publishProduct(@Argument String id) {
         LOG.info("Publishing product: {}", id);
-        // TODO: Implement product publishing with state machine validation
-        throw new UnsupportedOperationException("Product state machine not yet implemented");
+        
+        var service = this.productService.getIfAvailable(productServiceSupplier);
+        var productEntity = service.findProductEntity(id);
+        
+        if (productEntity == null) {
+            throw new IllegalArgumentException("Product not found: " + id);
+        }
+        
+        // Validate business rules before attempting state transition
+        if (!stateMachineService.canPublish(productEntity)) {
+            throw new IllegalStateException("Product cannot be published: validation failed");
+        }
+        
+        boolean success = stateMachineService.publishProduct(productEntity);
+        if (!success) {
+            throw new IllegalStateException("Failed to publish product: state transition rejected");
+        }
+        
+        // Save the updated product status
+        productEntity = service.saveProductEntity(productEntity);
+        
+        LOG.info("Successfully published product: {}", id);
+        return service.mapToProduct(productEntity);
     }
 
     @MutationMapping
+    @RequireStaffRole
     Product archiveProduct(@Argument String id) {
         LOG.info("Archiving product: {}", id);
-        // TODO: Implement product archiving with state machine validation
-        throw new UnsupportedOperationException("Product state machine not yet implemented");
+        
+        var service = this.productService.getIfAvailable(productServiceSupplier);
+        var productEntity = service.findProductEntity(id);
+        
+        if (productEntity == null) {
+            throw new IllegalArgumentException("Product not found: " + id);
+        }
+        
+        boolean success = stateMachineService.archiveProduct(productEntity);
+        if (!success) {
+            throw new IllegalStateException("Failed to archive product: state transition rejected");
+        }
+        
+        // Save the updated product status
+        productEntity = service.saveProductEntity(productEntity);
+        
+        LOG.info("Successfully archived product: {}", id);
+        return service.mapToProduct(productEntity);
     }
 
     @MutationMapping
+    @RequireStaffRole
     Product reactivateProduct(@Argument String id) {
         LOG.info("Reactivating product: {}", id);
-        // TODO: Implement product reactivation with state machine validation
-        throw new UnsupportedOperationException("Product state machine not yet implemented");
+        
+        var service = this.productService.getIfAvailable(productServiceSupplier);
+        var productEntity = service.findProductEntity(id);
+        
+        if (productEntity == null) {
+            throw new IllegalArgumentException("Product not found: " + id);
+        }
+        
+        boolean success = stateMachineService.reactivateProduct(productEntity);
+        if (!success) {
+            throw new IllegalStateException("Failed to reactivate product: state transition rejected");
+        }
+        
+        // Save the updated product status
+        productEntity = service.saveProductEntity(productEntity);
+        
+        LOG.info("Successfully reactivated product: {}", id);
+        return service.mapToProduct(productEntity);
     }
-    */
 
 }

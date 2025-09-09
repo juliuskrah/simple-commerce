@@ -6,8 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.simplecommerce.shared.GlobalId;
-import com.simplecommerce.shared.NotFoundException;
+import com.simplecommerce.shared.types.GlobalId;
+import com.simplecommerce.shared.exceptions.NotFoundException;
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;

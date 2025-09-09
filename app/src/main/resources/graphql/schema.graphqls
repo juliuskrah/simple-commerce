@@ -43,11 +43,6 @@ interface Node {
     "The global ID of the object."
     id: ID!
 }
-"An `Actor` is an entity that can perform actions in the system. Typically a User or Bot"
-interface Actor {
-    id: ID!
-    username: String!
-}
 
 enum OrderDirection {
     "Specifies an ascending order for a given `orderBy` argument."

@@ -1,11 +1,11 @@
 package com.simplecommerce.product;
 
-import static com.simplecommerce.shared.VirtualThreadHelper.callInScope;
-import static com.simplecommerce.shared.VirtualThreadHelper.runInScope;
+import static com.simplecommerce.shared.utils.VirtualThreadHelper.callInScope;
+import static com.simplecommerce.shared.utils.VirtualThreadHelper.runInScope;
 
 import com.simplecommerce.node.NodeService;
-import com.simplecommerce.shared.GlobalId;
-import com.simplecommerce.shared.NotFoundException;
+import com.simplecommerce.shared.types.GlobalId;
+import com.simplecommerce.shared.exceptions.NotFoundException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;

@@ -7,7 +7,7 @@ import com.simplecommerce.product.Product;
 import com.simplecommerce.product.ProductVariant;
 import com.simplecommerce.product.ProductVariantManagement;
 import com.simplecommerce.product.ProductVariantService;
-import com.simplecommerce.shared.GlobalId;
+import com.simplecommerce.shared.types.GlobalId;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;

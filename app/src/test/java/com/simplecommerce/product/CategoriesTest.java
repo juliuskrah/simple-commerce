@@ -286,4 +286,32 @@ class CategoriesTest {
     var isRoot = categoryRepository.isRoot(UUID.fromString("c0bdb6d4-a372-49cb-b6fc-af686484cdfc")); // level 3 (Weapons)
     assertThat(isRoot).isFalse();
   }
+
+  @Test
+  void shouldFindFullPathForCategory() {
+    var categoryId = UUID.fromString("e38bcfe9-c418-4b46-af04-c2faba3164d8"); // Ammunition Reloading Presses
+    var fullPath = categoryRepository.findFullPath(categoryId);
+    assertThat(fullPath).isPresent();
+    assertThat(fullPath.get()).contains(
+        "Mature > Weapons & Weapon Accessories > Weapon Care & Accessories > Reloading Supplies & Equipment > Ammunition Reloading Presses"
+    );
+  }
+
+  @Test
+  void shouldFindFullPathsForMultipleCategories() {
+    var categoryIds = Set.of(
+        UUID.fromString("e38bcfe9-c418-4b46-af04-c2faba3164d8"), // Ammunition Reloading Presses
+        UUID.fromString("ad5d8835-cbbe-4d7f-8be2-efc8b80c4b88")  // Weapon Cleaning
+    );
+    try (var fullPaths = categoryRepository.findFullPaths(categoryIds)) {
+      var paths = fullPaths.toList();
+      assertThat(paths).hasSize(2);
+      assertThat(paths).anyMatch(path -> path.contains(
+          "Mature > Weapons & Weapon Accessories > Weapon Care & Accessories > Reloading Supplies & Equipment > Ammunition Reloading Presses"
+      ));
+      assertThat(paths).anyMatch(path -> path.contains(
+          "Mature > Weapons & Weapon Accessories > Weapon Care & Accessories > Weapon Cleaning"
+      ));
+    }
+  }
 }

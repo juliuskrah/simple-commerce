@@ -1,15 +1,15 @@
 package com.simplecommerce.file;
 
-import static com.simplecommerce.shared.VirtualThreadHelper.callInScope;
-import static com.simplecommerce.shared.VirtualThreadHelper.runInScope;
+import static com.simplecommerce.shared.utils.VirtualThreadHelper.callInScope;
+import static com.simplecommerce.shared.utils.VirtualThreadHelper.runInScope;
 
 import com.simplecommerce.node.NodeService;
 import com.simplecommerce.product.ProductEntity;
 import com.simplecommerce.product.ProductVariants;
-import com.simplecommerce.shared.CommerceException;
-import com.simplecommerce.shared.GlobalId;
-import com.simplecommerce.shared.NotFoundException;
-import com.simplecommerce.shared.ObjectStoreProperties;
+import com.simplecommerce.shared.exceptions.CommerceException;
+import com.simplecommerce.shared.types.GlobalId;
+import com.simplecommerce.shared.exceptions.NotFoundException;
+import com.simplecommerce.shared.config.ObjectStoreProperties;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.http.Method;

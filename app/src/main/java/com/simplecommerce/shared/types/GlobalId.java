@@ -1,4 +1,4 @@
-package com.simplecommerce.shared;
+package com.simplecommerce.shared.types;
 
 import java.net.URI;
 import java.util.Base64;

@@ -11,6 +11,8 @@
 		if (pathname.includes('/categories')) return 'categories';
 		if (pathname.includes('/orders')) return 'orders';
 		if (pathname.includes('/customers')) return 'customers';
+		if (pathname.includes('/staff')) return 'staff';
+		if (pathname.includes('/bots')) return 'bots';
 		if (pathname.includes('/analytics')) return 'analytics';
 		if (pathname.includes('/settings')) return 'settings';
 		return 'home';
@@ -22,6 +24,8 @@
 		{ id: 'categories', label: 'Categories', icon: 'folder-tree' },
 		{ id: 'orders', label: 'Orders', icon: 'shopping-cart' },
 		{ id: 'customers', label: 'Customers', icon: 'users' },
+		{ id: 'staff', label: 'Staff', icon: 'user-check' },
+		{ id: 'bots', label: 'Bots', icon: 'cpu' },
 		{ id: 'analytics', label: 'Analytics', icon: 'bar-chart-2' },
 		{ id: 'settings', label: 'Settings', icon: 'settings' }
 	];

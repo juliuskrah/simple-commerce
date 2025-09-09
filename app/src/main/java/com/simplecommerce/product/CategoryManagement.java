@@ -1,10 +1,10 @@
 package com.simplecommerce.product;
 
-import static com.simplecommerce.shared.VirtualThreadHelper.callInScope;
+import static com.simplecommerce.shared.utils.VirtualThreadHelper.callInScope;
 
 import com.simplecommerce.node.NodeService;
-import com.simplecommerce.shared.GlobalId;
-import com.simplecommerce.shared.NotFoundException;
+import com.simplecommerce.shared.types.GlobalId;
+import com.simplecommerce.shared.exceptions.NotFoundException;
 import com.simplecommerce.shared.Slug;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -368,52 +368,8 @@ class CategoryManagement implements CategoryService, NodeService {
   @Override
   public List<String> getCategoryBreadcrumbs(Set<String> ids) {
     var categoryIds = ids.stream().map(UUID::fromString).collect(Collectors.toSet());
-    return callInScope(() -> {
-      // Get all requested categories
-      var categoriesMap = categoryRepository.findByIds(categoryIds).stream()
-          .collect(Collectors.toMap(CategoryEntity::getId, entity -> entity));
-      
-      // Get all unique path segments needed for breadcrumbs
-      var allPathSegments = new java.util.HashSet<String>();
-      for (var category : categoriesMap.values()) {
-        var pathParts = category.getPath().split("\\.");
-        var currentPath = new StringBuilder();
-        for (int i = 0; i < pathParts.length; i++) {
-          if (i > 0) currentPath.append(".");
-          currentPath.append(pathParts[i]);
-          allPathSegments.add(currentPath.toString());
-        }
-      }
-      
-      // Get all categories for the path segments in one query
-      var allCategoriesForPaths = categoryRepository.findAll(
-          (root, query, builder) -> root.get("path").in(allPathSegments)
-      ).stream().collect(Collectors.toMap(CategoryEntity::getPath, entity -> entity));
-      
-      return ids.stream()
-          .map(id -> {
-            var categoryId = UUID.fromString(id);
-            var category = categoriesMap.get(categoryId);
-            if (category == null) return "";
-            
-            // Build breadcrumb from path segments
-            var pathParts = category.getPath().split("\\.");
-            var titles = new java.util.ArrayList<String>();
-            var currentPath = new StringBuilder();
-            
-            for (int i = 0; i < pathParts.length; i++) {
-              if (i > 0) currentPath.append(".");
-              currentPath.append(pathParts[i]);
-              
-              var pathCategory = allCategoriesForPaths.get(currentPath.toString());
-              if (pathCategory != null) {
-                titles.add(pathCategory.getTitle());
-              }
-            }
-            
-            return String.join(" > ", titles);
-          })
-          .collect(Collectors.toList());
-    });
+    try(var stream = categoryRepository.findFullPaths(categoryIds)) {
+      return stream.toList();
+    }
   }
 }

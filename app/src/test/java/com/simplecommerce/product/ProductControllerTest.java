@@ -9,7 +9,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.simplecommerce.shared.ExceptionHandling;
-import com.simplecommerce.shared.NotFoundException;
+import com.simplecommerce.shared.exceptions.NotFoundException;
 import com.simplecommerce.shared.config.Sorting;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +46,10 @@ class ProductControllerTest {
   private CategoryService categoryService;
   @MockitoBean
   private PriceResolutionService priceResolutionService;
+  @MockitoBean
+  private com.simplecommerce.shared.authorization.KetoAuthorizationService ketoAuthorizationService;
+  @MockitoBean
+  private com.simplecommerce.product.ProductStateMachineService productStateMachineService;
 
   @Test
   @DisplayName("Should fetch product by ID")

@@ -1,15 +1,15 @@
 package com.simplecommerce.product;
 
-import static com.simplecommerce.shared.VirtualThreadHelper.callInScope;
-import static com.simplecommerce.shared.VirtualThreadHelper.runInScope;
+import static com.simplecommerce.shared.utils.VirtualThreadHelper.callInScope;
+import static com.simplecommerce.shared.utils.VirtualThreadHelper.runInScope;
 
 import com.simplecommerce.node.NodeService;
 import com.simplecommerce.product.ProductEvent.ProductEventType;
 import com.simplecommerce.product.search.SearchQueryParser;
 import com.simplecommerce.product.search.SearchQueryTranslator;
 import com.simplecommerce.shared.Event;
-import com.simplecommerce.shared.GlobalId;
-import com.simplecommerce.shared.NotFoundException;
+import com.simplecommerce.shared.types.GlobalId;
+import com.simplecommerce.shared.exceptions.NotFoundException;
 import com.simplecommerce.shared.Slug;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -28,7 +28,6 @@ import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -194,7 +193,6 @@ class ProductManagement implements ProductService, NodeService {
   /**
    * {@inheritDoc}
    */
-  @PreAuthorize("denyAll()")
   @Override
   public String deleteProduct(String id) {
     var gid = GlobalId.decode(id);
@@ -247,5 +245,36 @@ class ProductManagement implements ProductService, NodeService {
           return fromEntity(entity);
         })
         .orElseThrow(NotFoundException::new);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Transactional(readOnly = true)
+  @Override
+  public ProductEntity findProductEntity(String id) {
+    try {
+      var gid = GlobalId.decode(id);
+      return callInScope(() -> productRepository.findById(UUID.fromString(gid.id())).orElse(null));
+    } catch (Exception e) {
+      LOG.warn("Failed to find product entity with id: {}", id, e);
+      return null;
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ProductEntity saveProductEntity(ProductEntity productEntity) {
+    return callInScope(() -> productRepository.saveAndFlush(productEntity));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Product mapToProduct(ProductEntity productEntity) {
+    return fromEntity(productEntity);
   }
 }

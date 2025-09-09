@@ -1,4 +1,4 @@
-package com.simplecommerce.shared;
+package com.simplecommerce.shared.exceptions;
 
 /**
  * @author julius.krah

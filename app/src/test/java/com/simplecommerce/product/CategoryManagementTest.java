@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.when;
 
-import com.simplecommerce.shared.NotFoundException;
+import com.simplecommerce.shared.exceptions.NotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;

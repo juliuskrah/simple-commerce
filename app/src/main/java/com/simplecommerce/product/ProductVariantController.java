@@ -2,7 +2,7 @@ package com.simplecommerce.product;
 
 import static com.simplecommerce.shared.Types.NODE_PRODUCT_VARIANT;
 
-import com.simplecommerce.shared.GlobalId;
+import com.simplecommerce.shared.types.GlobalId;
 import com.simplecommerce.shared.MonetaryUtils;
 import com.simplecommerce.shared.Money;
 import java.util.Locale;
@@ -55,7 +55,7 @@ class ProductVariantController {
 
   @SchemaMapping(typeName = "ProductVariant")
   Product product(ProductVariant source) {
-    // Return a minimal Product record for the variant's product
+    // TODO: Return a minimal Product record for the variant's product
     return new Product(source.productId(), null, null, null, null, null, ProductStatus.DRAFT);
   }
 

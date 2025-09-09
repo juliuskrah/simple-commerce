@@ -1,0 +1,18 @@
+management:
+  endpoint:
+    env:
+      access: unrestricted
+    auditevents:
+      access: unrestricted
+  endpoints:
+    web:
+      exposure:
+        include:
+        - auditevents
+        - metrics
+        - health
+        - env
+        - info
+        - beans
+        - sbom
+        - mappings

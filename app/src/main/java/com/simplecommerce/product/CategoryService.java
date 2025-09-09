@@ -1,6 +1,6 @@
 package com.simplecommerce.product;
 
-import com.simplecommerce.shared.NotFoundException;
+import com.simplecommerce.shared.exceptions.NotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;

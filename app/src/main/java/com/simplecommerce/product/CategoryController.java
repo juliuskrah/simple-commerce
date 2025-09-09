@@ -3,11 +3,11 @@ package com.simplecommerce.product;
 import static com.simplecommerce.shared.Types.NODE_CATEGORY;
 import static java.util.stream.Collectors.toSet;
 
-import com.simplecommerce.shared.Actor;
-import com.simplecommerce.shared.GlobalId;
+import com.simplecommerce.actor.Actor;
+import com.simplecommerce.shared.types.GlobalId;
+import com.simplecommerce.shared.authorization.RequireStaffRole;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,22 +116,25 @@ class CategoryController {
   List<String> breadCrumb(List<Category> categories) {
     var categoryIds = categories.stream().map(Category::id).collect(toSet());
     LOG.debug("Fetching breadcrumbs for {} categories: {}", categories.size(), categoryIds);
-    return categoryService.getIfAvailable(categoryServiceSupplier).getCategoryBreadcrumbs(categoryIds);
+    return categoryService.getIfAvailable(categoryServiceSupplier). getCategoryBreadcrumbs(categoryIds);
   }
 
   @MutationMapping
+  @RequireStaffRole
   Category addCategory(@Argument CategoryInput input) {
     LOG.debug("Creating category: {}", input);
     return categoryService.getIfAvailable(categoryServiceSupplier).createCategory(input);
   }
 
   @MutationMapping
+  @RequireStaffRole
   Category updateCategory(@Argument String id, @Argument CategoryInput input) {
     LOG.debug("Updating category {}: {}", id, input);
     return categoryService.getIfAvailable(categoryServiceSupplier).updateCategory(id, input);
   }
 
   @MutationMapping
+  @RequireStaffRole
   String deleteCategory(@Argument String id) {
     LOG.debug("Deleting category: {}", id);
     var deletedId = categoryService.getIfAvailable(categoryServiceSupplier).deleteCategory(id);

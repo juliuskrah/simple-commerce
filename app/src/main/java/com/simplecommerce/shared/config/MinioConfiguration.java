@@ -1,6 +1,6 @@
 package com.simplecommerce.shared.config;
 
-import com.simplecommerce.shared.ObjectStoreProperties;
+import com.simplecommerce.shared.config.ObjectStoreProperties;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
