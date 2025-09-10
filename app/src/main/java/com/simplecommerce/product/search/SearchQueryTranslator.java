@@ -2,12 +2,17 @@ package com.simplecommerce.product.search;
 
 import com.simplecommerce.product.ProductEntity;
 import com.simplecommerce.product.ProductStatus;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.domain.Specification;
@@ -15,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 /**
  * Translates parsed search queries into JPA Specifications for database queries.
- * 
  * Supported fields:
  * - status: product status (draft, published, archived)
  * - title: product title (text search)
@@ -43,7 +47,7 @@ public class SearchQueryTranslator {
     LOG.debug("Translating search query to specification: {}", searchQuery);
 
     if (searchQuery.isEmpty()) {
-      return Specification.where(null); // No filtering
+      return Specification.unrestricted(); // No filtering
     }
 
     return (root, query, criteriaBuilder) -> {
@@ -73,9 +77,9 @@ public class SearchQueryTranslator {
    * Translates a single search term into a JPA Predicate.
    */
   private Predicate translateTerm(SearchTerm term, 
-                                 jakarta.persistence.criteria.Root<ProductEntity> root, 
-                                 jakarta.persistence.criteria.CriteriaQuery<?> query, 
-                                 jakarta.persistence.criteria.CriteriaBuilder criteriaBuilder) {
+                                 Root<ProductEntity> root,
+                                 CriteriaQuery<?> query,
+                                 CriteriaBuilder criteriaBuilder) {
     
     LOG.debug("Translating search term: {}", term);
 
@@ -101,8 +105,8 @@ public class SearchQueryTranslator {
    * Translates status-related search terms.
    */
   private Predicate translateStatusTerm(SearchTerm term, 
-                                       jakarta.persistence.criteria.Root<ProductEntity> root, 
-                                       jakarta.persistence.criteria.CriteriaBuilder criteriaBuilder) {
+                                       Root<ProductEntity> root,
+                                       CriteriaBuilder criteriaBuilder) {
     try {
       var status = ProductStatus.valueOf(term.value().toUpperCase());
       return switch (term.operator()) {
@@ -123,8 +127,8 @@ public class SearchQueryTranslator {
    * Translates text-based search terms.
    */
   private Predicate translateTextTerm(SearchTerm term, 
-                                     jakarta.persistence.criteria.Path<String> path, 
-                                     jakarta.persistence.criteria.CriteriaBuilder criteriaBuilder) {
+                                     Path<String> path,
+                                     CriteriaBuilder criteriaBuilder) {
     return switch (term.operator()) {
       case EQUALS -> criteriaBuilder.equal(path, term.value());
       case NOT_EQUALS -> criteriaBuilder.notEqual(path, term.value());
@@ -153,8 +157,8 @@ public class SearchQueryTranslator {
    * you'd need to join with variants and consider contextual pricing.
    */
   private Predicate translatePriceTerm(SearchTerm term, 
-                                      jakarta.persistence.criteria.Root<ProductEntity> root, 
-                                      jakarta.persistence.criteria.CriteriaBuilder criteriaBuilder) {
+                                      Root<ProductEntity> root,
+                                      CriteriaBuilder criteriaBuilder) {
     try {
       if (term.isRange()) {
         var startValue = new BigDecimal(term.getRangeStart());
@@ -179,16 +183,16 @@ public class SearchQueryTranslator {
    * Translates date-related search terms.
    */
   private Predicate translateDateTerm(SearchTerm term, 
-                                     jakarta.persistence.criteria.Path<java.time.OffsetDateTime> path, 
-                                     jakarta.persistence.criteria.CriteriaBuilder criteriaBuilder) {
+                                     Path<OffsetDateTime> path,
+                                     CriteriaBuilder criteriaBuilder) {
     try {
       if (term.isRange()) {
-        var startDate = LocalDate.parse(term.getRangeStart()).atStartOfDay().atOffset(java.time.ZoneOffset.UTC);
-        var endDate = LocalDate.parse(term.getRangeEnd()).plusDays(1).atStartOfDay().atOffset(java.time.ZoneOffset.UTC);
+        var startDate = LocalDate.parse(term.getRangeStart()).atStartOfDay().atOffset(ZoneOffset.UTC);
+        var endDate = LocalDate.parse(term.getRangeEnd()).plusDays(1L).atStartOfDay().atOffset(ZoneOffset.UTC);
         return criteriaBuilder.between(path, startDate, endDate);
       } else {
-        var date = LocalDate.parse(term.value()).atStartOfDay().atOffset(java.time.ZoneOffset.UTC);
-        var nextDay = date.plusDays(1);
+        var date = LocalDate.parse(term.value()).atStartOfDay().atOffset(ZoneOffset.UTC);
+        var nextDay = date.plusDays(1L);
         
         return switch (term.operator()) {
           case EQUALS -> criteriaBuilder.between(path, date, nextDay);
@@ -212,8 +216,8 @@ public class SearchQueryTranslator {
    * Translates category-related search terms.
    */
   private Predicate translateCategoryTerm(SearchTerm term, 
-                                         jakarta.persistence.criteria.Root<ProductEntity> root, 
-                                         jakarta.persistence.criteria.CriteriaBuilder criteriaBuilder) {
+                                         Root<ProductEntity> root,
+                                         CriteriaBuilder criteriaBuilder) {
     var categoryJoin = root.join("category");
     return switch (term.operator()) {
       case EQUALS -> criteriaBuilder.equal(categoryJoin.get("slug"), term.value());
@@ -232,8 +236,8 @@ public class SearchQueryTranslator {
    * Translates tags-related search terms.
    */
   private Predicate translateTagsTerm(SearchTerm term, 
-                                     jakarta.persistence.criteria.Root<ProductEntity> root, 
-                                     jakarta.persistence.criteria.CriteriaBuilder criteriaBuilder) {
+                                     Root<ProductEntity> root,
+                                     CriteriaBuilder criteriaBuilder) {
     // This would need proper implementation for collection searching
     LOG.warn("Tags search not fully implemented yet: {}", term);
     return null;
@@ -243,8 +247,8 @@ public class SearchQueryTranslator {
    * Translates full-text search terms across multiple fields.
    */
   private Predicate translateFullTextSearch(SearchTerm term, 
-                                           jakarta.persistence.criteria.Root<ProductEntity> root, 
-                                           jakarta.persistence.criteria.CriteriaBuilder criteriaBuilder) {
+                                           Root<ProductEntity> root,
+                                           CriteriaBuilder criteriaBuilder) {
     var searchPattern = "%" + term.value().toLowerCase() + "%";
     
     // Search across title, description, and slug

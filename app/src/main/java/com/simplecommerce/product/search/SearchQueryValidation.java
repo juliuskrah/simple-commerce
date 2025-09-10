@@ -38,7 +38,7 @@ public record SearchQueryValidation(boolean valid, List<String> errors) {
    * Gets the first error message, if any.
    */
   public String getFirstError() {
-    return errors.isEmpty() ? null : errors.get(0);
+    return errors.isEmpty() ? null : errors.getFirst();
   }
 
   /**

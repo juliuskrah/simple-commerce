@@ -16,7 +16,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
-import com.simplecommerce.shared.types.GlobalId;
+import com.simplecommerce.shared.GlobalId;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import java.util.HashMap;

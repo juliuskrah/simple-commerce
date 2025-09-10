@@ -6,9 +6,6 @@ import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.annotation.OnStateChanged;
 import org.springframework.statemachine.annotation.WithStateMachine;
 
-import com.simplecommerce.fsm.Events;
-import com.simplecommerce.fsm.States;
-
 /**
  * This class is used to handle state changes in the state machine.
  * @author julius.krah
@@ -19,7 +16,7 @@ public class ProductHandleStateChanged {
 
   // Method's access modifier is public to satisfy the requirements of Spring Expression Language
   @OnStateChanged
-  public void stateChanges(StateContext<States, Events> context) {
+  public void stateChanges(StateContext<ProductState, ProductStateMachineEvent> context) {
     if (context.getSource() != null && context.getTarget() != null) {
       LOG.info("Product state changed from {} to {}", context.getSource().getId(), context.getTarget().getId());
     } else if (context.getTarget() != null) {

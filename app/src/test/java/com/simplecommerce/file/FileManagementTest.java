@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.simplecommerce.shared.config.ObjectStoreProperties;
+import com.simplecommerce.config.ObjectStoreProperties;
 import io.minio.MinioClient;
 import io.minio.errors.MinioException;
 import java.io.IOException;

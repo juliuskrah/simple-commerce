@@ -1,6 +1,6 @@
 package com.simplecommerce;
 
-import com.simplecommerce.shared.config.TestDatabaseConfiguration;
+import com.simplecommerce.config.TestDatabaseConfiguration;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;

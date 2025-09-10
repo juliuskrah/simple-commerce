@@ -4,5 +4,7 @@
  * 
  * @author julius.krah
  */
-@org.springframework.modulith.NamedInterface({"services", "config", "exceptions"})
+@ApplicationModule(id = "shared", displayName = "Shared Module")
 package com.simplecommerce.shared;
+
+import org.springframework.modulith.ApplicationModule;

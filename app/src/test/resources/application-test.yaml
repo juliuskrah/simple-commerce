@@ -10,6 +10,8 @@ spring:
       jakarta.persistence.sql-load-script-source: /import.sql
     hibernate:
       ddl-auto: validate
+  modulith:
+    detection-strategy: explicitly-annotated
 logging:
   level:
     org.hibernate.SQL: info

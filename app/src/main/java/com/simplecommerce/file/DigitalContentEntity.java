@@ -2,7 +2,7 @@ package com.simplecommerce.file;
 
 import static jakarta.persistence.FetchType.LAZY;
 
-import com.simplecommerce.product.ProductVariantEntity;
+import com.simplecommerce.product.variant.ProductVariantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

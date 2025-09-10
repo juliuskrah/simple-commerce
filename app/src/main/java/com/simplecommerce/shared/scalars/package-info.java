@@ -1,2 +1,4 @@
-@org.springframework.modulith.NamedInterface("scalars")
+@NamedInterface("scalars")
 package com.simplecommerce.shared.scalars;
+
+import org.springframework.modulith.NamedInterface;

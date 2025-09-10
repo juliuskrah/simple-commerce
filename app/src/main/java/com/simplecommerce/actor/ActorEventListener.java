@@ -2,10 +2,10 @@ package com.simplecommerce.actor;
 
 import static java.time.ZoneOffset.UTC;
 
-import com.simplecommerce.bot.BotEntity;
-import com.simplecommerce.customer.CustomerEntity;
-import com.simplecommerce.customer.CustomerGroup;
-import com.simplecommerce.staff.StaffEntity;
+import com.simplecommerce.actor.bot.BotEntity;
+import com.simplecommerce.actor.customer.CustomerEntity;
+import com.simplecommerce.actor.customer.CustomerGroup;
+import com.simplecommerce.actor.staff.StaffEntity;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
 import java.util.Objects;

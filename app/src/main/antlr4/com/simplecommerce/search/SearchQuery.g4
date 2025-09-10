@@ -1,7 +1,7 @@
 grammar SearchQuery;
 
 @header {
-package com.simplecommerce.search.generated;
+package com.simplecommerce.product.search.generated;
 }
 
 // Entry point

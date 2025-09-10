@@ -3,6 +3,7 @@ package com.simplecommerce.product;
 import static jakarta.persistence.FetchType.LAZY;
 
 import com.simplecommerce.product.ProductEvent.ProductEventType;
+import com.simplecommerce.product.category.CategoryEntity;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;

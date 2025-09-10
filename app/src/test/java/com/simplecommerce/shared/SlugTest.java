@@ -2,6 +2,7 @@ package com.simplecommerce.shared;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.simplecommerce.shared.utils.Slug;
 import org.junit.jupiter.api.Test;
 
 /**

@@ -11,7 +11,6 @@ public enum ProductStateMachineEvent {
   /**
    * Event to publish a draft product.
    * Transition: DRAFT → PUBLISHED
-   * 
    * Preconditions:
    * - Product must have at least one variant with valid pricing
    * - All required fields must be filled
@@ -21,7 +20,6 @@ public enum ProductStateMachineEvent {
   /**
    * Event to archive a published product.
    * Transition: PUBLISHED → ARCHIVED
-   * 
    * Preconditions:
    * - Handle existing orders and inventory
    * - Notify stakeholders of product discontinuation
@@ -31,7 +29,6 @@ public enum ProductStateMachineEvent {
   /**
    * Event to reactivate an archived product.
    * Transition: ARCHIVED → DRAFT
-   * 
    * This allows products to be brought back from archive
    * but requires re-validation before publishing.
    */

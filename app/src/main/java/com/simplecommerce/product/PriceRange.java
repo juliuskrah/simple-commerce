@@ -1,6 +1,6 @@
 package com.simplecommerce.product;
 
-import com.simplecommerce.shared.Money;
+import com.simplecommerce.shared.types.Money;
 
 /**
  * Represents a range of prices.
@@ -8,6 +8,6 @@ import com.simplecommerce.shared.Money;
  * @since 1.0
  * @author julius.krah
  */
-record PriceRange(Money start, Money stop) {
+public record PriceRange(Money start, Money stop) {
 
 }

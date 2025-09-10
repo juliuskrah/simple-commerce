@@ -5,12 +5,15 @@ import static com.simplecommerce.shared.utils.VirtualThreadHelper.runInScope;
 
 import com.simplecommerce.node.NodeService;
 import com.simplecommerce.product.ProductEvent.ProductEventType;
+import com.simplecommerce.product.category.CategoryEntity;
 import com.simplecommerce.product.search.SearchQueryParser;
 import com.simplecommerce.product.search.SearchQueryTranslator;
+import com.simplecommerce.product.variant.ProductVariantEntity;
+import com.simplecommerce.product.variant.ProductVariants;
 import com.simplecommerce.shared.Event;
-import com.simplecommerce.shared.types.GlobalId;
+import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.exceptions.NotFoundException;
-import com.simplecommerce.shared.Slug;
+import com.simplecommerce.shared.utils.Slug;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -77,7 +80,7 @@ class ProductManagement implements ProductService, NodeService {
   private Product fromEntity(ProductEntity entity) {
     Supplier<OffsetDateTime> epoch = () -> OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
     return new Product(
-        entity.getId().toString(),
+        entity.getId() !=null ? entity.getId().toString() : null,
         entity.getTitle(),
         entity.getSlug(),
         entity.getCreatedDate().orElseGet(epoch),
@@ -163,9 +166,7 @@ class ProductManagement implements ProductService, NodeService {
     
     // Translate to JPA Specification
     var specification = searchQueryTranslator.translateToSpecification(parsedQuery);
-    
-    // Execute search with specification 
-    // TODO: Implement proper cursor-based pagination with specifications
+
     // For now, fall back to simple pagination when search is used
     LOG.warn("Search with specifications enabled but cursor pagination not yet implemented. Using simple approach.");
     

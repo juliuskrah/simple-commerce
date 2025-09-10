@@ -1,9 +1,8 @@
 package com.simplecommerce.product.search;
 
+import com.simplecommerce.product.search.SearchQuery.Operator;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
@@ -12,14 +11,12 @@ import org.springframework.stereotype.Service;
 
 /**
  * Parser for search queries using GitHub-style search syntax.
- * 
  * Supported syntax:
  * - Field queries: status:published, price:100, category:electronics
  * - Range queries: price:100..200, created:2024-01-01..2024-12-31
  * - Quoted strings: title:"wireless headphones"
  * - Boolean operators: status:published AND category:electronics
  * - Grouping: (status:published OR status:draft) AND category:electronics
- * 
  * Examples:
  * - status:published price:100..200
  * - category:electronics AND (status:published OR status:draft)
@@ -49,7 +46,7 @@ public class SearchQueryParser {
     LOG.debug("Parsing search query: {}", queryString);
     
     if (queryString == null || queryString.trim().isEmpty()) {
-      return new SearchQuery(new ArrayList<>(), SearchQuery.Operator.AND);
+      return new SearchQuery(new ArrayList<>(), Operator.AND);
     }
 
     var terms = new ArrayList<SearchTerm>();
@@ -148,20 +145,20 @@ public class SearchQueryParser {
 
     for (String token : tokens) {
       if (isOperator(token)) {
-        if (currentPart.length() > 0) {
+        if (currentPart.isEmpty()) {
           parts.add(currentPart.toString().trim());
           currentPart = new StringBuilder();
         }
         parts.add(token);
       } else {
-        if (currentPart.length() > 0) {
+        if (currentPart.isEmpty()) {
           currentPart.append(" ");
         }
         currentPart.append(token);
       }
     }
 
-    if (currentPart.length() > 0) {
+    if (currentPart.isEmpty()) {
       parts.add(currentPart.toString().trim());
     }
 
@@ -171,11 +168,11 @@ public class SearchQueryParser {
   /**
    * Detects the primary operator in the query (AND vs OR).
    */
-  private SearchQuery.Operator detectPrimaryOperator(String query) {
+  private Operator detectPrimaryOperator(String query) {
     if (query.contains(" OR ")) {
-      return SearchQuery.Operator.OR;
+      return Operator.OR;
     }
-    return SearchQuery.Operator.AND; // Default to AND
+    return Operator.AND; // Default to AND
   }
 
   /**
@@ -205,7 +202,7 @@ public class SearchQueryParser {
 
     // Check for unclosed quotes
     long quoteCount = queryString.chars().filter(ch -> ch == '"').count();
-    if (quoteCount % 2 != 0) {
+    if (quoteCount % 2L != 0L) {
       errors.add("Unclosed quote in query");
     }
 

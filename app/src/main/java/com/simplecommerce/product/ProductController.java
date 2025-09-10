@@ -1,19 +1,19 @@
 package com.simplecommerce.product;
 
-import static com.simplecommerce.shared.Types.NODE_PRODUCT;
+import static com.simplecommerce.shared.types.Types.NODE_PRODUCT;
 import static java.util.stream.Collectors.toMap;
 
 import com.simplecommerce.actor.Actor;
-import com.simplecommerce.shared.types.GlobalId;
+import com.simplecommerce.product.category.Category;
+import com.simplecommerce.product.pricing.PriceResolutionService;
+import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.authorization.CheckPermission;
 import com.simplecommerce.shared.authorization.RequireStaffRole;
-import com.simplecommerce.shared.authorization.FilterByOwnership;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import org.dataloader.DataLoader;
@@ -44,9 +44,6 @@ class ProductController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProductController.class);
     private final ObjectProvider<ProductService> productService;
-    // TODO: Add search functionality when service layer is ready
-    // private final SearchQueryParser searchQueryParser;
-    // private final SearchQueryTranslator searchQueryTranslator;
     private final ProductStateMachineService stateMachineService;
     private final PriceResolutionService priceResolutionService;
     // Defer creation of the ProductService to avoid early initialization of aspectj proxy
@@ -106,18 +103,11 @@ class ProductController {
     }
 
     @SchemaMapping(typeName = "Product")
-    Optional<PriceRange> priceRange(Product source, Locale locale, @Argument String currency) {
-        // Use provided currency or default to EUR
-        var currencyCode = currency != null ? currency : "EUR";
-        var priceContext = PriceContext.defaultContext(currencyCode);
-        
-        LOG.debug("Calculating price range for product {} with context {}", source.id(), priceContext);
+    Optional<PriceRange> priceRange(Product source, Locale locale) {
+        LOG.debug("Calculating price range for product {} from locale {}", source.id(), locale);
         
         try {
-            var productEntity = new ProductEntity();
-            productEntity.setId(UUID.fromString(source.id()));
-
-            return priceResolutionService.calculatePriceRange(productEntity, priceContext, locale);
+            return priceResolutionService.calculatePriceRange(source, locale);
         } catch (Exception e) {
             LOG.error("Error calculating price range for product {}: {}", source.id(), e.getMessage());
             return Optional.empty();
@@ -160,7 +150,7 @@ class ProductController {
     Product publishProduct(@Argument String id) {
         LOG.info("Publishing product: {}", id);
         
-        var service = this.productService.getIfAvailable(productServiceSupplier);
+        var service = productService.getIfAvailable(productServiceSupplier);
         var productEntity = service.findProductEntity(id);
         
         if (productEntity == null) {
@@ -189,7 +179,7 @@ class ProductController {
     Product archiveProduct(@Argument String id) {
         LOG.info("Archiving product: {}", id);
         
-        var service = this.productService.getIfAvailable(productServiceSupplier);
+        var service = productService.getIfAvailable(productServiceSupplier);
         var productEntity = service.findProductEntity(id);
         
         if (productEntity == null) {
@@ -213,7 +203,7 @@ class ProductController {
     Product reactivateProduct(@Argument String id) {
         LOG.info("Reactivating product: {}", id);
         
-        var service = this.productService.getIfAvailable(productServiceSupplier);
+        var service = productService.getIfAvailable(productServiceSupplier);
         var productEntity = service.findProductEntity(id);
         
         if (productEntity == null) {

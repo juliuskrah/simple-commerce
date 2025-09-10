@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.simplecommerce.file.FileNodeServiceSupplier;
 import com.simplecommerce.product.ProductNodeServiceSupplier;
-import com.simplecommerce.shared.Types;
+import com.simplecommerce.shared.types.Types;
 import org.junit.jupiter.api.Test;
 
 class NodeServiceSupplierTest {

@@ -2,7 +2,6 @@ package com.simplecommerce.product.search;
 
 /**
  * Represents a single search term with field, operator, and value.
- * 
  * Examples:
  * - Field equals: status:published -> SearchTerm("status", EQUALS, "published")
  * - Range: price:100..200 -> SearchTerm("price", RANGE, "100..200")

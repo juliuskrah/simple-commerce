@@ -1,13 +1,13 @@
 package com.simplecommerce.file;
 
-import static com.simplecommerce.shared.Types.NODE_DIGITAL_CONTENT;
-import static com.simplecommerce.shared.Types.NODE_MEDIA_FILE;
+import static com.simplecommerce.shared.types.Types.NODE_DIGITAL_CONTENT;
+import static com.simplecommerce.shared.types.Types.NODE_MEDIA_FILE;
 
 import com.simplecommerce.product.Product;
-import com.simplecommerce.product.ProductVariant;
-import com.simplecommerce.product.ProductVariantManagement;
-import com.simplecommerce.product.ProductVariantService;
-import com.simplecommerce.shared.types.GlobalId;
+import com.simplecommerce.product.variant.ProductVariant;
+import com.simplecommerce.product.variant.ProductVariantManagement;
+import com.simplecommerce.product.variant.ProductVariantService;
+import com.simplecommerce.shared.GlobalId;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;

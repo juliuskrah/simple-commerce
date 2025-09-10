@@ -2,7 +2,7 @@ package com.simplecommerce.shared.scalars;
 
 import static graphql.scalars.util.Kit.typeName;
 
-import com.simplecommerce.shared.MonetaryUtils;
+import com.simplecommerce.shared.utils.MonetaryUtils;
 import graphql.GraphQLContext;
 import graphql.execution.CoercedVariables;
 import graphql.language.StringValue;

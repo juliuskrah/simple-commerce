@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.config.EnableWithStateMachine;
 import org.springframework.statemachine.config.StateMachineBuilder;
 import org.springframework.statemachine.config.StateMachineBuilder.Builder;
 import org.springframework.statemachine.guard.Guard;
@@ -13,7 +14,6 @@ import org.springframework.statemachine.action.Action;
 
 /**
  * Configuration for the Product lifecycle state machine.
- * 
  * State Transitions:
  * DRAFT → PUBLISHED (PUBLISH event with validation guards)
  * PUBLISHED → ARCHIVED (ARCHIVE event)
@@ -22,6 +22,7 @@ import org.springframework.statemachine.action.Action;
  * @author julius.krah
  * @since 1.0
  */
+@EnableWithStateMachine
 @Configuration(proxyBeanMethods = false)
 public class ProductStateMachineConfiguration {
 
@@ -78,7 +79,6 @@ public class ProductStateMachineConfiguration {
    * Guard to validate if a product can be published.
    * Checks business rules before allowing DRAFT → PUBLISHED transition.
    */
-  @Bean
   public Guard<ProductState, ProductStateMachineEvent> publishGuard() {
     return context -> {
       // Get the product from the state machine context
@@ -109,7 +109,6 @@ public class ProductStateMachineConfiguration {
   /**
    * Action executed when product is published.
    */
-  @Bean
   public Action<ProductState, ProductStateMachineEvent> publishAction() {
     return context -> {
       ProductEntity product = context.getExtendedState().get("product", ProductEntity.class);
@@ -127,7 +126,6 @@ public class ProductStateMachineConfiguration {
   /**
    * Action executed when product is archived.
    */
-  @Bean
   public Action<ProductState, ProductStateMachineEvent> archiveAction() {
     return context -> {
       ProductEntity product = context.getExtendedState().get("product", ProductEntity.class);
@@ -145,7 +143,6 @@ public class ProductStateMachineConfiguration {
   /**
    * Action executed when product is reactivated from archive.
    */
-  @Bean
   public Action<ProductState, ProductStateMachineEvent> reactivateAction() {
     return context -> {
       ProductEntity product = context.getExtendedState().get("product", ProductEntity.class);

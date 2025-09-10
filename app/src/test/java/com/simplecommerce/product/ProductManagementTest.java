@@ -9,6 +9,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.simplecommerce.product.variant.ProductVariants;
 import com.simplecommerce.shared.Event;
 import java.math.BigDecimal;
 import java.util.ArrayList;

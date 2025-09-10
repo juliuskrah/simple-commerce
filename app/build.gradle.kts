@@ -34,6 +34,7 @@ dependencies {
     implementation("com.graphql-java:graphql-java-extended-scalars:$graphQlJavaVersion")
     implementation("com.graphql-java:graphql-java-extended-validation:$graphQlJavaVersion")
     implementation("org.flywaydb:flyway-core")
+    implementation("org.jspecify:jspecify:1.0.0")
     implementation(project(":minio-docker-compose"))
     implementation(libs.picocli)
     implementation(libs.minio)

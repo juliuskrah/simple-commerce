@@ -1,5 +1,6 @@
 package com.simplecommerce.shared;
 
+import com.simplecommerce.shared.exceptions.NotFoundException;
 import graphql.ErrorClassification;
 import graphql.GraphQLError;
 import graphql.schema.DataFetchingEnvironment;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 @ControllerAdvice
 public class ExceptionHandling {
 
-  @GraphQlExceptionHandler(com.simplecommerce.shared.exceptions.NotFoundException.class)
+  @GraphQlExceptionHandler(NotFoundException.class)
   GraphQLError handleNotFound(DataFetchingEnvironment env) {
     return GraphQLError.newError().message("Cannot be found")
         .errorType(ErrorType.NOT_FOUND)

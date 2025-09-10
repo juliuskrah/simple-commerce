@@ -106,7 +106,7 @@ extend type Category {
     """
     products(first: Int @Positive, after: String, last: Int @Positive, before: String,
         orderBy: [ProductOrderField], orderDirection: OrderDirection = ASC,
-        includeSubcategories: Boolean = true): ProductConnection!
+        includeSubcategories: Boolean = false): ProductConnection!
 }
 
 type PriceRange {

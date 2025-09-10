@@ -2,7 +2,7 @@ package com.simplecommerce.file;
 
 import com.simplecommerce.node.NodeService;
 import com.simplecommerce.node.NodeServiceSupplier;
-import com.simplecommerce.shared.Types;
+import com.simplecommerce.shared.types.Types;
 import org.springframework.util.function.SingletonSupplier;
 
 /**

@@ -1,12 +1,9 @@
 package com.simplecommerce.product;
 
-import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
-import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
-import org.springframework.statemachine.transition.Transition;
 import org.springframework.stereotype.Service;
 
 /**
