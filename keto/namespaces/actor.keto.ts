@@ -6,7 +6,7 @@ import { Namespace, Context } from '@ory/keto-namespace-types'
 class User implements Namespace {
   related: {
     manager: User[]
-  } = {}
+  }
 }
 
 class Permission implements Namespace {}
@@ -17,14 +17,14 @@ class Organization implements Namespace {
   related: {
     admins: User[]
     members: User[]
-  } = {}
+  }
 }
 
 class Customer implements Namespace {
   related: {
     owner: User[]
     viewers: User[]
-  } = {}
+  }
 
   permits = {
     read: (ctx: Context): boolean => this.related.viewers.includes(ctx.subject) || 
@@ -39,17 +39,17 @@ class Staff implements Namespace {
     owner: User[]
     viewers: User[]
     organization: Organization[]
-  } = {}
+  }
 
   permits = {
     read: (ctx: Context): boolean => this.related.viewers.includes(ctx.subject) || 
                                     this.related.owner.includes(ctx.subject) ||
-                                    this.related.organization.some(org => org.related.admins.includes(ctx.subject)),
+                                    this.related.organization.traverse(org => org.related.admins.includes(ctx.subject)),
     write: (ctx: Context): boolean => this.related.owner.includes(ctx.subject) ||
-                                     this.related.organization.some(org => org.related.admins.includes(ctx.subject)),
+                                     this.related.organization.traverse(org => org.related.admins.includes(ctx.subject)),
     delete: (ctx: Context): boolean => this.related.owner.includes(ctx.subject) ||
-                                      this.related.organization.some(org => org.related.admins.includes(ctx.subject)),
-    manage: (ctx: Context): boolean => this.related.organization.some(org => org.related.admins.includes(ctx.subject))
+                                      this.related.organization.traverse(org => org.related.admins.includes(ctx.subject)),
+    manage: (ctx: Context): boolean => this.related.organization.traverse(org => org.related.admins.includes(ctx.subject))
   }
 }
 
@@ -59,17 +59,17 @@ class Bot implements Namespace {
     viewers: User[]
     organization: Organization[]
     app: App[]
-  } = {}
+  }
 
   permits = {
     read: (ctx: Context): boolean => this.related.viewers.includes(ctx.subject) || 
                                     this.related.owner.includes(ctx.subject) ||
-                                    this.related.organization.some(org => org.related.admins.includes(ctx.subject)),
+                                    this.related.organization.traverse(org => org.related.admins.includes(ctx.subject)),
     write: (ctx: Context): boolean => this.related.owner.includes(ctx.subject) ||
-                                     this.related.organization.some(org => org.related.admins.includes(ctx.subject)),
+                                     this.related.organization.traverse(org => org.related.admins.includes(ctx.subject)),
     delete: (ctx: Context): boolean => this.related.owner.includes(ctx.subject) ||
-                                      this.related.organization.some(org => org.related.admins.includes(ctx.subject)),
-    execute: (ctx: Context): boolean => this.related.app.some(app => app.related.executors.includes(ctx.subject)) ||
+                                      this.related.organization.traverse(org => org.related.admins.includes(ctx.subject)),
+    execute: (ctx: Context): boolean => this.related.app.traverse(app => app.related.executors.includes(ctx.subject)) ||
                                        this.related.owner.includes(ctx.subject)
   }
 }
@@ -79,14 +79,14 @@ class App implements Namespace {
     owner: User[]
     executors: User[]
     organization: Organization[]
-  } = {}
+  }
 
   permits = {
     read: (ctx: Context): boolean => this.related.executors.includes(ctx.subject) || 
                                     this.related.owner.includes(ctx.subject) ||
-                                    this.related.organization.some(org => org.related.members.includes(ctx.subject)),
+                                    this.related.organization.traverse(org => org.related.members.includes(ctx.subject)),
     write: (ctx: Context): boolean => this.related.owner.includes(ctx.subject) ||
-                                     this.related.organization.some(org => org.related.admins.includes(ctx.subject)),
+                                     this.related.organization.traverse(org => org.related.admins.includes(ctx.subject)),
     execute: (ctx: Context): boolean => this.related.executors.includes(ctx.subject) ||
                                        this.related.owner.includes(ctx.subject)
   }
@@ -98,15 +98,15 @@ class Product implements Namespace {
     viewers: (User | Customer)[]
     editors: (User | Staff)[]
     organization: Organization[]
-  } = {}
+  }
 
   permits = {
     read: (ctx: Context): boolean => this.related.viewers.includes(ctx.subject) ||
                                     this.related.editors.includes(ctx.subject) ||
-                                    this.related.organization.some(org => org.related.members.includes(ctx.subject)),
+                                    this.related.organization.traverse(org => org.related.members.includes(ctx.subject)),
     write: (ctx: Context): boolean => this.related.editors.includes(ctx.subject) ||
-                                     this.related.organization.some(org => org.related.admins.includes(ctx.subject)),
-    delete: (ctx: Context): boolean => this.related.organization.some(org => org.related.admins.includes(ctx.subject))
+                                     this.related.organization.traverse(org => org.related.admins.includes(ctx.subject)),
+    delete: (ctx: Context): boolean => this.related.organization.traverse(org => org.related.admins.includes(ctx.subject))
   }
 }
 
@@ -115,14 +115,14 @@ class Category implements Namespace {
     viewers: (User | Customer)[]
     editors: (User | Staff)[]
     organization: Organization[]
-  } = {}
+  }
 
   permits = {
     read: (ctx: Context): boolean => this.related.viewers.includes(ctx.subject) ||
                                     this.related.editors.includes(ctx.subject) ||
-                                    this.related.organization.some(org => org.related.members.includes(ctx.subject)),
+                                    this.related.organization.traverse(org => org.related.members.includes(ctx.subject)),
     write: (ctx: Context): boolean => this.related.editors.includes(ctx.subject) ||
-                                     this.related.organization.some(org => org.related.admins.includes(ctx.subject)),
-    delete: (ctx: Context): boolean => this.related.organization.some(org => org.related.admins.includes(ctx.subject))
+                                     this.related.organization.traverse(org => org.related.admins.includes(ctx.subject)),
+    delete: (ctx: Context): boolean => this.related.organization.traverse(org => org.related.admins.includes(ctx.subject))
   }
 }

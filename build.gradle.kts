@@ -4,6 +4,7 @@ plugins {
 
 extra["springModulithVersion"] = "1.4.2"
 extra["springStatemachineVersion"] = "4.0.1"
+extra["springGrpcVersion"] = "0.11.0"
 
 allprojects {
     group = "com.simplecommerce"

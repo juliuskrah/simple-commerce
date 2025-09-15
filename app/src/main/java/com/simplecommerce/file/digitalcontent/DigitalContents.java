@@ -1,4 +1,4 @@
-package com.simplecommerce.file;
+package com.simplecommerce.file.digitalcontent;
 
 import java.util.Optional;
 import java.util.UUID;

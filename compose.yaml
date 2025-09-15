@@ -86,7 +86,7 @@ services:
     command: ["serve", "--config", "/home/ory/keto.yaml"]
     volumes:
       - ./keto/keto.yaml:/home/ory/keto.yaml
-      - ./keto/namespaces.keto.ts:/home/ory/namespaces/namespaces.keto.ts
+      - ./keto/permissions.keto.ts:/home/ory/namespaces/permissions.keto.ts
     ports:
       - "4466:4466"
       - "4467:4467"
@@ -101,7 +101,7 @@ services:
     command: ["migrate", "up", "--format", "table", "--yes", "--config", "/home/ory/keto.yaml"]
     volumes:
       - ./keto/keto.yaml:/home/ory/keto.yaml
-      - ./keto/namespaces.keto.ts:/home/ory/namespaces/namespaces.keto.ts
+      - ./keto/permissions.keto.ts:/home/ory/namespaces/permissions.keto.ts
     depends_on:
       postgres:
         condition: service_healthy

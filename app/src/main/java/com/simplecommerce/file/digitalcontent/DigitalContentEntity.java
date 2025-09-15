@@ -1,6 +1,8 @@
-package com.simplecommerce.file;
+package com.simplecommerce.file.digitalcontent;
 
-import com.simplecommerce.product.ProductEntity;
+import static jakarta.persistence.FetchType.LAZY;
+
+import com.simplecommerce.product.variant.ProductVariantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,15 +21,17 @@ import org.springframework.data.domain.Auditable;
 /**
  * @author julius.krah
  */
-@Entity(name = "Media")
-@Table(name = "media")
-public class MediaEntity implements Auditable<String, UUID, OffsetDateTime> {
+@Entity(name = "DigitalContent")
+@Table(name = "digital_content")
+public class DigitalContentEntity implements Auditable<String, UUID, OffsetDateTime> {
+
   @Id
   @GeneratedValue
   private UUID id;
-  @ManyToOne
-  private ProductEntity product;
+  @ManyToOne(fetch = LAZY)
+  private ProductVariantEntity variant;
   private URL url;
+  @Column(name = "content_type")
   private String contentType;
   @CreationTimestamp
   @Column(nullable = false)
@@ -39,25 +43,65 @@ public class MediaEntity implements Auditable<String, UUID, OffsetDateTime> {
   private String updatedBy;
 
   @Override
-  public UUID getId() {
-    return id;
+  public boolean isNew() {
+    return null == id;
   }
 
   @Override
-  public boolean isNew() {
-    return null == id;
+  public UUID getId() {
+    return id;
   }
 
   public void setId(UUID id) {
     this.id = id;
   }
 
-  public ProductEntity getProduct() {
-    return product;
+  @Override
+  public Optional<String> getCreatedBy() {
+    return Optional.ofNullable(createdBy);
   }
 
-  public void setProduct(ProductEntity product) {
-    this.product = product;
+  @Override
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
+
+  @Override
+  public Optional<String> getLastModifiedBy() {
+    return Optional.ofNullable(updatedBy);
+  }
+
+  @Override
+  public void setLastModifiedBy(String lastModifiedBy) {
+    this.updatedBy = lastModifiedBy;
+  }
+
+  @Override
+  public Optional<OffsetDateTime> getCreatedDate() {
+    return Optional.ofNullable(createdAt);
+  }
+
+  @Override
+  public void setCreatedDate(OffsetDateTime creationDate) {
+    this.createdAt = creationDate;
+  }
+
+  @Override
+  public Optional<OffsetDateTime> getLastModifiedDate() {
+    return Optional.ofNullable(updatedAt);
+  }
+
+  @Override
+  public void setLastModifiedDate(OffsetDateTime lastModifiedDate) {
+    this.updatedAt = lastModifiedDate;
+  }
+
+  public ProductVariantEntity getVariant() {
+    return variant;
+  }
+
+  public void setVariant(ProductVariantEntity variant) {
+    this.variant = variant;
   }
 
   public URL getUrl() {
@@ -81,7 +125,7 @@ public class MediaEntity implements Auditable<String, UUID, OffsetDateTime> {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof MediaEntity that)) {
+    if (!(o instanceof DigitalContentEntity that)) {
       return false;
     }
     return Objects.equals(id, that.id);
@@ -94,54 +138,12 @@ public class MediaEntity implements Auditable<String, UUID, OffsetDateTime> {
 
   @Override
   public String toString() {
-    return "MediaEntity{" +
+    return "DigitalContentEntity{" +
         "id=" + id +
         ", url=" + url +
         ", contentType='" + contentType + '\'' +
         ", createdAt=" + createdAt +
         ", updatedAt=" + updatedAt +
-        ", createdBy='" + createdBy + '\'' +
-        ", updatedBy='" + updatedBy + '\'' +
         '}';
-  }
-
-  @Override
-  public Optional<String> getCreatedBy() {
-    return Optional.ofNullable(createdBy);
-  }
-
-  @Override
-  public void setCreatedBy(String createdBy) {
-    this.createdBy = createdBy;
-  }
-
-  @Override
-  public Optional<OffsetDateTime> getCreatedDate() {
-    return Optional.ofNullable(createdAt);
-  }
-
-  @Override
-  public void setCreatedDate(OffsetDateTime creationDate) {
-    this.createdAt = creationDate;
-  }
-
-  @Override
-  public Optional<String> getLastModifiedBy() {
-    return Optional.ofNullable(updatedBy);
-  }
-
-  @Override
-  public void setLastModifiedBy(String lastModifiedBy) {
-    this.updatedBy = lastModifiedBy;
-  }
-
-  @Override
-  public Optional<OffsetDateTime> getLastModifiedDate() {
-    return Optional.ofNullable(updatedAt);
-  }
-
-  @Override
-  public void setLastModifiedDate(OffsetDateTime lastModifiedDate) {
-    this.updatedAt = lastModifiedDate;
   }
 }

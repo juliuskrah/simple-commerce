@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import com.simplecommerce.file.media.MediaFile;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Map;

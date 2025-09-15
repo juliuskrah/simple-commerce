@@ -1,5 +1,7 @@
 package com.simplecommerce.file;
 
+import com.simplecommerce.file.digitalcontent.DigitalContent;
+import com.simplecommerce.file.media.MediaFile;
 import java.util.List;
 
 /**

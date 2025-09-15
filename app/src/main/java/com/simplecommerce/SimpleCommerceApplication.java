@@ -4,7 +4,6 @@ import com.simplecommerce.cli.Command;
 import com.simplecommerce.cli.MigrateCommand;
 import com.simplecommerce.cli.ServeCommand;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.modulith.Modulith;
 import org.springframework.modulith.Modulithic;
 import picocli.CommandLine;
 

@@ -3,6 +3,12 @@ package com.simplecommerce.file;
 import static com.simplecommerce.shared.utils.VirtualThreadHelper.callInScope;
 import static com.simplecommerce.shared.utils.VirtualThreadHelper.runInScope;
 
+import com.simplecommerce.file.digitalcontent.DigitalContent;
+import com.simplecommerce.file.digitalcontent.DigitalContentEntity;
+import com.simplecommerce.file.digitalcontent.DigitalContents;
+import com.simplecommerce.file.media.Media;
+import com.simplecommerce.file.media.MediaEntity;
+import com.simplecommerce.file.media.MediaFile;
 import com.simplecommerce.node.NodeService;
 import com.simplecommerce.product.ProductEntity;
 import com.simplecommerce.product.variant.ProductVariants;

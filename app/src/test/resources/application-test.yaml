@@ -12,6 +12,11 @@ spring:
       ddl-auto: validate
   modulith:
     detection-strategy: explicitly-annotated
+
+  grpc:
+    client:
+      inprocess:
+        enabled: false
 logging:
   level:
     org.hibernate.SQL: info

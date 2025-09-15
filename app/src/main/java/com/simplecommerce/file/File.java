@@ -7,7 +7,7 @@ import java.time.OffsetDateTime;
  * Super type for all files. This interfaces models the create and update metadata of a file.
  * @author julius.krah
  */
-interface File extends Node {
+public interface File extends Node {
 
   /**
    * File attribute: Created timestamp.

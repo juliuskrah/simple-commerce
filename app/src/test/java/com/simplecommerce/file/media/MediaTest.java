@@ -1,4 +1,4 @@
-package com.simplecommerce.file;
+package com.simplecommerce.file.media;
 
 import static java.util.UUID.fromString;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -3,6 +3,8 @@ package com.simplecommerce.file;
 import static com.simplecommerce.shared.types.Types.NODE_DIGITAL_CONTENT;
 import static com.simplecommerce.shared.types.Types.NODE_MEDIA_FILE;
 
+import com.simplecommerce.file.digitalcontent.DigitalContent;
+import com.simplecommerce.file.media.MediaFile;
 import com.simplecommerce.product.Product;
 import com.simplecommerce.product.variant.ProductVariant;
 import com.simplecommerce.product.variant.ProductVariantManagement;

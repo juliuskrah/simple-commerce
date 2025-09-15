@@ -1,5 +1,6 @@
-package com.simplecommerce.file;
+package com.simplecommerce.file.media;
 
+import com.simplecommerce.file.File;
 import java.net.URL;
 import java.time.OffsetDateTime;
 

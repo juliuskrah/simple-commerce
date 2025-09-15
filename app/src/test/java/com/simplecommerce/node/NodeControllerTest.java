@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
-import com.simplecommerce.file.MediaFile;
+import com.simplecommerce.file.media.MediaFile;
 import com.simplecommerce.product.category.Category;
 import com.simplecommerce.product.Product;
 import com.simplecommerce.product.ProductStatus;

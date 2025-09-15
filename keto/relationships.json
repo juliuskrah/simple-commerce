@@ -1,0 +1,81 @@
+[
+  {
+    "namespace": "Group",
+    "object": "staff",
+    "relation": "members",
+    "subject_id": "Neo"
+  },
+  {
+    "namespace": "Group",
+    "object": "staff",
+    "relation": "members",
+    "subject_set": {
+      "namespace": "User",
+      "object": "Neo"
+    }
+  },
+  {
+    "namespace": "Group",
+    "object": "staff",
+    "relation": "members",
+    "subject_set": {
+      "namespace": "User",
+      "object": "Morpheus"
+    }
+  },
+  {
+    "namespace": "Group",
+    "object": "customer",
+    "relation": "members",
+    "subject_set": {
+      "namespace": "User",
+      "object": "Naomi"
+    }
+  },
+  {
+    "namespace": "Product",
+    "object": "the-matrix/",
+    "relation": "viewers",
+    "subject_set": {
+      "namespace": "Group",
+      "object": "developer",
+      "relation": "members"
+    }
+  },
+  {
+    "namespace": "ProductVariant",
+    "object": "keto/README.md",
+    "relation": "parents",
+    "subject_set": {
+      "namespace": "Folder",
+      "object": "keto/"
+    }
+  },
+  {
+    "namespace": "Product",
+    "object": "keto/src/",
+    "relation": "parents",
+    "subject_set": {
+      "namespace": "Folder",
+      "object": "keto/"
+    }
+  },
+  {
+    "namespace": "ProductVariant",
+    "object": "keto/src/main.go",
+    "relation": "parents",
+    "subject_set": {
+      "namespace": "Folder",
+      "object": "keto/src/"
+    }
+  },
+  {
+    "namespace": "ProductVariant",
+    "object": "private",
+    "relation": "owners",
+    "subject_set": {
+      "namespace": "User",
+      "object": "Henning"
+    }
+  }
+]

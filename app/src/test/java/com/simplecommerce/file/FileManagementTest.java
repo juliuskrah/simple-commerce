@@ -5,6 +5,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.simplecommerce.config.ObjectStoreProperties;
+import com.simplecommerce.file.media.Media;
+import com.simplecommerce.file.media.MediaEntity;
+import com.simplecommerce.file.media.MediaFile;
 import io.minio.MinioClient;
 import io.minio.errors.MinioException;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package com.simplecommerce.file;
+package com.simplecommerce.file.media;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,7 +9,7 @@ import org.springframework.data.repository.Repository;
 /**
  * @author julius.krah
  */
-interface Media extends Repository<MediaEntity, UUID> {
+public interface Media extends Repository<MediaEntity, UUID> {
 
   Optional<MediaEntity> findById(UUID id);
 

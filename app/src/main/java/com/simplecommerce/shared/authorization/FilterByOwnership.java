@@ -15,6 +15,6 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@PostFilter("@ketoAuthorizationService.hasPermission(authentication.name, 'read', filterObject.id)")
+@PostFilter("@ketoAuthorizationService.checkPermission('', authentication.name, 'read', filterObject.id)")
 public @interface FilterByOwnership {
 }
