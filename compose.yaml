@@ -2,8 +2,10 @@ name: "simple-commerce"
 
 services:
   simple-commerce-migrate:
-    image: ${SIMPLE_COMMERCE_IMAGE:-juliuskrah/simple-commerce:latest}
-    command: ["migrate", "--seed"]
+    image: juliuskrah/simple-commerce:latest
+    build:
+      dockerfile: ./Dockerfile
+    command: ["migrate"]
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/simple_commerce
       SPRING_DATASOURCE_USERNAME: simple_commerce
@@ -17,7 +19,9 @@ services:
     profiles:
       - app
   simple-commerce:
-    image: ${SIMPLE_COMMERCE_IMAGE:-juliuskrah/simple-commerce:latest}
+    image: juliuskrah/simple-commerce:latest
+    build:
+      dockerfile: ./Dockerfile
     command: ["serve"]
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/simple_commerce

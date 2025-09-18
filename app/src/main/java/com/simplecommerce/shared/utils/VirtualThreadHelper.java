@@ -1,13 +1,12 @@
 package com.simplecommerce.shared.utils;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
 import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.StructuredTaskScope.Joiner;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import org.springframework.security.concurrent.DelegatingSecurityContextCallable;
-import org.springframework.security.concurrent.DelegatingSecurityContextExecutorService;
+import org.springframework.security.concurrent.DelegatingSecurityContextRunnable;
 
 /**
  * @author julius.krah
@@ -22,10 +21,10 @@ public final class VirtualThreadHelper {
 
   public static void runInScope(Runnable run) {
     lock.lock();
-    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-      DelegatingSecurityContextExecutorService delegate = new DelegatingSecurityContextExecutorService(executor);
-      var task = delegate.submit(run);
-      task.get();
+    try (var scope = StructuredTaskScope.open(Joiner.allSuccessfulOrThrow(), Function.identity())) {
+      DelegatingSecurityContextRunnable delegate = new DelegatingSecurityContextRunnable(run);
+      scope.fork(delegate);
+      scope.join();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new com.simplecommerce.shared.exceptions.CommerceException(e);

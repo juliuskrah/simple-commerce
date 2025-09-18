@@ -1,21 +1,23 @@
 # See https://docs.spring.io/spring-boot/reference/packaging/container-images/dockerfiles.html#packaging.container-images.dockerfiles.cds
-FROM bellsoft/liberica-openjdk-debian:21-cds AS builder
+FROM bellsoft/liberica-openjdk-debian:25-cds AS builder
 LABEL authors="julius.krah"
 LABEL org.opencontainers.image.description="Simple Commerce is a ecommerce platform for the sale of digital products."
 
 WORKDIR /builder
 ARG JAR_DIR=app/build/libs
-COPY gradlew build.gradle.kts gradle.properties settings.gradle.kts ./
-COPY gradle/                                                        ./gradle/
-COPY app/src/                                                       ./app/src/
-COPY app/build.gradle.kts                                           ./app/
-COPY minio-docker-compose/src                                       ./minio-docker-compose/
-COPY minio-docker-compose/build.gradle.kts                          ./minio-docker-compose/
+COPY gradlew build.gradle.kts gradle.properties settings.gradle.kts       ./
+COPY gradle/                                                              ./gradle/
+COPY app/src/                                                             ./app/src/
+COPY app/build.gradle.kts                                                 ./app/
+COPY minio-docker-compose/src/                                            ./minio-docker-compose/src/
+COPY minio-docker-compose/build.gradle.kts                                ./minio-docker-compose/
+COPY buildSrc/src/                                                        ./buildSrc/src/
+COPY buildSrc/build.gradle.kts                                            ./buildSrc/
 RUN chmod +x ./gradlew && ./gradlew --no-daemon --stacktrace --info --console=plain build -x test
 RUN find ${JAR_DIR} -name '*.jar' -a ! -name '*plain.jar' -exec mv '{}' application.jar \;
 RUN java -Djarmode=tools -jar application.jar extract --layers --destination extracted
 
-FROM bellsoft/liberica-openjre-debian:21-cds
+FROM bellsoft/liberica-openjre-debian:25-cds
 ARG SPRING_INSTRUMENT=spring-instrument.jar
 ARG SPRING_INSTRUMENT_VERSION=6.2.1
 ARG SPRING_FLYWAY_ENABLED=false

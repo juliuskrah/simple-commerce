@@ -82,22 +82,17 @@ public class PermissionCheckAspect {
      * Creates an evaluation context with method parameters and security context.
      */
     private EvaluationContext createEvaluationContext(ProceedingJoinPoint joinPoint) {
-        StandardEvaluationContext context = new StandardEvaluationContext();
-        
+        // Add security context
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        StandardEvaluationContext context = new StandardEvaluationContext(new RootObject(authentication));
+
         // Add method parameters to context
         Object[] args = joinPoint.getArgs();
         Method method = getMethod(joinPoint);
         Parameter[] parameters = method.getParameters();
-        
+
         for (int i = 0; i < parameters.length && i < args.length; i++) {
             context.setVariable(parameters[i].getName(), args[i]);
-        }
-        
-        // Add security context
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-            context.setVariable("authentication", authentication);
-            context.setVariable("principal", authentication.getPrincipal());
         }
         
         return context;
@@ -130,9 +125,11 @@ public class PermissionCheckAspect {
                     joinPoint.getArgs()[i].getClass() : Object.class;
             }
             
-            return targetClass.getMethod(methodName, parameterTypes);
+            return targetClass.getDeclaredMethod(methodName, parameterTypes);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Could not find method", e);
         }
     }
+
+    private record RootObject(Authentication authentication) {}
 }

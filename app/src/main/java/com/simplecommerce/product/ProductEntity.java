@@ -2,6 +2,7 @@ package com.simplecommerce.product;
 
 import static jakarta.persistence.FetchType.LAZY;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.simplecommerce.product.ProductEvent.ProductEventType;
 import com.simplecommerce.product.category.CategoryEntity;
 import jakarta.persistence.CollectionTable;
@@ -51,6 +52,7 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> implemen
   @ElementCollection
   @CollectionTable(name = "product_tag", joinColumns = @JoinColumn(name = "product_id"))
   private List<String> tags = new ArrayList<>();
+  @JsonIgnore
   @ManyToOne(fetch = LAZY)
   private CategoryEntity category;
   @Enumerated(EnumType.STRING)
