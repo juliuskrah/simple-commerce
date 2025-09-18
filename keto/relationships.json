@@ -3,79 +3,130 @@
     "namespace": "Group",
     "object": "staff",
     "relation": "members",
-    "subject_id": "Neo"
-  },
-  {
-    "namespace": "Group",
-    "object": "staff",
-    "relation": "members",
-    "subject_set": {
-      "namespace": "User",
-      "object": "Neo"
+    "subject": {
+      "id": "neo"
     }
   },
   {
     "namespace": "Group",
     "object": "staff",
     "relation": "members",
-    "subject_set": {
-      "namespace": "User",
-      "object": "Morpheus"
+    "subject": {
+      "set": {
+        "namespace": "Actor",
+        "object": "neo"
+      }
+    }
+  },
+  {
+    "namespace": "Group",
+    "object": "staff",
+    "relation": "members",
+    "subject": {
+      "set": {
+        "namespace": "Actor",
+        "object": "morpheus"
+      }
     }
   },
   {
     "namespace": "Group",
     "object": "customer",
     "relation": "members",
-    "subject_set": {
-      "namespace": "User",
-      "object": "Naomi"
+    "subject": {
+      "set": {
+        "namespace": "Actor",
+        "object": "neo"
+      }
+    }
+  },
+  {
+    "namespace": "Group",
+    "object": "customer",
+    "relation": "members",
+    "subject": {
+      "set": {
+        "namespace": "Actor",
+        "object": "naomi"
+      }
     }
   },
   {
     "namespace": "Product",
-    "object": "the-matrix/",
+    "object": "media/videos/digital-download/the-matrix/",
     "relation": "viewers",
-    "subject_set": {
-      "namespace": "Group",
-      "object": "developer",
-      "relation": "members"
-    }
-  },
-  {
-    "namespace": "ProductVariant",
-    "object": "keto/README.md",
-    "relation": "parents",
-    "subject_set": {
-      "namespace": "Folder",
-      "object": "keto/"
+    "subject": {
+      "set": {
+        "namespace": "Group",
+        "object": "customer",
+        "relation": "members"
+      }
     }
   },
   {
     "namespace": "Product",
-    "object": "keto/src/",
+    "object": "media/videos/digital-download/the-matrix/",
     "relation": "parents",
-    "subject_set": {
-      "namespace": "Folder",
-      "object": "keto/"
+    "subject": {
+      "set": {
+        "namespace": "Category",
+        "object": "media/videos/digital-download/"
+      }
     }
   },
   {
     "namespace": "ProductVariant",
-    "object": "keto/src/main.go",
+    "object": "media/videos/digital-download/the-matrix/4k",
     "relation": "parents",
-    "subject_set": {
-      "namespace": "Folder",
-      "object": "keto/src/"
+    "subject": {
+      "set": {
+        "namespace": "Product",
+        "object": "media/videos/digital-download/the-matrix/"
+      }
+    }
+  },
+  {
+    "namespace": "Category",
+    "object": "media/videos/digital-download/",
+    "relation": "parents",
+    "subject": {
+      "set": {
+        "namespace": "Category",
+        "object": "media/videos/"
+      }
+    }
+  },
+  {
+    "namespace": "Category",
+    "object": "media/videos/",
+    "relation": "parents",
+    "subject": {
+      "set": {
+        "namespace": "Category",
+        "object": "media/"
+      }
     }
   },
   {
     "namespace": "ProductVariant",
-    "object": "private",
-    "relation": "owners",
-    "subject_set": {
-      "namespace": "User",
-      "object": "Henning"
+    "object": "media/videos/digital-download/the-matrix/8k",
+    "relation": "parents",
+    "subject": {
+      "set": {
+        "namespace": "Product",
+        "object": "media/videos/digital-download/the-matrix/"
+      }
+    }
+  },
+  {
+    "namespace": "ProductVariant",
+    "object": "media/videos/digital-download/the-matrix-reloaded/4k",
+    "relation": "editors",
+    "subject": {
+      "set": {
+        "namespace": "Actor",
+        "object": "neo"
+      }
     }
   }
 ]

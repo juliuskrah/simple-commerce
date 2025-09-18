@@ -23,7 +23,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
 @ActiveProfiles({"test", "keto-authz"})
-@Import({KetoConfiguration.class, GrpcClientAutoConfiguration.class, SslAutoConfiguration.class})
+@Import({ KetoConfiguration.class, GrpcClientAutoConfiguration.class, SslAutoConfiguration.class })
 @SpringBootTest(webEnvironment = WebEnvironment.NONE, classes = KetoAuthorizationService.class)
 class KetoAuthorizationServiceTest {
 

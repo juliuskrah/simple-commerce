@@ -12,7 +12,8 @@ import org.springframework.grpc.client.ImportGrpcClients;
  */
 @Profile("keto-authz")
 @Configuration(proxyBeanMethods = false)
-@ImportGrpcClients(basePackages = "sh.ory.keto.relation_tuples.v1alpha2", target = "keto-read")
+@ImportGrpcClients(basePackages = "sh.ory.keto.read.v1alpha2", target = "keto-read")
+@ImportGrpcClients(basePackages = "sh.ory.keto.write.v1alpha2", target = "keto-write")
 @ImportGrpcClients(basePackages = "sh.ory.keto.opl.v1alpha1", target = "keto-opl")
 public class KetoConfiguration {
 

@@ -1,6 +1,7 @@
 import com.google.protobuf.gradle.id
 
 plugins {
+    id("simple-commerce.java-conventions")
     id("org.springframework.boot")
     id("com.google.protobuf")
     antlr
@@ -15,16 +16,12 @@ val springInstrument: Configuration by configurations.creating
 val mockitoAgent: Configuration by configurations.creating
 
 val enablePreview = "--enable-preview"
-val javaVersion = 21
+val javaVersion: Provider<Int> = providers
+    .gradleProperty("javaVersion")
+    .map(String::toInt)
 
-extra["springModulithVersion"] = "1.3.1"
+extra["springModulithVersion"] = "1.4.1"
 extra["springStatemachineVersion"] = "4.0.0"
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(javaVersion)
-    }
-}
 
 repositories {
     mavenCentral()

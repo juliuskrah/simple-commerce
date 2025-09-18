@@ -19,7 +19,7 @@ class Product implements Namespace {
   }
   permits = {
     edit: (ctx: Context): boolean => this.related.editors.includes(ctx.subject) ||
-        this.related.parents.traverse(p => p.permits.view(ctx)),
+        this.related.parents.traverse(p => p.permits.edit(ctx)),
     view: (ctx: Context): boolean => this.permits.edit(ctx) ||
         this.related.viewers.includes(ctx.subject) ||
         this.related.parents.traverse(p => p.permits.view(ctx)),
@@ -52,8 +52,14 @@ class Order implements Namespace {
 class Category implements Namespace {
   related: {
     parents: Category[]
+    editors: (Actor | SubjectSet<Group, "members">)[]
+    viewers: (Actor | SubjectSet<Group, "members">)[]
   }
   permits = {
-    view: (ctx: Context): boolean => this.related.parents.traverse(p => p.permits.view(ctx)),
+    edit: (ctx: Context): boolean => this.related.editors.includes(ctx.subject) ||
+        this.related.parents.traverse(p => p.permits.edit(ctx)),
+    view: (ctx: Context): boolean => this.permits.edit(ctx) ||
+        this.related.viewers.includes(ctx.subject) ||
+        this.related.parents.traverse(p => p.permits.view(ctx)),
   }
 }

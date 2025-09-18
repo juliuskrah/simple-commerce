@@ -1,4 +1,5 @@
 plugins {
+    id("simple-commerce.java-conventions")
     id("org.springframework.boot") apply false
 }
 
@@ -6,13 +7,6 @@ repositories {
     mavenCentral()
 }
 
-val javaVersion = 21
-
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(javaVersion))
-    }
-}
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-docker-compose")

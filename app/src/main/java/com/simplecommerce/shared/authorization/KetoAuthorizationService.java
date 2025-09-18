@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 import sh.ory.keto.opl.v1alpha1.CheckRequest;
 import sh.ory.keto.opl.v1alpha1.ParseError;
 import sh.ory.keto.opl.v1alpha1.SyntaxServiceGrpc.SyntaxServiceBlockingStub;
-import sh.ory.keto.relation_tuples.v1alpha2.ListNamespacesRequest;
-import sh.ory.keto.relation_tuples.v1alpha2.Namespace;
-import sh.ory.keto.relation_tuples.v1alpha2.NamespacesServiceGrpc.NamespacesServiceBlockingStub;
+import sh.ory.keto.read.v1alpha2.ListNamespacesRequest;
+import sh.ory.keto.read.v1alpha2.Namespace;
+import sh.ory.keto.read.v1alpha2.NamespacesServiceGrpc.NamespacesServiceBlockingStub;
 
 /**
  * Service for interacting with Ory Keto authorization system.

@@ -36,10 +36,22 @@ We define the following namespaces for the different entities in the system. A g
 
 - **Actor**: Represents staff, customers, and bots.
 - **Product**: Represents products in the catalog.
+  - `parent`: The category a product belongs to. Viewers and editors of the category can view and edit the product.
+  - `editors`: Actors or groups that can view or edit the product.
+  - `viewers`: Actors or groups that can view the product.
 - **ProductVariant**: Represents different variants of a product (e.g., size, color).
+  - `parent`: The product a variant belongs to. Viewers and editors of the product can view and edit the variant.
+  - `editors`: Actors or groups that can view or edit the product variant.
+  - `viewers`: Actors or groups that can view the product variant.
 - **Order**: Represents customer orders.
+  - `owner`: The actor who owns the order.
+  - `contains`: The variants contained in the order.
 - **Category**: Represents the category taxonomy.
+  - `parent`: The parent category. Viewers and editors of the parent category can view and edit the child category.
+  - `editors`: Actors or groups that can view or edit the category.
+  - `viewers`: Actors or groups that can view the category.
 - **Group**: Represents groups of actors, such as "admins", "customers", "staff", "bots" etc.
+  - `members`: Actors or other groups that are members of this group.
 
 ## Crafting Relation Tuples for Common Scenarios
 
@@ -87,6 +99,7 @@ flowchart LR
   - `Order:order123#owners@Actor:jane` (Actor:jane is an owner of Order:order123)
   
 - A merchant can view orders for their products:
+
 ```mermaid
 flowchart LR
     actors ~~~ groups
@@ -114,8 +127,11 @@ flowchart LR
     style contains fill:#FF0000,color:#FFFFFF,stroke:#333
     style members fill:#FF0000,color:#FFFFFF,stroke:#333
 ```
+
   - This requires linking an order to a product variant and then to the merchant.
   - `Product:product456#editors@Group:staff` (members of Group:staff can edit Product:product456)
   - `Group:staff#members@Actor:john` (Actor:john is in members of Group:staff)
   - `ProductVariant:variant789#parents@Product:product456` (Product:product456 is a parent of ProductVariant:variant789)
   - `Order:order123#contains@ProductVariant:variant789` (Order:order123 contains ProductVariant:variant789)
+
+## Relationship Graph

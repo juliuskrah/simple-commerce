@@ -1,9 +1,12 @@
-val springBootVersion: String by settings
 pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
     plugins {
-        id("org.springframework.boot") version "3.5.5"
-        id("io.spring.dependency-management") version "1.1.7"
-        id("com.google.protobuf") version "0.9.5"
+        id("org.springframework.boot") version providers.gradleProperty("springBootPluginVersion").get()
+        id("io.spring.dependency-management") version providers.gradleProperty("dependencyManagementPluginVersion")
+        id("com.google.protobuf") version providers.gradleProperty("protobufPluginVersion")
     }
 }
 rootProject.name = "simple-commerce"
