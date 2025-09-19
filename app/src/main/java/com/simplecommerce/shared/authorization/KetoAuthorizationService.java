@@ -12,9 +12,14 @@ import org.springframework.stereotype.Service;
 import sh.ory.keto.opl.v1alpha1.CheckRequest;
 import sh.ory.keto.opl.v1alpha1.ParseError;
 import sh.ory.keto.opl.v1alpha1.SyntaxServiceGrpc.SyntaxServiceBlockingStub;
+import sh.ory.keto.read.v1alpha2.CheckServiceGrpc.CheckServiceBlockingStub;
 import sh.ory.keto.read.v1alpha2.ListNamespacesRequest;
 import sh.ory.keto.read.v1alpha2.Namespace;
 import sh.ory.keto.read.v1alpha2.NamespacesServiceGrpc.NamespacesServiceBlockingStub;
+import sh.ory.keto.relation_tuples.v1alpha2.RelationTuple;
+import sh.ory.keto.relation_tuples.v1alpha2.Subject;
+import sh.ory.keto.write.v1alpha2.TransactRelationTuplesRequest;
+import sh.ory.keto.write.v1alpha2.WriteServiceGrpc.WriteServiceBlockingStub;
 
 /**
  * Service for interacting with Ory Keto authorization system.
@@ -27,13 +32,20 @@ import sh.ory.keto.read.v1alpha2.NamespacesServiceGrpc.NamespacesServiceBlocking
 @Profile("keto-authz")
 public class KetoAuthorizationService {
   private static final Logger LOG = LoggerFactory.getLogger(KetoAuthorizationService.class);
+  private static final int DEFAULT_MAX_CHECK_DEPTH = 5;
   private final NamespacesServiceBlockingStub namespacesService;
   private final SyntaxServiceBlockingStub syntaxService;
+  private final CheckServiceBlockingStub checkService;
+  private final WriteServiceBlockingStub writeService;
 
   public KetoAuthorizationService(NamespacesServiceBlockingStub namespacesService,
-      SyntaxServiceBlockingStub syntaxService) {
+      SyntaxServiceBlockingStub syntaxService,
+      CheckServiceBlockingStub checkService,
+      WriteServiceBlockingStub writeService) {
     this.namespacesService = namespacesService;
     this.syntaxService = syntaxService;
+    this.checkService = checkService;
+    this.writeService = writeService;
   }
 
   /**
@@ -65,29 +77,34 @@ public class KetoAuthorizationService {
     /**
      * Check if a subject has a specific permission on a resource.
      * 
-     * @param namespace The namespace (e.g., "Customer", "Staff", "Bot")
+     * @param namespace The namespace (e.g., "Customer", "Actor", "Order")
      * @param object The object identifier
-     * @param relation The relation to check (e.g., "read", "write", "delete")
+     * @param relation The relation to check (e.g., "edit", "view", "remove")
      * @param subject The subject identifier
-     * @return CompletableFuture<Boolean> indicating if the permission is granted
+     * @return Boolean indicating if the permission is granted
      */
-    public CompletableFuture<Boolean> checkPermission(String namespace, String object, String relation, String subject) {
+    public boolean checkPermission(String namespace, String object, String relation, String subject) {
         LOG.debug("Checking permission: {}:{}#{} for subject {}", namespace, object, relation, subject);
-        return CompletableFuture.completedFuture(true);
+        var checkResponse = checkService.check(sh.ory.keto.read.v1alpha2.CheckRequest.newBuilder()
+                .setTuple(RelationTuple.newBuilder()
+                    .setNamespace(namespace)
+                    .setObject(object)
+                    .setRelation(relation)
+                    .setSubject(Subject.newBuilder().setId(subject)))
+                .setMaxDepth(DEFAULT_MAX_CHECK_DEPTH)
+                .build());
+        return checkResponse.getAllowed();
     }
 
   /**
    * Create a relationship tuple in Keto.
    *
-   * @param namespace The namespace
-   * @param object The object identifier
-   * @param relation The relation
-   * @param subject The subject identifier
-   * @return CompletableFuture<Void> indicating completion
+   * @param transactionRequest The transaction request containing relation tuple deltas
    */
-    public CompletableFuture<Void> createRelationship(String namespace, String object, String relation, String subject) {
-        LOG.debug("Creating relationship: {}:{}#{} -> {}", namespace, object, relation, subject);
-      throw new UnsupportedOperationException("Not supported yet.");
+    public void transactRelationship(TransactRelationTuplesRequest transactionRequest) {
+        LOG.debug("Creating {} relationship tuples within transaction", transactionRequest.getRelationTupleDeltasCount());
+        var transactionResponse = writeService.transactRelationTuples(transactionRequest);
+        LOG.debug("Transaction completed with {} relation tuples", transactionResponse.getSnaptokensCount());
     }
 
   /**

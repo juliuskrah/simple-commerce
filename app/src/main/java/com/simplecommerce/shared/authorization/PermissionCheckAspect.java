@@ -57,8 +57,7 @@ public class PermissionCheckAspect {
             logger.debug("Permission check: {}:{}#{} for subject {}", namespace, objectId, relation, subjectId);
             
             // Perform permission check
-            CompletableFuture<Boolean> permissionFuture = ketoService.checkPermission(namespace, objectId, relation, subjectId);
-            boolean hasPermission = permissionFuture.get(); // Blocking call for simplicity
+            var hasPermission = ketoService.checkPermission(namespace, objectId, relation, subjectId);
             
             if (!hasPermission) {
                 logger.warn("Access denied for subject {} on {}:{}#{}", subjectId, namespace, objectId, relation);

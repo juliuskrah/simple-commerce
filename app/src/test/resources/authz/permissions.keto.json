@@ -1,0 +1,69 @@
+{
+  "relation_tuple_deltas": [
+    {
+      "action": "ACTION_INSERT",
+      "relation_tuple": {
+        "namespace": "Category",
+        "object": "daba3cfa-5a44-44a9-827e-b100094d06a6",
+        "relation": "viewers",
+        "subject": {
+          "id": "neo"
+        }
+      }
+    },
+    {
+      "action": "ACTION_INSERT",
+      "relation_tuple": {
+        "namespace": "Category",
+        "object": "393ce9a2-c562-4dc1-8d67-2d28ab6e2776",
+        "relation": "parents",
+        "subject": {
+          "set": {
+            "namespace": "Category",
+            "object": "daba3cfa-5a44-44a9-827e-b100094d06a6"
+          }
+        }
+      }
+    },
+    {
+      "action": "ACTION_INSERT",
+      "relation_tuple": {
+        "namespace": "Category",
+        "object": "64b66eab-e1d0-4b00-ac64-a8cf1daebcc3",
+        "relation": "parents",
+        "subject": {
+          "set": {
+            "namespace": "Category",
+            "object": "393ce9a2-c562-4dc1-8d67-2d28ab6e2776"
+          }
+        }
+      }
+    },
+    {
+      "action": "ACTION_INSERT",
+      "relation_tuple": {
+        "namespace": "Group",
+        "object": "Nebuchadnezzar",
+        "relation": "members",
+        "subject": {
+          "id": "trinity"
+        }
+      }
+    },
+    {
+      "action": "ACTION_INSERT",
+      "relation_tuple": {
+        "namespace": "Category",
+        "object": "393ce9a2-c562-4dc1-8d67-2d28ab6e2776",
+        "relation": "viewers",
+        "subject": {
+          "set": {
+            "namespace": "Group",
+            "object": "Nebuchadnezzar",
+            "relation": "members"
+          }
+        }
+      }
+    }
+  ]
+}

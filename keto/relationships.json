@@ -1,54 +1,52 @@
 [
   {
-    "namespace": "Group",
-    "object": "staff",
-    "relation": "members",
+    "namespace": "Category",
+    "object": "Media",
+    "relation": "viewers",
     "subject": {
       "id": "neo"
     }
   },
   {
-    "namespace": "Group",
-    "object": "staff",
-    "relation": "members",
+    "namespace": "Category",
+    "object": "Media > Videos",
+    "relation": "parents",
     "subject": {
       "set": {
-        "namespace": "Actor",
-        "object": "neo"
+        "namespace": "Category",
+        "object": "Media"
+      }
+    }
+  },
+  {
+    "namespace": "Category",
+    "object": "Media > Videos > Digital Download",
+    "relation": "parents",
+    "subject": {
+      "set": {
+        "namespace": "Category",
+        "object": "Media > Videos"
+      }
+    }
+  },
+  {
+    "namespace": "Category",
+    "object": "Media > Videos",
+    "relation": "viewers",
+    "subject": {
+      "set": {
+        "namespace": "Group",
+        "object": "Nebuchadnezzar",
+        "relation": "members"
       }
     }
   },
   {
     "namespace": "Group",
-    "object": "staff",
+    "object": "Nebuchadnezzar",
     "relation": "members",
     "subject": {
-      "set": {
-        "namespace": "Actor",
-        "object": "morpheus"
-      }
-    }
-  },
-  {
-    "namespace": "Group",
-    "object": "customer",
-    "relation": "members",
-    "subject": {
-      "set": {
-        "namespace": "Actor",
-        "object": "neo"
-      }
-    }
-  },
-  {
-    "namespace": "Group",
-    "object": "customer",
-    "relation": "members",
-    "subject": {
-      "set": {
-        "namespace": "Actor",
-        "object": "naomi"
-      }
+      "id": "trinity"
     }
   },
   {

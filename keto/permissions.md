@@ -37,21 +37,21 @@ We define the following namespaces for the different entities in the system. A g
 - **Actor**: Represents staff, customers, and bots.
 - **Product**: Represents products in the catalog.
   - `parent`: The category a product belongs to. Viewers and editors of the category can view and edit the product.
-  - `editors`: Actors or groups that can view or edit the product.
-  - `viewers`: Actors or groups that can view the product.
+  - `editor`: Actors or groups that can view or edit the product.
+  - `viewer`: Actors or groups that can view the product.
 - **ProductVariant**: Represents different variants of a product (e.g., size, color).
   - `parent`: The product a variant belongs to. Viewers and editors of the product can view and edit the variant.
-  - `editors`: Actors or groups that can view or edit the product variant.
-  - `viewers`: Actors or groups that can view the product variant.
+  - `editor`: Actors or groups that can view or edit the product variant.
+  - `viewer`: Actors or groups that can view the product variant.
 - **Order**: Represents customer orders.
   - `owner`: The actor who owns the order.
-  - `contains`: The variants contained in the order.
+  - `contain`: The variants contained in the order.
 - **Category**: Represents the category taxonomy.
   - `parent`: The parent category. Viewers and editors of the parent category can view and edit the child category.
-  - `editors`: Actors or groups that can view or edit the category.
-  - `viewers`: Actors or groups that can view the category.
+  - `editor`: Actors or groups that can view or edit the category.
+  - `viewer`: Actors or groups that can view the category.
 - **Group**: Represents groups of actors, such as "admins", "customers", "staff", "bots" etc.
-  - `members`: Actors or other groups that are members of this group.
+  - `member`: Actors or other groups that are members of this group.
 
 ## Crafting Relation Tuples for Common Scenarios
 
@@ -62,10 +62,10 @@ With the namespaces defined, the following relation tuples will represent the re
 title: Relationships
 ---
 flowchart LR
-    actors---> |members| groups
-    products---> |parents| product_variants
-    product_variants---> |contains| orders
-    categories---> |parents| products
+    actors---> |member| groups
+    products---> |parent| product_variants
+    orders---> |contain| product_variants
+    categories---> |parent| products
     actors(Actor:john)
     products(Product:product456)
     product_variants(ProductVariant:variant789)

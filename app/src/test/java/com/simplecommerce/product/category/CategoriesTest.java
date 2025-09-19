@@ -14,51 +14,52 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.support.WindowIterator;
 import org.springframework.test.context.ActiveProfiles;
 
-/**
- * The test classes in this file follow the category taxonomy below:
- * <pre>
- * Mature/
- * ├─ Weapons & Weapon Accessories/
- * │  ├─ Weapon Care & Accessories/
- * │  │  ├─ Ammunition
- * │  │  ├─ Ammunition Cases & Holders
- * │  │  ├─ Reloading Supplies & Equipment/
- * │  │  │  ├─ Ammunition Reloading Presses
- * │  │  ├─ Weapon Cases & Range Bags
- * │  │  ├─ Weapon Cleaning/
- * │  │  │  ├─ Cleaning Cloths & Swabs
- * │  │  │  ├─ Cleaning Patches
- * │  │  │  ├─ Cleaning Solvents
- * │  │  ├─ Weapon Grips
- * │  │  ├─ Weapon Holsters
- * │  │  ├─ Weapon Lights
- * │  │  ├─ Weapon Rails
- * │  │  ├─ Weapon Slings
- * │  ├─ Weapons/
- * │  │  ├─ Brass Knuckles
- * │  │  ├─ Clubs & Batons
- * │  │  ├─ Combat Knives
- * │  │  ├─ Guns
- * │  │  ├─ Mace & Pepper Spray
- * │  │  ├─ Nunchucks
- * │  │  ├─ Spears
- * │  │  ├─ Staff & Stick Weapons
- * │  │  ├─ Stun Guns & Tasers
- * │  │  ├─ Swords
- * │  │  ├─ Throwing Stars
- * │  │  ├─ Whips
- * ├─ Erotic/
- * │  ├─ Erotic Books
- * │  ├─ Erotic Clothing
- * │  ├─ Erotic Food & Edibles
- * │  ├─ Erotic Magazines
- * │  ├─ Erotic Videos
- * │  ├─ Sex Toys & Erotic Games
- * Hardware/
- * Bundles/
- * </pre>
- * @author julius.krah
- */
+///
+/// The test classes in this file follow the category taxonomy below:
+/// ```text
+/// Mature/
+/// ├─ Weapons & Weapon Accessories/
+/// │  ├─ Weapon Care & Accessories/
+/// │  │  ├─ Ammunition
+/// │  │  ├─ Ammunition Cases & Holders
+/// │  │  ├─ Reloading Supplies & Equipment/
+/// │  │  │  ├─ Ammunition Reloading Presses
+/// │  │  ├─ Weapon Cases & Range Bags
+/// │  │  ├─ Weapon Cleaning/
+/// │  │  │  ├─ Cleaning Cloths & Swabs
+/// │  │  │  ├─ Cleaning Patches
+/// │  │  │  ├─ Cleaning Solvents
+/// │  │  ├─ Weapon Grips
+/// │  │  ├─ Weapon Holsters
+/// │  │  ├─ Weapon Lights
+/// │  │  ├─ Weapon Rails
+/// │  │  ├─ Weapon Slings
+/// │  ├─ Weapons/
+/// │  │  ├─ Brass Knuckles
+/// │  │  ├─ Clubs & Batons
+/// │  │  ├─ Combat Knives
+/// │  │  ├─ Guns
+/// │  │  ├─ Mace & Pepper Spray
+/// │  │  ├─ Nunchucks
+/// │  │  ├─ Spears
+/// │  │  ├─ Staff & Stick Weapons
+/// │  │  ├─ Stun Guns & Tasers
+/// │  │  ├─ Swords
+/// │  │  ├─ Throwing Stars
+/// │  │  ├─ Whips
+/// ├─ Erotic/
+/// │  ├─ Erotic Books
+/// │  ├─ Erotic Clothing
+/// │  ├─ Erotic Food & Edibles
+/// │  ├─ Erotic Magazines
+/// │  ├─ Erotic Videos
+/// │  ├─ Sex Toys & Erotic Games
+/// Hardware/
+/// Bundles/
+/// ```
+///
+/// @author julius.krah
+///
 @ActiveProfiles("test")
 @DataPostgresTest
 class CategoriesTest {

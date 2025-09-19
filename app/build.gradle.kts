@@ -65,6 +65,7 @@ dependencies {
     testImplementation("org.springframework.grpc:spring-grpc-test")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
+    testImplementation("com.google.protobuf:protobuf-java-util")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testAndDevelopmentOnly("org.springframework.boot:spring-boot-docker-compose")
 }
