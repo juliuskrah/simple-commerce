@@ -53,6 +53,13 @@ We define the following namespaces for the different entities in the system. A g
 - **Group**: Represents groups of actors, such as "admins", "customers", "staff", "bots" etc.
   - `member`: Actors or other groups that are members of this group.
 
+## Actor Types
+
+There are two broad categories of actors in this model:
+
+- **Human Actors**: These are individual users such as customers, merchants, and administrators. They can be assigned to groups for easier management of permissions.
+- **Service Actors (Bots)**: These are non-human entities like bots or services that perform automated tasks. They can also be assigned to groups and have specific permissions based on their roles.
+
 ## Crafting Relation Tuples for Common Scenarios
 
 With the namespaces defined, the following relation tuples will represent the relationships within the platform.
@@ -63,6 +70,7 @@ title: Relationships
 ---
 flowchart LR
     actors---> |member| groups
+    groups---> |viewer| categories
     products---> |parent| product_variants
     orders---> |contain| product_variants
     categories---> |parent| products
@@ -70,20 +78,34 @@ flowchart LR
     products(Product:product456)
     product_variants(ProductVariant:variant789)
     orders(Order:order123)
-    categories(Category:category123)
+    categories(Category:media)
     groups(Group:staff)
 ```
 
-### User Roles and Permissions:
+### Category Permissions:
 
-- **Basic User Roles**:
+- **view**:
+  The permission to view a category can be granted to specific actors or via group membership.
+  Child and descendant categories inherit viewers from their parent categories.
 
   - `Group:staff#members@Actor:john` (Actor:john is in members of Group:staff)
-  - `Product:product456#editors@Group:staff` (members of Group:staff are editors of Product:product456)
-  - `Group:admins#members@Group:inventory` (Group:inventory is in members of Group:admins)
+  - `Category:media/videos#parents@Category:media` (Category:media is in parents of Category:media/videos)
+  - `Category:media#viewers@(Group:staff#members)` (members of Group:staff are viewers of Category:media). 
+     Group members (i.e. john) can view `media` Category and all its children, including media/videos via an indirect relationship.
+  - `Category:media#viewers@agnes` (Subject agnes is in viewers of Category:media). 
+     Agnes can view `media` Category and all its children, including media/videos via a direct relationship.
+- **edit**:
+  The permission to edit a category can be granted to specific actors or via group membership.
+  Child and descendant categories inherit editors from their parent categories. Editors can also view the categories they can edit.
 
-### Product Management:
+  - `Category:media#editors@(Group:admin#members)` (members of Group:admin are editors of Category:media). 
+    Group members can edit `media` Category and all its children, including media/videos via an indirect relationship.
+  - `Category:media#editors@becky` (Subject becky is in editors of Category:media). 
+    Becky can edit `media` Category and all its children, including media/videos via a direct relationship.
 
+### Product Permissions:
+
+_TODO_
 - A merchant can manage products in their store:
   - This is an indirect relationship. The permission to manage a product is derived from the ownership of the category the product belongs to. 
     We'll define this logic in the OPL.
@@ -93,8 +115,9 @@ flowchart LR
   - `ProductVariant:variant789#parents@Product:product456` (Product:product456 is a parent of ProductVariant:variant789)
   - Permissions on the parent product can then be inherited by the variant.
 
-### Order Management:
+### Order Permissions:
 
+_TODO_
 - A customer owns their order:
   - `Order:order123#owners@Actor:jane` (Actor:jane is an owner of Order:order123)
   
@@ -135,3 +158,5 @@ flowchart LR
   - `Order:order123#contains@ProductVariant:variant789` (Order:order123 contains ProductVariant:variant789)
 
 ## Relationship Graph
+
+_TODO_

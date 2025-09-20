@@ -53,8 +53,44 @@
     {
       "action": "ACTION_DELETE",
       "relation_tuple": {
+        "namespace": "Group",
+        "object": "Nebuchadnezzar",
+        "relation": "members",
+        "subject": {
+          "id": "tank"
+        }
+      }
+    },
+    {
+      "action": "ACTION_DELETE",
+      "relation_tuple": {
         "namespace": "Category",
         "object": "393ce9a2-c562-4dc1-8d67-2d28ab6e2776",
+        "relation": "viewers",
+        "subject": {
+          "set": {
+            "namespace": "Group",
+            "object": "Nebuchadnezzar",
+            "relation": "members"
+          }
+        }
+      }
+    },
+    {
+      "action": "ACTION_DELETE",
+      "relation_tuple": {
+        "namespace": "Category",
+        "object": "daba3cfa-5a44-44a9-827e-b100094d06a6",
+        "relation": "editors",
+        "subject": {
+          "id": "morpheus"
+        }
+      }
+    },
+    {
+      "action": "ACTION_DELETE",
+      "relation_tuple": {
+        "namespace": "Product",
         "relation": "viewers",
         "subject": {
           "set": {

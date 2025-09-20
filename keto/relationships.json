@@ -50,80 +50,21 @@
     }
   },
   {
+    "namespace": "Category",
+    "object": "Media",
+    "relation": "editors",
+    "subject": {
+      "id": "morpheus"
+    }
+  },
+  {
     "namespace": "Product",
-    "object": "media/videos/digital-download/the-matrix/",
     "relation": "viewers",
     "subject": {
       "set": {
         "namespace": "Group",
-        "object": "customer",
+        "object": "Nebuchadnezzar",
         "relation": "members"
-      }
-    }
-  },
-  {
-    "namespace": "Product",
-    "object": "media/videos/digital-download/the-matrix/",
-    "relation": "parents",
-    "subject": {
-      "set": {
-        "namespace": "Category",
-        "object": "media/videos/digital-download/"
-      }
-    }
-  },
-  {
-    "namespace": "ProductVariant",
-    "object": "media/videos/digital-download/the-matrix/4k",
-    "relation": "parents",
-    "subject": {
-      "set": {
-        "namespace": "Product",
-        "object": "media/videos/digital-download/the-matrix/"
-      }
-    }
-  },
-  {
-    "namespace": "Category",
-    "object": "media/videos/digital-download/",
-    "relation": "parents",
-    "subject": {
-      "set": {
-        "namespace": "Category",
-        "object": "media/videos/"
-      }
-    }
-  },
-  {
-    "namespace": "Category",
-    "object": "media/videos/",
-    "relation": "parents",
-    "subject": {
-      "set": {
-        "namespace": "Category",
-        "object": "media/"
-      }
-    }
-  },
-  {
-    "namespace": "ProductVariant",
-    "object": "media/videos/digital-download/the-matrix/8k",
-    "relation": "parents",
-    "subject": {
-      "set": {
-        "namespace": "Product",
-        "object": "media/videos/digital-download/the-matrix/"
-      }
-    }
-  },
-  {
-    "namespace": "ProductVariant",
-    "object": "media/videos/digital-download/the-matrix-reloaded/4k",
-    "relation": "editors",
-    "subject": {
-      "set": {
-        "namespace": "Actor",
-        "object": "neo"
       }
     }
   }

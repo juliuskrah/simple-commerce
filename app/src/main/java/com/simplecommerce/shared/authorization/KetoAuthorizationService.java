@@ -3,7 +3,7 @@ package com.simplecommerce.shared.authorization;
 import com.google.protobuf.ByteString;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -83,7 +83,7 @@ public class KetoAuthorizationService {
      * @param subject The subject identifier
      * @return Boolean indicating if the permission is granted
      */
-    public boolean checkPermission(String namespace, String object, String relation, String subject) {
+    public boolean checkPermission(String namespace, @Nullable String object, String relation, String subject) {
         LOG.debug("Checking permission: {}:{}#{} for subject {}", namespace, object, relation, subject);
         var checkResponse = checkService.check(sh.ory.keto.read.v1alpha2.CheckRequest.newBuilder()
                 .setTuple(RelationTuple.newBuilder()
@@ -97,27 +97,14 @@ public class KetoAuthorizationService {
     }
 
   /**
-   * Create a relationship tuple in Keto.
+   * Create or delete a relationship tuple within a transaction in Keto.
    *
    * @param transactionRequest The transaction request containing relation tuple deltas
    */
     public void transactRelationship(TransactRelationTuplesRequest transactionRequest) {
-        LOG.debug("Creating {} relationship tuples within transaction", transactionRequest.getRelationTupleDeltasCount());
+        LOG.debug("Creating/Deleting {} relationship tuples within transaction", transactionRequest.getRelationTupleDeltasCount());
         var transactionResponse = writeService.transactRelationTuples(transactionRequest);
         LOG.debug("Transaction completed with {} relation tuples", transactionResponse.getSnaptokensCount());
     }
 
-  /**
-   * Delete a relationship tuple from Keto.
-   *
-   * @param namespace The namespace
-   * @param object The object identifier
-   * @param relation The relation
-   * @param subject The subject identifier
-   * @return CompletableFuture<Void> indicating completion
-   */
-    public CompletableFuture<Void> deleteRelationship(String namespace, String object, String relation, String subject) {
-        LOG.debug("Deleting relationship: {}:{}#{} -> {}", namespace, object, relation, subject);
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
 }

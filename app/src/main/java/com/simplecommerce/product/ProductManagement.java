@@ -12,6 +12,7 @@ import com.simplecommerce.product.variant.ProductVariantEntity;
 import com.simplecommerce.product.variant.ProductVariants;
 import com.simplecommerce.shared.Event;
 import com.simplecommerce.shared.GlobalId;
+import com.simplecommerce.shared.authorization.KetoAuthorizationService;
 import com.simplecommerce.shared.exceptions.NotFoundException;
 import com.simplecommerce.shared.utils.Slug;
 import java.time.OffsetDateTime;
@@ -31,6 +32,8 @@ import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,11 +62,16 @@ class ProductManagement implements ProductService, NodeService {
     this.searchQueryTranslator = searchQueryTranslator.getObject();
   }
 
+  public void setKetoAuthorizationService(ObjectFactory<KetoAuthorizationService> ketoAuthorizationService) {
+    this.ketoAuthorizationService = ketoAuthorizationService.getObject();
+  }
+
   private Products productRepository;
   private Event<ProductEvent> event;
   private ProductVariants variantRepository;
   private SearchQueryParser searchQueryParser;
   private SearchQueryTranslator searchQueryTranslator;
+  private KetoAuthorizationService ketoAuthorizationService;
 
   private ProductEntity toEntity(ProductInput product) {
     var category = new CategoryEntity();
@@ -143,7 +151,16 @@ class ProductManagement implements ProductService, NodeService {
   @Transactional(readOnly = true)
   @Override
   public Window<Product> findProducts(int limit, Sort sort, ScrollPosition scroll) {
-    return callInScope( () -> productRepository.findBy(Limit.of(limit), sort, scroll))
+    boolean hasPermission = false;
+    var authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication != null) {
+      hasPermission = ketoAuthorizationService.checkPermission("Product", "", "view", authentication.getName());
+    }
+    // Limit to published products if no permission
+    Specification<ProductEntity> spec = hasPermission ? Specification.unrestricted() : (root, _, cb) ->
+        cb.equal(root.get("status"), ProductStatus.PUBLISHED);
+    return callInScope(() -> productRepository.findBy(spec, function ->
+        function.sortBy(sort).limit(limit).scroll(scroll)))
         .map(this::fromEntity);
   }
 

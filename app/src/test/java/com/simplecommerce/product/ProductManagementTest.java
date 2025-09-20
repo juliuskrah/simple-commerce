@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.simplecommerce.product.variant.ProductVariants;
 import com.simplecommerce.shared.Event;
+import com.simplecommerce.shared.authorization.KetoAuthorizationService;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,8 @@ class ProductManagementTest {
   private Products productRepository;
   @Mock
   private ProductVariants variantRepository;
+  @Mock
+  private KetoAuthorizationService ketoAuthorizationService;
   @Mock
   private Event<ProductEvent> event;
   @InjectMocks
@@ -73,7 +76,7 @@ class ProductManagementTest {
     var entity = new ProductEntity();
     entity.setId(UUID.randomUUID());
     entity.setTitle("Opti Core");
-    when(productRepository.findBy(any(Limit.class), any(Sort.class), any(ScrollPosition.class)))
+    when(productRepository.findBy(any(), any()))
         .thenReturn(Window.from(List.of(entity), ignored -> null));
     var products = productService.findProducts(1, Sort.unsorted(), ScrollPosition.keyset());
 
