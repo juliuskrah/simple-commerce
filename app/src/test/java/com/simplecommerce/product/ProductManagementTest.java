@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.simplecommerce.product.variant.ProductVariants;
 import com.simplecommerce.shared.Event;
 import com.simplecommerce.shared.authorization.KetoAuthorizationService;
+import com.simplecommerce.shared.types.ProductStatus;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;

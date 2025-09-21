@@ -3,7 +3,7 @@ package com.simplecommerce.product.variant;
 import static com.simplecommerce.shared.types.Types.NODE_PRODUCT_VARIANT;
 
 import com.simplecommerce.product.Product;
-import com.simplecommerce.product.ProductStatus;
+import com.simplecommerce.shared.types.ProductStatus;
 import com.simplecommerce.product.pricing.PriceContextInput;
 import com.simplecommerce.product.pricing.PriceResolutionService;
 import com.simplecommerce.shared.GlobalId;

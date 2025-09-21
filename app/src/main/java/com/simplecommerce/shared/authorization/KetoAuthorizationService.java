@@ -1,6 +1,7 @@
 package com.simplecommerce.shared.authorization;
 
 import com.google.protobuf.ByteString;
+import com.simplecommerce.shared.types.ProductStatus;
 import java.io.IOException;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
@@ -28,7 +29,7 @@ import sh.ory.keto.write.v1alpha2.WriteServiceGrpc.WriteServiceBlockingStub;
  * 
  * @author julius.krah
  */
-@Service
+@Service("authz")
 @Profile("keto-authz")
 public class KetoAuthorizationService {
   private static final Logger LOG = LoggerFactory.getLogger(KetoAuthorizationService.class);
@@ -94,6 +95,11 @@ public class KetoAuthorizationService {
                 .setMaxDepth(DEFAULT_MAX_CHECK_DEPTH)
                 .build());
         return checkResponse.getAllowed();
+    }
+
+    public boolean checkPermission(String namespace, String object, String relation, String subject, ProductStatus status) {
+        var hasPermission = checkPermission(namespace, object, relation, subject);
+        return hasPermission ? hasPermission : status == ProductStatus.PUBLISHED;
     }
 
   /**

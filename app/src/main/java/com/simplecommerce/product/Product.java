@@ -1,6 +1,7 @@
 package com.simplecommerce.product;
 
 import com.simplecommerce.node.Node;
+import com.simplecommerce.shared.types.ProductStatus;
 import java.time.OffsetDateTime;
 
 /**

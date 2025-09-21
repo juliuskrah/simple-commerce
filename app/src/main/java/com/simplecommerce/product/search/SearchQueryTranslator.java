@@ -1,7 +1,7 @@
 package com.simplecommerce.product.search;
 
 import com.simplecommerce.product.ProductEntity;
-import com.simplecommerce.product.ProductStatus;
+import com.simplecommerce.shared.types.ProductStatus;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Path;

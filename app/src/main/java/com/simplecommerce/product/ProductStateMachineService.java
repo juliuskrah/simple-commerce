@@ -1,5 +1,6 @@
 package com.simplecommerce.product;
 
+import com.simplecommerce.shared.types.ProductStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.statemachine.StateMachine;

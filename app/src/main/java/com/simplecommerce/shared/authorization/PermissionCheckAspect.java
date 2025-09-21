@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Aspect that intercepts methods annotated with @CheckPermission

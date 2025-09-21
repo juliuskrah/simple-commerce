@@ -6,7 +6,6 @@ import static java.util.stream.Collectors.toSet;
 import com.simplecommerce.actor.Actor;
 import com.simplecommerce.product.Product;
 import com.simplecommerce.shared.GlobalId;
-import com.simplecommerce.shared.authorization.RequireStaffRole;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -121,21 +120,18 @@ public class CategoryController {
   }
 
   @MutationMapping
-  @RequireStaffRole
   Category addCategory(@Argument CategoryInput input) {
     LOG.debug("Creating category: {}", input);
     return categoryService.getIfAvailable(categoryServiceSupplier).createCategory(input);
   }
 
   @MutationMapping
-  @RequireStaffRole
   Category updateCategory(@Argument String id, @Argument CategoryInput input) {
     LOG.debug("Updating category {}: {}", id, input);
     return categoryService.getIfAvailable(categoryServiceSupplier).updateCategory(id, input);
   }
 
   @MutationMapping
-  @RequireStaffRole
   String deleteCategory(@Argument String id) {
     LOG.debug("Deleting category: {}", id);
     var deletedId = categoryService.getIfAvailable(categoryServiceSupplier).deleteCategory(id);

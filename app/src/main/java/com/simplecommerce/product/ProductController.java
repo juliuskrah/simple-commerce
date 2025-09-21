@@ -7,8 +7,6 @@ import com.simplecommerce.actor.Actor;
 import com.simplecommerce.product.category.Category;
 import com.simplecommerce.product.pricing.PriceResolutionService;
 import com.simplecommerce.shared.GlobalId;
-import com.simplecommerce.shared.authorization.CheckPermission;
-import com.simplecommerce.shared.authorization.RequireStaffRole;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -125,28 +123,23 @@ class ProductController {
     }
 
     @MutationMapping
-    @CheckPermission(namespace = "Product", relation = "delete")
     String deleteProduct(@Argument String id) {
         var deletedId = productService.getIfAvailable(productServiceSupplier).deleteProduct(id);
         return new GlobalId(NODE_PRODUCT, deletedId).encode();
     }
 
     @MutationMapping
-    @RequireStaffRole
-    @CheckPermission(namespace = "Product", relation = "write")
     Product updateProduct(@Argument String id, @Argument ProductInput input) {
         return productService.getIfAvailable(productServiceSupplier).updateProduct(id, input);
     }
 
     @MutationMapping
-    @RequireStaffRole
     Product addProduct(@Argument ProductInput input) {
         LOG.debug("Creating product: {}", input);
         return productService.getIfAvailable(productServiceSupplier).createProduct(input);
     }
 
     @MutationMapping
-    @RequireStaffRole
     Product publishProduct(@Argument String id) {
         LOG.info("Publishing product: {}", id);
         
@@ -175,7 +168,6 @@ class ProductController {
     }
 
     @MutationMapping
-    @RequireStaffRole
     Product archiveProduct(@Argument String id) {
         LOG.info("Archiving product: {}", id);
         
@@ -199,7 +191,6 @@ class ProductController {
     }
 
     @MutationMapping
-    @RequireStaffRole
     Product reactivateProduct(@Argument String id) {
         LOG.info("Reactivating product: {}", id);
         

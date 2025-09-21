@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.simplecommerce.DataPostgresTest;
 import com.simplecommerce.product.ProductEntity;
-import com.simplecommerce.product.ProductStatus;
+import com.simplecommerce.shared.types.ProductStatus;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.utils.MonetaryUtils;
 import com.simplecommerce.shared.exceptions.NotFoundException;

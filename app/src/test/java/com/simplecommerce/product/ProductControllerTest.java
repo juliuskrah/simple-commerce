@@ -15,6 +15,7 @@ import com.simplecommerce.product.pricing.PriceResolutionService;
 import com.simplecommerce.shared.ExceptionHandling;
 import com.simplecommerce.shared.exceptions.NotFoundException;
 import com.simplecommerce.config.Sorting;
+import com.simplecommerce.shared.types.ProductStatus;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;

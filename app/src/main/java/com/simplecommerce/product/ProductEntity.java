@@ -5,6 +5,7 @@ import static jakarta.persistence.FetchType.LAZY;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.simplecommerce.product.ProductEvent.ProductEventType;
 import com.simplecommerce.product.category.CategoryEntity;
+import com.simplecommerce.shared.types.ProductStatus;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;

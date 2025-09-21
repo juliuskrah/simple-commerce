@@ -14,6 +14,7 @@ import com.simplecommerce.shared.Event;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.authorization.KetoAuthorizationService;
 import com.simplecommerce.shared.exceptions.NotFoundException;
+import com.simplecommerce.shared.types.ProductStatus;
 import com.simplecommerce.shared.utils.Slug;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -33,6 +34,7 @@ import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -122,6 +124,7 @@ class ProductManagement implements ProductService, NodeService {
   /**
    * {@inheritDoc}
    */
+  @PostAuthorize("@authz.checkPermission('Product', '', 'view', authentication.name, returnObject.status)")
   @Transactional(readOnly = true)
   @Override
   public Product findProduct(String id) {
@@ -195,7 +198,7 @@ class ProductManagement implements ProductService, NodeService {
     
     // Return a basic Window without proper cursor pagination
     // This is a temporary implementation until proper pagination is added
-    return Window.from(limitedProducts, pos -> null);
+    return Window.from(limitedProducts, _ -> null);
   }
 
   /**

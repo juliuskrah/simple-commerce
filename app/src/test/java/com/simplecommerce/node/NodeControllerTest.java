@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import com.simplecommerce.file.media.MediaFile;
 import com.simplecommerce.product.category.Category;
 import com.simplecommerce.product.Product;
-import com.simplecommerce.product.ProductStatus;
+import com.simplecommerce.shared.types.ProductStatus;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Optional;

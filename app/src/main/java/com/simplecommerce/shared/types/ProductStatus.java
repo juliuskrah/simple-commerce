@@ -1,4 +1,4 @@
-package com.simplecommerce.product;
+package com.simplecommerce.shared.types;
 
 /**
  * @since 1.0

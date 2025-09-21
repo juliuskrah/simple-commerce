@@ -1,5 +1,6 @@
 package com.simplecommerce.product;
 
+import com.simplecommerce.shared.types.ProductStatus;
 import java.math.BigDecimal;
 import java.util.List;
 
