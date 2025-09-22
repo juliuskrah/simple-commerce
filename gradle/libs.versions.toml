@@ -3,9 +3,23 @@ mockito = "5.14.2"
 minio = "8.5.17"
 moneta = "1.4.4"
 picocli = "4.7.7"
+junit-jupiter = "5.13.4"
+testContainers = "1.21.3"
+asser-j = "3.27.5"
+logback = "1.5.18"
+springGraphql = "1.4.2"
+springWebflux = "6.2.11"
+jackson = "2.20.0"
 
 [libraries]
 mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 minio = { module = "io.minio:minio", version.ref = "minio" }
 moneta = { module = "org.javamoney:moneta", version.ref = "moneta" }
 picocli = { module = "info.picocli:picocli", version.ref = "picocli" }
+junitBom = { module = "org.junit:junit-bom", version.ref = "junit-jupiter" }
+testContainers = { module = "org.testcontainers:junit-jupiter", version.ref = "testContainers" }
+assertJ = { module = "org.assertj:assertj-core", version.ref = "asser-j" }
+logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+springGraphql = { module = "org.springframework.graphql:spring-graphql-test", version.ref = "springGraphql" }
+springWebflux = { module = "org.springframework:spring-webflux", version.ref = "springWebflux" }
+jacksonDatabind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }

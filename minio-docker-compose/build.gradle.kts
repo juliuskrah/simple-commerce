@@ -11,7 +11,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-docker-compose")
     implementation(libs.minio)
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    testImplementation(platform("org.junit:junit-bom"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
 

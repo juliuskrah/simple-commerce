@@ -30,6 +30,9 @@ services:
       MINIO_ENDPOINT: http://object-store:9000
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://oidc:5556/dex/keys
       SPRING_PROFILES_ACTIVE: oidc-authn, keto-authz
+      KETO_READ: keto:4466
+      KETO_WRITE: keto:4467
+      KETO_OPL: keto:4469
     ports:
       - "8080:8080"
     depends_on:

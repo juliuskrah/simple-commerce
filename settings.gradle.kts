@@ -10,4 +10,4 @@ pluginManagement {
     }
 }
 rootProject.name = "simple-commerce"
-include("app", "minio-docker-compose")
+include("app", "minio-docker-compose", "integration-test")

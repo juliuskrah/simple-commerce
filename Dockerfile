@@ -13,6 +13,7 @@ COPY minio-docker-compose/src/                                            ./mini
 COPY minio-docker-compose/build.gradle.kts                                ./minio-docker-compose/
 COPY buildSrc/src/                                                        ./buildSrc/src/
 COPY buildSrc/build.gradle.kts                                            ./buildSrc/
+COPY integration-test/build.gradle.kts                                    ./integration-test/
 RUN chmod +x ./gradlew && ./gradlew --no-daemon --stacktrace --info --console=plain build -x test
 RUN find ${JAR_DIR} -name '*.jar' -a ! -name '*plain.jar' -exec mv '{}' application.jar \;
 RUN java -Djarmode=tools -jar application.jar extract --layers --destination extracted

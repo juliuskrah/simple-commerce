@@ -37,9 +37,15 @@ import sh.ory.keto.write.v1alpha2.TransactRelationTuplesRequest.Builder;
 /// ---
 /// flowchart LR
 ///     groups ~~~ actors
-///     actors ~~~ products ~~~ product_variants product_variants ~~~ orders ~~~ categories actors(Actor) products(Product) product_variants(ProductVariant) orders(Order) categories(Category)
-/// groups(Group)
-///```
+///     actors ~~~ products ~~~ product_variants
+///     product_variants ~~~ orders ~~~ categories
+///     actors(Actor)
+///     products(Product)
+///     product_variants(ProductVariant)
+///     orders(Order)
+///     categories(Category)
+///     groups(Group)
+/// ```
 ///
 /// @author julius.krah
 @Testcontainers
@@ -53,8 +59,7 @@ class KetoAuthorizationServiceTest {
   static final int KETO_OPL_PORT = 4469;
   @Container
   static final ComposeContainer KETO_COMPOSE_CONTAINER = new ComposeContainer(
-      new File("../compose.yaml")
-  )
+      new File("../compose.yaml"))
       .withOptions("--profile", "keto-authz")
       .withExposedService("keto", 1, KETO_READ_PORT)
       .withExposedService("keto", 1, KETO_WRITE_PORT)
