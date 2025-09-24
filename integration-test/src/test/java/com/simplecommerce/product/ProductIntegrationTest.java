@@ -1,4 +1,4 @@
-package com.simplecommerce.project;
+package com.simplecommerce.product;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,9 +16,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
-class ProjectIntegrationTest extends BaseDockerComposeTest {
+class ProductIntegrationTest extends BaseDockerComposeTest {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ProjectIntegrationTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProductIntegrationTest.class);
 
   HttpGraphQlTester http;
 
