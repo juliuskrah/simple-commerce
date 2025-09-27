@@ -1,0 +1,14 @@
+{
+  "simple_commerce": {
+    "email": "julius.krah@example.com",
+    "password": "simple_commerce"
+  },
+  "customer": {
+    "password": "customer123",
+    "email": "customer@simple-commerce.com"
+  },
+  "vendor": {
+    "password": "vendor123",
+    "email": "vendor@simple-commerce.com"
+  }
+}

@@ -49,7 +49,6 @@ public final class AuthenticationUtils {
     return token.get("access_token");
   }
 
-
   public static String getAccessToken() {
     var authContext = AuthenticationContextHolder.getContext();
     try (Playwright playwright = Playwright.create()) {

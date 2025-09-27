@@ -3,10 +3,13 @@ package com.simplecommerce.product;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.simplecommerce.BaseDockerComposeTest;
+import com.simplecommerce.junit.AccessTokenExtension;
+import com.simplecommerce.junit.Actor;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -16,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
+@ExtendWith(AccessTokenExtension.class)
 class ProductIntegrationTest extends BaseDockerComposeTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProductIntegrationTest.class);
@@ -26,8 +30,6 @@ class ProductIntegrationTest extends BaseDockerComposeTest {
   protected void assertSpecificService() {
     LOG.info("Verifying 'simple-commerce' service is running");
     assertThat(SIMPLE_COMMERCE_COMPOSE_CONTAINER.getContainerByServiceName(SIMPLE_COMMERCE_SERVICE_NAME)).isPresent()
-        .get().hasFieldOrPropertyWithValue("running", true);
-    assertThat(SIMPLE_COMMERCE_COMPOSE_CONTAINER.getContainerByServiceName(DEX_SERVICE_NAME)).isPresent()
         .get().hasFieldOrPropertyWithValue("running", true);
   }
 
@@ -42,11 +44,7 @@ class ProductIntegrationTest extends BaseDockerComposeTest {
   }
 
   @Test
-  void testAddProduct() {
-    if (accessToken == null) {
-      accessToken = getAccessToken();
-    }
-    LOG.info("Access Token: {}", accessToken);
+  void testAddProduct(@Actor("simple_commerce") String accessToken) {
     var tester = http.mutate().headers(headers -> headers.setBearerAuth(accessToken)).build();
     tester.documentName("product").operationName("createProduct")
         .variables(Map.of("input", Map.of("title", "House of Cards", "tags", List.of("drama", "politics"))))
