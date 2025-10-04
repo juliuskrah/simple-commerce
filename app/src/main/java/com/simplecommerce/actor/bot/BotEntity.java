@@ -1,7 +1,6 @@
 package com.simplecommerce.actor.bot;
 
 import com.simplecommerce.actor.ActorEntity;
-import com.simplecommerce.actor.ActorType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -14,7 +13,7 @@ import java.util.Objects;
  * @author julius.krah
  */
 @Entity(name = "Bot")
-@Table(name = "bot")
+@Table(name = "bots")
 public class BotEntity extends ActorEntity {
 
   @Column(unique = true)
@@ -25,10 +24,6 @@ public class BotEntity extends ActorEntity {
 
   @Column(columnDefinition = "TEXT")
   private String permissions; // JSON array of permissions
-
-  public BotEntity() {
-    super(ActorType.BOT);
-  }
 
   public String getApiKey() {
     return apiKey;
@@ -61,11 +56,10 @@ public class BotEntity extends ActorEntity {
         ", username='" + getUsername() + '\'' +
         ", email='" + getEmail() + '\'' +
         ", appId='" + appId + '\'' +
-        ", actorType=" + getActorType() +
         ", externalId='" + getExternalId() + '\'' +
         ", lastLogin=" + getLastLogin() +
-        ", createdAt=" + getCreatedAt() +
-        ", updatedAt=" + getUpdatedAt() +
+        ", createdAt=" + getCreatedDate() +
+        ", updatedAt=" + getLastModifiedDate() +
         '}';
   }
 

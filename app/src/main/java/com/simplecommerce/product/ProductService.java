@@ -16,7 +16,7 @@ interface ProductService {
    * @param id The ID of the product.
    * @see com.simplecommerce.shared.GlobalId#decode(String)
    * @throws IllegalArgumentException If the global ID is invalid.
-   * @throws com.simplecommerce.shared.NotFoundException If the product is not found.
+   * @throws com.simplecommerce.shared.exceptions.NotFoundException If the product is not found.
    * @return The product when found.
    */
   Product findProduct(String id);

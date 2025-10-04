@@ -1,12 +1,12 @@
 package com.simplecommerce.actor.customer;
 
 import com.simplecommerce.actor.ActorEntity;
-import com.simplecommerce.actor.ActorType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import java.util.Objects;
 
 /**
  * Customer entity representing users who interact with the storefront.
@@ -15,7 +15,7 @@ import jakarta.persistence.Table;
  * @author julius.krah
  */
 @Entity(name = "Customer")
-@Table(name = "customer")
+@Table(name = "customers")
 public class CustomerEntity extends ActorEntity {
 
   @Column
@@ -27,10 +27,6 @@ public class CustomerEntity extends ActorEntity {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private CustomerGroup customerGroup = CustomerGroup.B2C;
-
-  public CustomerEntity() {
-    super(ActorType.CUSTOMER);
-  }
 
   public String getFirstName() {
     return firstName;
@@ -57,6 +53,26 @@ public class CustomerEntity extends ActorEntity {
   }
 
   @Override
+  public final boolean equals(Object o) {
+    if (!(o instanceof CustomerEntity that)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+
+    return Objects.equals(getUsername(), that.getUsername()) && Objects.equals(getId(), that.getId());
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + Objects.hashCode(getUsername());
+    result = 31 * result + Objects.hashCode(getId());
+    return result;
+  }
+
+  @Override
   public String toString() {
     return "CustomerEntity{" +
         "id=" + getId() +
@@ -65,11 +81,10 @@ public class CustomerEntity extends ActorEntity {
         ", firstName='" + firstName + '\'' +
         ", lastName='" + lastName + '\'' +
         ", customerGroup=" + customerGroup +
-        ", actorType=" + getActorType() +
         ", externalId='" + getExternalId() + '\'' +
         ", lastLogin=" + getLastLogin() +
-        ", createdAt=" + getCreatedAt() +
-        ", updatedAt=" + getUpdatedAt() +
+        ", createdAt=" + getCreatedDate() +
+        ", updatedAt=" + getLastModifiedDate() +
         '}';
   }
 }

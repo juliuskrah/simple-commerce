@@ -7,9 +7,10 @@ CREATE TABLE IF NOT EXISTS users (
     id UUID NOT NULL,
     email VARCHAR(512) NOT NULL,
     username VARCHAR(250) NOT NULL,
+    department VARCHAR(100),
     external_id VARCHAR(128),
     PRIMARY KEY (id)
-    );
+);
 
 ALTER TABLE IF EXISTS users
     ADD CONSTRAINT users_username_unique

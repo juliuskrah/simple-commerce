@@ -32,13 +32,14 @@ flowchart LR
     groups(Group)
 ```
 
-We define the following namespaces for the different entities in the system. A good starting point for our platform would be:
+We define the following namespaces and relations for the different entities in the system. A good starting point for our platform would be:
 
-- **Actor**: Represents staff, customers, and bots.
+- **Actor**: Represents users (staff, customers) and bots.
 - **Product**: Represents products in the catalog.
   - `parent`: The category a product belongs to. Viewers and editors of the category can view and edit the product.
   - `editor`: Actors or groups that can view or edit the product.
   - `viewer`: Actors or groups that can view the product.
+  - `owner`: The actor who owns the product (usually the actor who created the product).
 - **ProductVariant**: Represents different variants of a product (e.g., size, color).
   - `parent`: The product a variant belongs to. Viewers and editors of the product can view and edit the variant.
   - `editor`: Actors or groups that can view or edit the product variant.
@@ -105,15 +106,33 @@ flowchart LR
 
 ### Product Permissions:
 
-_TODO_
-- A merchant can manage products in their store:
-  - This is an indirect relationship. The permission to manage a product is derived from the ownership of the category the product belongs to. 
-    We'll define this logic in the OPL.
-  - First, establish the product-category relationship: `Product:product456#parents@Category:category123` (Category:category123 is a parent of Product:product456)
+- **view**:
+  The permission to view a product can be granted to specific actors or via group membership.
+  Products inherit viewers from their parent categories.
 
-- Managing Product Variants:
-  - `ProductVariant:variant789#parents@Product:product456` (Product:product456 is a parent of ProductVariant:variant789)
-  - Permissions on the parent product can then be inherited by the variant.
+  - `Group:staff#members@Actor:john` (Actor:john is in members of Group:staff)
+  - `Product:the-matrix#viewers@(Group:staff#members)` (members of Group:staff are viewers of Product:the-matrix). 
+    Group members (i.e. john) can view `the-matrix` and all its variants via an indirect relationship.
+  - `Product:lotr#viewers@agnes` (Subject agnes is in viewers of Product:lotr). 
+    Agnes can view `lotr` and all its variants via a direct relationship.
+- **edit**:
+  The permission to edit a product can be granted to specific actors or via group membership.
+  Products inherit editors from their parent categories.
+
+  - `Group:support#members@Actor:becky` (Actor:becky is in members of Group:support)
+  - `Product:the-matrix#editors@(Group:support#members)` (members of Group:support are editors of Product:the-matrix). 
+    Group members (i.e. john) can edit `the-matrix` and all its variants via an indirect relationship.
+  - `Product:lotr#editors@isaac` (Subject isaac is in editors of Product:lotr). 
+    Isaac can edit `lotr` and all its variants via a direct relationship.
+  
+- **delete**:
+  The permission to delete a product can be granted to specific actors or via group membership.
+  Only the owner of the product can delete it.
+
+  - `Product:the-matrix#owner@Actor:john` (Actor:john is the owner of Product:the-matrix). 
+    John can delete `the-matrix` and its variants.
+  - `Product:lotr#owner@becky` (Subject becky is the owner of Product:lotr). 
+    Becky can delete `lotr` but not its variants.
 
 ### Order Permissions:
 

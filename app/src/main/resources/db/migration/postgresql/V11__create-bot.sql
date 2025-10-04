@@ -1,10 +1,9 @@
 -- Create bot table for automation and external applications
-CREATE TABLE IF NOT EXISTS bot (
+CREATE TABLE IF NOT EXISTS bots (
     id UUID NOT NULL,
     username VARCHAR(250) NOT NULL,
     email VARCHAR(512),
     external_id VARCHAR(128),
-    actor_type VARCHAR(20) NOT NULL DEFAULT 'BOT',
     api_key VARCHAR(512),
     app_id VARCHAR(100),
     permissions TEXT, -- JSON array of permissions
@@ -17,23 +16,18 @@ CREATE TABLE IF NOT EXISTS bot (
 );
 
 -- Add unique constraints
-ALTER TABLE bot
+ALTER TABLE bots
     ADD CONSTRAINT bot_username_unique
     UNIQUE (username);
 
-ALTER TABLE bot
+ALTER TABLE bots
     ADD CONSTRAINT bot_email_unique
     UNIQUE (email);
 
-ALTER TABLE bot
+ALTER TABLE bots
     ADD CONSTRAINT bot_external_id_unique
     UNIQUE (external_id);
 
-ALTER TABLE bot
+ALTER TABLE bots
     ADD CONSTRAINT bot_api_key_unique
     UNIQUE (api_key);
-
--- Add check constraint for actor type
-ALTER TABLE bot
-    ADD CONSTRAINT bot_actor_type_check
-    CHECK (actor_type = 'BOT');

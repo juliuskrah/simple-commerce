@@ -1,10 +1,10 @@
-package com.simplecommerce.actor.staff;
+package com.simplecommerce.actor.user;
 
 import com.simplecommerce.actor.ActorEntity;
-import com.simplecommerce.actor.ActorType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import java.util.Objects;
 
 /**
  * Staff entity representing admin users who can manage the system.
@@ -13,19 +13,12 @@ import jakarta.persistence.Table;
  *
  * @author julius.krah
  */
-@Entity(name = "Staff")
-@Table(name = "staff")
-public class StaffEntity extends ActorEntity {
+@Entity(name = "User")
+@Table(name = "users")
+public class UserEntity extends ActorEntity {
   
   @Column
   private String department;
-  
-  @Column
-  private String role;
-
-  public StaffEntity() {
-    super(ActorType.STAFF);
-  }
 
   public String getDepartment() {
     return department;
@@ -35,27 +28,37 @@ public class StaffEntity extends ActorEntity {
     this.department = department;
   }
 
-  public String getRole() {
-    return role;
+  @Override
+  public final boolean equals(Object o) {
+    if (!(o instanceof UserEntity that)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+
+    return Objects.equals(getUsername(), that.getUsername()) && Objects.equals(getId(), that.getId());
   }
 
-  public void setRole(String role) {
-    this.role = role;
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + Objects.hashCode(getUsername());
+    result = 31 * result + Objects.hashCode(getId());
+    return result;
   }
 
   @Override
   public String toString() {
-    return "StaffEntity{" +
+    return "UserEntity{" +
         "id=" + getId() +
         ", username='" + getUsername() + '\'' +
         ", email='" + getEmail() + '\'' +
         ", department='" + department + '\'' +
-        ", role='" + role + '\'' +
-        ", actorType=" + getActorType() +
         ", externalId='" + getExternalId() + '\'' +
         ", lastLogin=" + getLastLogin() +
-        ", createdAt=" + getCreatedAt() +
-        ", updatedAt=" + getUpdatedAt() +
+        ", createdAt=" + getCreatedDate() +
+        ", updatedAt=" + getLastModifiedDate() +
         '}';
   }
 }

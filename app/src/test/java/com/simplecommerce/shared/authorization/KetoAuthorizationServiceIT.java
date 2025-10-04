@@ -12,6 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ssl.SslAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -52,11 +54,12 @@ import sh.ory.keto.write.v1alpha2.TransactRelationTuplesRequest.Builder;
 @ActiveProfiles({"test", "keto-authz"})
 @Import({KetoConfiguration.class, GrpcClientAutoConfiguration.class, SslAutoConfiguration.class })
 @SpringBootTest(webEnvironment = WebEnvironment.NONE, classes = KetoAuthorizationService.class)
-class KetoAuthorizationServiceTest {
+class KetoAuthorizationServiceIT {
 
   static final int KETO_READ_PORT = 4466;
   static final int KETO_WRITE_PORT = 4467;
   static final int KETO_OPL_PORT = 4469;
+
   @Container
   static final ComposeContainer KETO_COMPOSE_CONTAINER = new ComposeContainer(
       new File("../compose.yaml"))
@@ -119,11 +122,10 @@ class KetoAuthorizationServiceTest {
   }
 
   @Nested
-  class CheckPermissions {
+  class CheckCategoryPermissions {
     private static final String ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY = "neo";
     private static final String ACTOR_HAS_WRITE_ON_ANCESTOR_CATEGORY = "morpheus";
     private static final String ACTOR_HAS_READ_ON_PARENT_CATEGORY_VIA_GROUP_MEMBERSHIP = "trinity";
-    private static final String ACTOR_HAS_READ_ON_ALL_PRODUCTS = "tank";
 
     @Test
     @DisplayName("Actor has read permission on ancestor category")
@@ -205,6 +207,22 @@ class KetoAuthorizationServiceTest {
       assertThat(hasPermissionViaGroup).isFalse();
     }
 
+
+
+    @Test
+    @DisplayName("Actor has no read permission on products")
+    void testHasNoReadPermissionOnProducts() {
+      var hasPermission = ketoAuthorizationService.checkPermission("Product", "", "view", ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY);
+      assertThat(hasPermission).isFalse();
+    }
+  }
+
+  @Nested
+  class CheckProductPermissions {
+
+    private static final String ACTOR_HAS_READ_ON_ALL_PRODUCTS = "tank";
+    private static final String ACTOR_HAS_OWNER_ON_PRODUCT = "neo";
+
     @Test
     @DisplayName("Actor has read permission on all products")
     void testHasReadPermissionOnAllProducts() {
@@ -212,10 +230,20 @@ class KetoAuthorizationServiceTest {
       assertThat(hasPermission).isTrue();
     }
 
+    @DisplayName("Actor has delete/edit/view permission on specific product")
+    @ParameterizedTest
+    @ValueSource(strings = {"delete", "edit", "view"})
+    void testOwnerHasPermissionsOnProduct(String permission) {
+      var productId = "eff5dfb9-3caf-40ff-9ed9-55045e2022be"; // The Matrix
+      var hasPermission = ketoAuthorizationService.checkPermission("Product", productId, permission, ACTOR_HAS_OWNER_ON_PRODUCT);
+      assertThat(hasPermission).isTrue();
+    }
+
     @Test
-    @DisplayName("Actor has no read permission on products")
-    void testHasNoReadPermissionOnProducts() {
-      var hasPermission = ketoAuthorizationService.checkPermission("Product", "", "view", ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY);
+    @DisplayName("Actor has no delete permission on specific product")
+    void testNonOwnerHasNoDeletePermissionOnProduct() {
+      var productId = "eff5dfb9-3caf-40ff-9ed9-55045e2022be"; // The Matrix
+      var hasPermission = ketoAuthorizationService.checkPermission("Product", productId, "delete", ACTOR_HAS_READ_ON_ALL_PRODUCTS);
       assertThat(hasPermission).isFalse();
     }
   }

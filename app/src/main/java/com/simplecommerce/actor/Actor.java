@@ -1,5 +1,7 @@
 package com.simplecommerce.actor;
 
+import java.time.OffsetDateTime;
+
 /**
  * Base interface for all actors in the system.
  * An Actor is an entity that can perform actions in the system.
@@ -8,8 +10,9 @@ package com.simplecommerce.actor;
  * @since 1.0
  * @author julius.krah
  */
-public interface Actor {
+public sealed interface Actor permits User, Bot {
   String id();
   String username();
-  ActorType getActorType();
+  OffsetDateTime createdAt();
+  OffsetDateTime updatedAt();
 }

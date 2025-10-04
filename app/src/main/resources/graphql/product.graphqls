@@ -26,8 +26,8 @@ type Mutation {
     deleteProductVariant("Product Variant ID" id: ID!): ID!
     "Add digital content to a variant."
     addVariantDigitalContent("Product Variant ID" variantId: ID!, file: FileInput!): DigitalContent
-    "Add a price set to a product variant."
-    addVariantPriceSet("Product Variant ID" variantId: ID!, input: PriceSetInput!): PriceSet
+    "Create a price set."
+    addPriceSet(input: PriceSetInput!): PriceSet
     "Update an existing price set."
     updatePriceSet("Price Set ID" id: ID!, input: PriceSetInput!): PriceSet
     "Delete a price set."

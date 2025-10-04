@@ -98,3 +98,5 @@ The element must be a positive number.
 """
 directive @Positive(message : String = "graphql.validation.Positive.message")
     on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @oneOf on INPUT_OBJECT

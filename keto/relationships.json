@@ -42,6 +42,14 @@
     }
   },
   {
+    "namespace": "Category",
+    "object": "Media",
+    "relation": "editors",
+    "subject": {
+      "id": "morpheus"
+    }
+  },
+  {
     "namespace": "Group",
     "object": "Nebuchadnezzar",
     "relation": "members",
@@ -50,11 +58,11 @@
     }
   },
   {
-    "namespace": "Category",
-    "object": "Media",
-    "relation": "editors",
+    "namespace": "Product",
+    "object": "The Matrix",
+    "relation": "owners",
     "subject": {
-      "id": "morpheus"
+      "id": "neo"
     }
   },
   {

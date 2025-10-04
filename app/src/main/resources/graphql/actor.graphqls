@@ -1,11 +1,30 @@
 extend type Query {
-    me: Actor!
-    actor(id: ID!): Actor
+    me: User!
+    actor(username: String!): Actor
 }
 
 extend type Mutation {
-    createStaff(input: CreateStaffInput!): Staff!
-    createCustomer(input: CreateCustomerInput!): Customer!
+    """
+    Assign permissions to an actor. The permissions are specified as a list of PermissionTupleInput objects. The following namespaces are supported:
+    - Product
+    - Order
+    - Group
+    - Actor
+    - Category
+    - ProductVariant
+    """
+    assignPermissionsToActor(username: String!, permissions: [PermissionTupleInput!]!): Actor
+    """
+    Revoke permissions from an actor. The permissions are specified as a list of PermissionTupleInput objects. The following namespaces are supported:
+    - Product
+    - Order
+    - Group
+    - Actor
+    - Category
+    - ProductVariant
+    """
+    revokePermissionsFromActor(username: String!, permissions: [PermissionTupleInput!]!): Actor
+    createUser(input: CreateUserInput!): User!
     createBot(input: CreateBotInput!): Bot!
 }
 
@@ -13,27 +32,16 @@ extend type Mutation {
 interface Actor implements Node {
     id: ID!
     username: String!
-    email: String
-    actorType: ActorType!
     createdAt: DateTime!
     updatedAt: DateTime!
-    lastLogin: DateTime
-}
-
-enum ActorType {
-    STAFF
-    CUSTOMER
-    BOT
 }
 
 "A staff member who can manage the admin dashboard and system functions."
-type Staff implements Node & Actor {
+type User implements Node & Actor {
     id: ID!
     username: String!
     email: String
-    actorType: ActorType!
     department: String
-    role: String
     createdAt: DateTime!
     updatedAt: DateTime!
     lastLogin: DateTime
@@ -44,7 +52,6 @@ type Customer implements Node & Actor {
     id: ID!
     username: String!
     email: String
-    actorType: ActorType!
     firstName: String
     lastName: String
     customerGroup: CustomerGroup!
@@ -58,7 +65,6 @@ type Bot implements Node & Actor {
     id: ID!
     username: String!
     email: String
-    actorType: ActorType!
     appId: String
     permissions: [String!]!
     createdAt: DateTime!
@@ -73,19 +79,11 @@ enum CustomerGroup {
     WHOLESALE
 }
 
-input CreateStaffInput {
+input CreateUserInput {
     username: String!
     email: String!
     department: String
     role: String
-}
-
-input CreateCustomerInput {
-    username: String!
-    email: String!
-    firstName: String
-    lastName: String
-    customerGroup: CustomerGroup = B2C
 }
 
 input CreateBotInput {
@@ -93,4 +91,23 @@ input CreateBotInput {
     email: String
     appId: String
     permissions: [String!]
+}
+
+input PermissionTupleInput {
+    namespace: String!
+    object: String!
+    "Represents the relation or action being performed, e.g., 'view', 'edit', 'delete'."
+    relation: String!
+    subject: SubjectInput!
+}
+
+input SubjectInput @oneOf {
+    subjectId: String
+    subjectSet: SubjectSetInput
+}
+
+input SubjectSetInput {
+    namespace: String
+    object: String
+    relation: String
 }

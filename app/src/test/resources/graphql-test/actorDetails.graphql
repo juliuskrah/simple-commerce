@@ -1,0 +1,31 @@
+query actor($username: String!) {
+    actor(username: $username) {
+        id
+        username
+        createdAt
+        updatedAt
+        ... on User {
+            email
+            lastLogin
+        }
+        ... on Bot {
+            appId
+        }
+    }
+}
+
+query me {
+    me {
+        id
+        username
+        email
+        createdAt
+        updatedAt
+        ... on User {
+            lastLogin
+        }
+    }
+}
+
+
+

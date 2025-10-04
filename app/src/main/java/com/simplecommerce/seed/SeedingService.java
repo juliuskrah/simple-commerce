@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.intellij.lang.annotations.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -85,6 +86,7 @@ public class SeedingService {
   }
 
   private Flux<Product> seedProduct() throws IOException {
+    @Language("GraphQL")
     var makeProduct = """
         mutation makeProduct($input: ProductInput!) {
           addProduct(input: $input) {
@@ -113,6 +115,7 @@ public class SeedingService {
   }
 
   private void seedProductVariants(Flux<Product> products) {
+    @Language("GraphQL")
     var addVariant = """
         mutation addVariant($productId: ID!, $input: ProductVariantInput!) {
           addProductVariant(productId: $productId, input: $input) {
@@ -169,6 +172,7 @@ public class SeedingService {
   }
 
   private Mono<Map<String, Object>> createStaged(String filePath) {
+    @Language("GraphQL")
     var stageUpload = """
         mutation stageUpload($input: StagedUploadInput!) {
           stagedUpload(input: $input) {

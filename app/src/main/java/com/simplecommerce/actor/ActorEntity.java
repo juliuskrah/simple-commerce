@@ -1,11 +1,11 @@
 package com.simplecommerce.actor;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Transient;
 import java.time.OffsetDateTime;
 import java.util.Objects;
@@ -22,8 +22,9 @@ import org.springframework.data.domain.Auditable;
  * @author julius.krah
  * @since 1.0
  */
-@MappedSuperclass
-public abstract class ActorEntity implements Actor, Auditable<String, UUID, OffsetDateTime> {
+@Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public abstract class ActorEntity implements Auditable<String, UUID, OffsetDateTime> {
   @Id
   @GeneratedValue
   private UUID id;
@@ -36,10 +37,6 @@ public abstract class ActorEntity implements Actor, Auditable<String, UUID, Offs
 
   @Column(unique = true)
   private String externalId;
-
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
-  private ActorType actorType;
 
   private OffsetDateTime lastLogin;
 
@@ -56,26 +53,7 @@ public abstract class ActorEntity implements Actor, Auditable<String, UUID, Offs
 
   protected ActorEntity() {}
 
-  protected ActorEntity(ActorType actorType) {
-    this.actorType = actorType;
-  }
-
   @Override
-  public String id() {
-    return id != null ? id.toString() : null;
-  }
-
-  @Override
-  public String username() {
-    return username;
-  }
-
-  @Override
-  public ActorType getActorType() {
-    return actorType;
-  }
-
-  // Standard getters and setters
   public UUID getId() {
     return id;
   }
@@ -108,32 +86,12 @@ public abstract class ActorEntity implements Actor, Auditable<String, UUID, Offs
     this.externalId = externalId;
   }
 
-  public void setActorType(ActorType actorType) {
-    this.actorType = actorType;
-  }
-
   public OffsetDateTime getLastLogin() {
     return lastLogin;
   }
 
   public void setLastLogin(OffsetDateTime lastLogin) {
     this.lastLogin = lastLogin;
-  }
-
-  public OffsetDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public void setCreatedAt(OffsetDateTime createdAt) {
-    this.createdAt = createdAt;
-  }
-
-  public OffsetDateTime getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public void setUpdatedAt(OffsetDateTime updatedAt) {
-    this.updatedAt = updatedAt;
   }
 
   // Auditable implementation
@@ -205,7 +163,6 @@ public abstract class ActorEntity implements Actor, Auditable<String, UUID, Offs
         "id=" + id +
         ", username='" + username + '\'' +
         ", email='" + email + '\'' +
-        ", actorType=" + actorType +
         ", externalId='" + externalId + '\'' +
         ", lastLogin=" + lastLogin +
         ", createdAt=" + createdAt +

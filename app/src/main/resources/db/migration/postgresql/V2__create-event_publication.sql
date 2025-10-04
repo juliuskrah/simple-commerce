@@ -1,5 +1,4 @@
-CREATE TABLE IF NOT EXISTS event_publication
-(
+CREATE TABLE IF NOT EXISTS event_publication (
     id               UUID NOT NULL,
     listener_id      TEXT NOT NULL,
     event_type       TEXT NOT NULL,

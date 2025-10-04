@@ -91,6 +91,17 @@
       "action": "ACTION_INSERT",
       "relation_tuple": {
         "namespace": "Product",
+        "object": "eff5dfb9-3caf-40ff-9ed9-55045e2022be",
+        "relation": "owners",
+        "subject": {
+          "id": "neo"
+        }
+      }
+    },
+    {
+      "action": "ACTION_INSERT",
+      "relation_tuple": {
+        "namespace": "Product",
         "relation": "viewers",
         "subject": {
           "set": {
