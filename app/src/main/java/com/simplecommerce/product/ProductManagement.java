@@ -35,6 +35,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -214,6 +215,7 @@ class ProductManagement implements ProductService, NodeService {
   /**
    * {@inheritDoc}
    */
+  @PreAuthorize("@authz.checkPermission('Product', T(com.simplecommerce.shared.GlobalId).decode(#id).id, 'delete', authentication.name)")
   @Override
   public String deleteProduct(String id) {
     var gid = GlobalId.decode(id);

@@ -1,5 +1,6 @@
 package com.simplecommerce.actor;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -13,4 +14,8 @@ public interface ActorService {
   Optional<Actor> findActor(String username);
 
   User findUser(String username);
+
+  Optional<Actor> addPermissionsToActor(String username, List<PermissionTupleInput> permissions);
+
+  Optional<Actor> removePermissionsFromActor(String username, List<PermissionTupleInput> permissions);
 }

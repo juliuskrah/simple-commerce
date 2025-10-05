@@ -53,12 +53,12 @@ class ActorController {
   }
 
   @MutationMapping
-  Actor assignPermissionsToActor(@Argument String username, @Argument List<@NonNull PermissionTupleInput> permissions) {
-    return null;
+  Optional<Actor> assignPermissionsToActor(@Argument String username, @Argument List<@NonNull PermissionTupleInput> permissions) {
+    return actorService.getIfAvailable(actorServiceSupplier).addPermissionsToActor(username, permissions);
   }
 
   @MutationMapping
-  Actor revokePermissionsFromActor(@Argument String username, @Argument List<@NonNull PermissionTupleInput> permissions) {
-    return null;
+  Optional<Actor> revokePermissionsFromActor(@Argument String username, @Argument List<@NonNull PermissionTupleInput> permissions) {
+    return actorService.getIfAvailable(actorServiceSupplier).removePermissionsFromActor(username, permissions);
   }
 }

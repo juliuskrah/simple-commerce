@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE aspectj PUBLIC "-//AspectJ//DTD//EN" "https://www.eclipse.org/aspectj/dtd/aspectj.dtd">
 <aspectj>
-  <weaver>
+  <weaver options="-Xlint:ignore -showWeaveInfo">
     <include within="com.simplecommerce..*Management"/>
+    <include within="com.simplecommerce..*Controller"/>
   </weaver>
+  <aspects>
+    <aspect name="org.springframework.security.authorization.method.aspectj.PostAuthorizeAspect"/>
+    <aspect name="org.springframework.security.authorization.method.aspectj.PreAuthorizeAspect"/>
+    <aspect name="org.springframework.security.authorization.method.aspectj.PostFilterAspect"/>
+    <aspect name="org.springframework.security.authorization.method.aspectj.PreFilterAspect"/>
+    <aspect name="org.springframework.beans.factory.aspectj.AnnotationBeanConfigurerAspect"/>
+  </aspects>
 </aspectj>

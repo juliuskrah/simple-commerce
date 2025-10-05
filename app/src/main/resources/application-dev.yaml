@@ -2,6 +2,7 @@ management:
   endpoint:
     env:
       access: unrestricted
+      show-values: always
     auditevents:
       access: unrestricted
   endpoints:

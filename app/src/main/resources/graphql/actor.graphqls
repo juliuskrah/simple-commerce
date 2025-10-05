@@ -12,6 +12,7 @@ extend type Mutation {
     - Actor
     - Category
     - ProductVariant
+    Returns the updated Actor object with the newly assigned permissions if an actor exists for the provided username; otherwise, returns null.
     """
     assignPermissionsToActor(username: String!, permissions: [PermissionTupleInput!]!): Actor
     """
@@ -22,6 +23,7 @@ extend type Mutation {
     - Actor
     - Category
     - ProductVariant
+    Returns the updated Actor object with the revoked permissions if an actor exists for the provided username; otherwise, returns null.
     """
     revokePermissionsFromActor(username: String!, permissions: [PermissionTupleInput!]!): Actor
     createUser(input: CreateUserInput!): User!
@@ -94,20 +96,28 @@ input CreateBotInput {
 }
 
 input PermissionTupleInput {
+    "The namespace of the object, e.g., 'Product', 'Order', 'Group', 'Actor', 'Category', 'ProductVariant'."
     namespace: String!
+    "The specific object within the namespace, e.g., a product ID, order ID, or group name."
     object: String!
-    "Represents the relation or action being performed, e.g., 'view', 'edit', 'delete'."
+    "Represents the relation or action being performed, e.g., 'viewer', 'editor', 'owner'."
     relation: String!
+    "The subject (actor) to whom the permission applies. This can be either a specific actor ID or a subject set."
     subject: SubjectInput!
 }
 
 input SubjectInput @oneOf {
+    "The ID of a specific actor (user, customer, or bot)."
     subjectId: String
+    "A set of subjects defined by namespace, object, and relation."
     subjectSet: SubjectSetInput
 }
 
 input SubjectSetInput {
+    "The namespace of the subject set, e.g., 'Product', 'Order', 'Group', 'Actor', 'Category', 'ProductVariant'."
     namespace: String
+    "The specific object within the namespace, e.g., a product ID, order ID, or group name."
     object: String
+    "Represents the relation or action being performed, e.g., 'member', 'parent', 'editor'."
     relation: String
 }

@@ -1,5 +1,7 @@
 package com.simplecommerce.actor;
 
+import org.jspecify.annotations.Nullable;
+
 ///
 /// Input type for permission tuples. This is the input argument for the following operations:
 ///
@@ -19,7 +21,7 @@ public record PermissionTupleInput(
     SubjectInput subject
 ) {
 
-  record SubjectInput(String subjectId, SubjectSetInput subjectSet) {
+  record SubjectInput(@Nullable String subjectId, @Nullable SubjectSetInput subjectSet) {
 
   }
 

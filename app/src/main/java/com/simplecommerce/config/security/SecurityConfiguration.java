@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -45,5 +46,10 @@ class SecurityConfiguration {
             .anyRequest().authenticated());
     http.oauth2ResourceServer(resourceServer -> resourceServer.jwt(withDefaults()));
     return http.build();
+  }
+
+  @Bean
+  static AnnotationTemplateExpressionDefaults templateExpressionDefaults() {
+    return new AnnotationTemplateExpressionDefaults();
   }
 }

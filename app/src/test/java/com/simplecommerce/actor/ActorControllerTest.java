@@ -2,17 +2,19 @@ package com.simplecommerce.actor;
 
 import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.types.Types;
+import graphql.ErrorType;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import org.assertj.core.api.InstanceOfAssertFactories;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,9 +125,10 @@ class ActorControllerTest {
   }
 
   @Test
-  @Disabled("Pending implementation of permission assignment")
   @DisplayName("Should assign permissions to actor")
   void shouldAssignPermissionsToActor() {
+    Bot bot = new Bot(UUID.randomUUID().toString(), "testbot", now, now);
+    when(actorService.addPermissionsToActor(anyString(), anyList())).thenReturn(Optional.of(bot));
     List<Map<String, Object>> permissions = List.of(Map.of(
             "namespace", "Product",
             "object", " The Matrix",
@@ -138,13 +141,16 @@ class ActorControllerTest {
         .variable("username", "testuser")
         .variable("permissions", permissions)
         .execute()
-        .path("assignPermissionsToActor").valueIsNull();
+        .path("assignPermissionsToActor")
+        .entity(Bot.class)
+        .satisfies(actor -> assertThat(actor).isNotNull().hasFieldOrPropertyWithValue("username", "testbot"));
   }
 
   @Test
-  @Disabled("Pending implementation of permission revocation")
   @DisplayName("Should revoke permissions from actor")
   void shouldRevokePermissionsFromActor() {
+    User user = new User(USER_ID, "testuser", now, now, now, "test@example.com");
+    when(actorService.removePermissionsFromActor(anyString(), anyList())).thenReturn(Optional.of(user));
     List<Map<String, Object>> permissions = List.of(Map.of(
             "namespace", "Product",
             "object", "The Matrix",
@@ -157,7 +163,9 @@ class ActorControllerTest {
         .variable("username", "testuser")
         .variable("permissions", permissions)
         .execute()
-        .path("revokePermissionsFromActor").valueIsNull();
+        .path("revokePermissionsFromActor")
+        .entity(User.class)
+        .satisfies(actor -> assertThat(actor).isNotNull().hasFieldOrPropertyWithValue("username", "testuser"));
   }
 
   @Test
@@ -225,7 +233,7 @@ class ActorControllerTest {
         .satisfy(errors -> assertThat(errors).isNotEmpty().hasSize(1)
             .element(0)
             .hasFieldOrPropertyWithValue("message", "Exactly one key must be specified for OneOf type 'SubjectInput'.")
-            .hasFieldOrPropertyWithValue("errorType", graphql.ErrorType.ValidationError));
+            .hasFieldOrPropertyWithValue("errorType", ErrorType.ValidationError));
   }
 
   @Test
@@ -247,6 +255,6 @@ class ActorControllerTest {
         .satisfy(errors -> assertThat(errors).isNotEmpty().hasSize(1)
             .element(0)
             .hasFieldOrPropertyWithValue("message", "Exactly one key must be specified for OneOf type 'SubjectInput'.")
-            .hasFieldOrPropertyWithValue("errorType", graphql.ErrorType.ValidationError));
+            .hasFieldOrPropertyWithValue("errorType", ErrorType.ValidationError));
   }
 }
