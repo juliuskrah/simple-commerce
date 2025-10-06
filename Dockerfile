@@ -9,6 +9,8 @@ COPY gradlew build.gradle.kts gradle.properties settings.gradle.kts       ./
 COPY gradle/                                                              ./gradle/
 COPY app/src/                                                             ./app/src/
 COPY app/build.gradle.kts                                                 ./app/
+COPY aspects/src/                                                         ./aspects/src/
+COPY aspects/build.gradle.kts                                             ./aspects/
 COPY minio-docker-compose/src/                                            ./minio-docker-compose/src/
 COPY minio-docker-compose/build.gradle.kts                                ./minio-docker-compose/
 COPY buildSrc/src/                                                        ./buildSrc/src/

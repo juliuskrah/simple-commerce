@@ -1,4 +1,4 @@
-package com.simplecommerce.shared.authorization;
+package com.simplecommerce.security.aspects;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

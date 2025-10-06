@@ -10,6 +10,8 @@ import com.simplecommerce.product.search.SearchQueryParser;
 import com.simplecommerce.product.search.SearchQueryTranslator;
 import com.simplecommerce.product.variant.ProductVariantEntity;
 import com.simplecommerce.product.variant.ProductVariants;
+import com.simplecommerce.security.aspects.Check;
+import com.simplecommerce.security.aspects.Permit;
 import com.simplecommerce.shared.Event;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.authorization.KetoAuthorizationService;
@@ -34,8 +36,6 @@ import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -125,7 +125,7 @@ class ProductManagement implements ProductService, NodeService {
   /**
    * {@inheritDoc}
    */
-  @PostAuthorize("@authz.checkPermission('Product', '', 'view', authentication.name, returnObject.status)")
+  @Check(namespace = "Product", relation = "view", returnObject = "returnObject.status", object = "T(com.simplecommerce.shared.GlobalId).decode(#id).id")
   @Transactional(readOnly = true)
   @Override
   public Product findProduct(String id) {
@@ -215,7 +215,7 @@ class ProductManagement implements ProductService, NodeService {
   /**
    * {@inheritDoc}
    */
-  @PreAuthorize("@authz.checkPermission('Product', T(com.simplecommerce.shared.GlobalId).decode(#id).id, 'delete', authentication.name)")
+  @Permit(namespace = "Product", relation = "delete", object = "T(com.simplecommerce.shared.GlobalId).decode(#id).id")
   @Override
   public String deleteProduct(String id) {
     var gid = GlobalId.decode(id);

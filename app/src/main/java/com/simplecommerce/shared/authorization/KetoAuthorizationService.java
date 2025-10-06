@@ -97,9 +97,12 @@ public class KetoAuthorizationService {
         return checkResponse.getAllowed();
     }
 
-    public boolean checkPermission(String namespace, String object, String relation, String subject, ProductStatus status) {
+    public boolean checkPermission(String namespace, String object, String relation, String subject, Object returnObject) {
         var hasPermission = checkPermission(namespace, object, relation, subject);
-        return hasPermission ? hasPermission : status == ProductStatus.PUBLISHED;
+      return switch (returnObject) {
+        case ProductStatus status -> hasPermission || status == ProductStatus.PUBLISHED;
+        default -> hasPermission;
+      };
     }
 
   /**

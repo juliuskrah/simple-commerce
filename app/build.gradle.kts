@@ -41,6 +41,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     implementation("org.jspecify:jspecify:$jSpecifyVersion")
     implementation(project(":minio-docker-compose"))
+    implementation(project(":aspects"))
     implementation(libs.picocli)
     implementation(libs.minio)
     implementation(libs.moneta)

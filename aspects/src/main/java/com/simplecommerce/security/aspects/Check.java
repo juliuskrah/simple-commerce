@@ -1,4 +1,4 @@
-package com.simplecommerce.shared.authorization;
+package com.simplecommerce.security.aspects;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -12,10 +12,16 @@ import org.springframework.security.access.prepost.PostAuthorize;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
-@PostAuthorize("@authz.checkPermission('{namespace}', {object}, '{relation}', {subject})")
+@PostAuthorize("@authz.checkPermission('{namespace}', {object}, '{relation}', {subject}, {returnObject})")
 public @interface Check {
+
   String namespace();
+
   String object() default "#id";
+
   String relation();
+
   String subject() default "authentication.name";
+
+  String returnObject() default "returnObject";
 }

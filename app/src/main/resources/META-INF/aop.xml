@@ -11,5 +11,7 @@
     <aspect name="org.springframework.security.authorization.method.aspectj.PostFilterAspect"/>
     <aspect name="org.springframework.security.authorization.method.aspectj.PreFilterAspect"/>
     <aspect name="org.springframework.beans.factory.aspectj.AnnotationBeanConfigurerAspect"/>
+    <aspect name="com.simplecommerce.security.aspects.PermitAspect"/>
+    <aspect name="com.simplecommerce.security.aspects.CheckAspect"/>
   </aspects>
 </aspectj>
