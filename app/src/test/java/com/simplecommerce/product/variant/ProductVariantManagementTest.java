@@ -8,15 +8,15 @@ import static org.mockito.Mockito.when;
 
 import com.simplecommerce.product.ProductEntity;
 import com.simplecommerce.shared.GlobalId;
-import com.simplecommerce.shared.utils.MonetaryUtils;
 import com.simplecommerce.shared.exceptions.NotFoundException;
+import com.simplecommerce.shared.utils.MonetaryUtils;
 import java.math.BigDecimal;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -29,14 +29,8 @@ class ProductVariantManagementTest {
 
   @Mock
   private ProductVariants variantRepository;
-
+  @InjectMocks
   private ProductVariantManagement variantManagement;
-
-  @BeforeEach
-  void setUp() {
-    variantManagement = new ProductVariantManagement();
-    variantManagement.setVariantRepositoryDirect(variantRepository);
-  }
 
   @Test
   void shouldCreateVariantWithoutSystemGeneratedVariant() {

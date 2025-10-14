@@ -15,7 +15,6 @@ import org.springframework.security.authentication.event.AuthenticationFailureBa
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.stereotype.Component;
 
 /**
@@ -92,7 +91,7 @@ public class ActorEventListener {
   }
 
   @EventListener
-  void on(AuthorizationDeniedEvent<SecurityContextHolderAwareRequestWrapper> event) {
+  void on(AuthorizationDeniedEvent<?> event) {
     LOG.debug("Authorization denied: {}", event.getSource());
   }
 }

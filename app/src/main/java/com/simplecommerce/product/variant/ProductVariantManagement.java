@@ -39,11 +39,6 @@ public class ProductVariantManagement implements ProductVariantService, NodeServ
     this.variantRepository = variantRepository.getObject();
   }
 
-  // For testing - allow direct repository injection
-  public void setVariantRepositoryDirect(ProductVariants variantRepository) {
-    this.variantRepository = variantRepository;
-  }
-
   private ProductVariantEntity toEntity(UUID productId, ProductVariantInput input) {
     var entity = new ProductVariantEntity();
     var product = new ProductEntity();
@@ -161,51 +156,6 @@ public class ProductVariantManagement implements ProductVariantService, NodeServ
     
     runInScope(() -> variantRepository.deleteById(variantId));
     return gid.id();
-  }
-
-  /**
-   * Create a default variant for a product.
-   * This is called when a product is created.
-   */
-  public ProductVariant createDefaultVariant(String productId, String productTitle, String productSlug, MoneyInput price) {
-    var entity = new ProductVariantEntity();
-    var product = new ProductEntity();
-    product.setId(UUID.fromString(productId));
-    entity.setProduct(product);
-    
-    // Generate unique SKU based on product slug
-    var baseSku = productSlug + "-default";
-    var sku = generateUniqueSku(baseSku);
-    
-    entity.setSku(sku);
-    entity.setTitle(productTitle);
-    entity.setSystemGenerated(true);
-    
-    if (price != null) {
-      entity.setPriceAmount(price.amount());
-      entity.setPriceCurrency(price.currency().getCurrencyCode());
-      
-      // Create default price set and rule for contextual pricing
-      createDefaultPriceSet(entity, price);
-    }
-    
-    runInScope(() -> variantRepository.saveAndFlush(entity));
-    return fromEntity(entity);
-  }
-
-  private String generateUniqueSku(String baseSku) {
-    if (callInScope(() -> variantRepository.findBySku(baseSku)).isEmpty()) {
-      return baseSku;
-    }
-    
-    int counter = 1;
-    while (true) {
-      String candidateSku = baseSku + "-" + counter;
-      if (callInScope(() -> variantRepository.findBySku(candidateSku)).isEmpty()) {
-        return candidateSku;
-      }
-      counter++;
-    }
   }
 
   /**

@@ -7,16 +7,21 @@ import com.simplecommerce.security.aspects.PermitAspect;
 import jakarta.servlet.DispatcherType;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.boot.actuate.audit.AuditEventRepository;
+import org.springframework.boot.actuate.audit.InMemoryAuditEventRepository;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.boot.actuate.context.ShutdownEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Role;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authorization.AuthorizationEventPublisher;
+import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
@@ -51,6 +56,17 @@ class SecurityConfiguration {
             .anyRequest().authenticated());
     http.oauth2ResourceServer(resourceServer -> resourceServer.jwt(withDefaults()));
     return http.build();
+  }
+
+  @Bean
+  AuditEventRepository auditEventRepository() {
+    return new InMemoryAuditEventRepository();
+  }
+
+  @Bean
+  AuthorizationEventPublisher authorizationEventPublisher
+      (ApplicationEventPublisher applicationEventPublisher) {
+    return new SpringAuthorizationEventPublisher(applicationEventPublisher);
   }
 
   @Bean(name = "permitAspect$0")

@@ -64,7 +64,6 @@ class ProductManagement implements ProductService, NodeService {
   public void setSearchQueryTranslator(ObjectFactory<SearchQueryTranslator> searchQueryTranslator) {
     this.searchQueryTranslator = searchQueryTranslator.getObject();
   }
-
   public void setKetoAuthorizationService(ObjectFactory<KetoAuthorizationService> ketoAuthorizationService) {
     this.ketoAuthorizationService = ketoAuthorizationService.getObject();
   }
@@ -251,7 +250,7 @@ class ProductManagement implements ProductService, NodeService {
     // Set price from product input if provided
     if (productInput.price() != null) {
       variant.setPriceAmount(productInput.price());
-      variant.setPriceCurrency("USD"); // Default to USD
+      variant.setPriceCurrency("EUR"); // Default to EUR
     }
     
     runInScope(() -> variantRepository.saveAndFlush(variant));
