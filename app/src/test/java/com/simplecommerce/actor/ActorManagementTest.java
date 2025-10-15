@@ -6,8 +6,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
-import com.simplecommerce.actor.PermissionTupleInput.SubjectInput;
-import com.simplecommerce.actor.PermissionTupleInput.SubjectSetInput;
+import com.simplecommerce.shared.types.PermissionTupleInput;
+import com.simplecommerce.shared.types.PermissionTupleInput.SubjectInput;
+import com.simplecommerce.shared.types.PermissionTupleInput.SubjectSetInput;
 import com.simplecommerce.actor.bot.BotEntity;
 import com.simplecommerce.actor.user.UserEntity;
 import com.simplecommerce.actor.user.Users;

@@ -173,6 +173,7 @@ class ProductManagementTest {
     var id = productService.deleteProduct("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvUHJvZHVjdC85ZGZlZjZiOC0wZmFlLTRmY2QtYjUxZi02OWU0ZGU1YTViM2U=");
     assertThat(id).isNotNull().isEqualTo("9dfef6b8-0fae-4fcd-b51f-69e4de5a5b3e");
     verify(event, atMostOnce()).fire(any(ProductEvent.class));
+    verify(variantRepository, atMostOnce()).deleteByProductId(any(UUID.class));
   }
 
   @Test

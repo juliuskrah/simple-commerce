@@ -14,6 +14,7 @@ import com.simplecommerce.security.aspects.Check;
 import com.simplecommerce.security.aspects.Permit;
 import com.simplecommerce.shared.Event;
 import com.simplecommerce.shared.GlobalId;
+import com.simplecommerce.shared.authorization.BaseRoles;
 import com.simplecommerce.shared.authorization.KetoAuthorizationService;
 import com.simplecommerce.shared.exceptions.NotFoundException;
 import com.simplecommerce.shared.types.ProductStatus;
@@ -157,7 +158,7 @@ class ProductManagement implements ProductService, NodeService {
     boolean hasPermission = false;
     var authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication != null) {
-      hasPermission = ketoAuthorizationService.checkPermission("Product", "", "view", authentication.getName());
+      hasPermission = ketoAuthorizationService.checkPermission("Group", BaseRoles.MERCHANDISER.getName(), "members", authentication.getName());
     }
     // Limit to published products if no permission
     Specification<ProductEntity> spec = hasPermission ? Specification.unrestricted() : (root, _, cb) ->
@@ -218,7 +219,8 @@ class ProductManagement implements ProductService, NodeService {
   @Override
   public String deleteProduct(String id) {
     var gid = GlobalId.decode(id);
-    runInScope(() -> productRepository.deleteById(UUID.fromString(gid.id())));
+    variantRepository.deleteByProductId(UUID.fromString(gid.id()));
+    productRepository.deleteById(UUID.fromString(gid.id()));
     var entity = new ProductEntity();
     entity.setId(UUID.fromString(gid.id()));
     event.fire(new ProductEvent(entity, ProductEventType.DELETED));

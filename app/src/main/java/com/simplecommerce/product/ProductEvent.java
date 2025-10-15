@@ -11,7 +11,7 @@ import com.simplecommerce.shared.DomainEvent;
  * </ul>
  * @author julius.krah
  * @see ProductEntity#publishProductCreatedEvent()
- * @see ProductEventListener#on(ProductEvent)
+ * @see ProductEventHandler#assignActorPermission(ProductEvent)
  */
 record ProductEvent(ProductEntity source, ProductEventType eventType)
     implements DomainEvent<ProductEntity, ProductEventType> {

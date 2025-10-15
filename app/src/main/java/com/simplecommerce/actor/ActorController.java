@@ -4,6 +4,9 @@ import static com.simplecommerce.shared.types.Types.NODE_BOT;
 import static com.simplecommerce.shared.types.Types.NODE_USER;
 
 import com.simplecommerce.shared.GlobalId;
+import com.simplecommerce.shared.types.PermissionTupleInput;
+import com.simplecommerce.shared.types.Role;
+import com.simplecommerce.shared.types.Role.Permission;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
@@ -50,6 +53,16 @@ class ActorController {
   @QueryMapping
   Optional<Actor> actor(@Argument String username) {
     return actorService.getIfAvailable(actorServiceSupplier).findActor(username);
+  }
+
+  @QueryMapping
+  List<Role> roles() {
+    return actorService.getIfAvailable(actorServiceSupplier).findRoles();
+  }
+
+  @QueryMapping
+  List<Permission> permissions() {
+    return actorService.getIfAvailable(actorServiceSupplier).findPermissions();
   }
 
   @MutationMapping

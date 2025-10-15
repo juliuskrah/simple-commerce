@@ -103,7 +103,7 @@ public class ProductVariantManagement implements ProductVariantService, NodeServ
     var variantEntity = toEntity(productUuid, input);
     
     // Check if this is the first user variant - if so, delete the system-generated default
-    var defaultVariant = callInScope(() -> variantRepository.findByProductIdAndSystemGenerated(productUuid, true));
+    var defaultVariant = callInScope(() -> variantRepository.findByProductIdAndSystemGenerated(productUuid));
     defaultVariant.ifPresent(productVariantEntity -> runInScope(() -> variantRepository.deleteById(productVariantEntity.getId())));
     
     runInScope(() -> variantRepository.saveAndFlush(variantEntity));

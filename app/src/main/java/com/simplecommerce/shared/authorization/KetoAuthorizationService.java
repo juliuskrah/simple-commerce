@@ -19,6 +19,7 @@ import sh.ory.keto.read.v1alpha2.Namespace;
 import sh.ory.keto.read.v1alpha2.NamespacesServiceGrpc.NamespacesServiceBlockingStub;
 import sh.ory.keto.relation_tuples.v1alpha2.RelationTuple;
 import sh.ory.keto.relation_tuples.v1alpha2.Subject;
+import sh.ory.keto.write.v1alpha2.DeleteRelationTuplesRequest;
 import sh.ory.keto.write.v1alpha2.TransactRelationTuplesRequest;
 import sh.ory.keto.write.v1alpha2.WriteServiceGrpc.WriteServiceBlockingStub;
 
@@ -114,6 +115,12 @@ public class KetoAuthorizationService {
         LOG.debug("Creating/Deleting {} relationship tuples within transaction", transactionRequest.getRelationTupleDeltasCount());
         var transactionResponse = writeService.transactRelationTuples(transactionRequest);
         LOG.debug("Transaction completed with {} relation tuples", transactionResponse.getSnaptokensCount());
+    }
+
+    public void deleteRelationship(DeleteRelationTuplesRequest transactionRequest) {
+      LOG.debug("Deleting relationship tuple for query: '{}'", transactionRequest.getRelationQuery());
+      writeService.deleteRelationTuples(transactionRequest);
+      LOG.debug("Relation deleted");
     }
 
 }

@@ -37,7 +37,7 @@ class ProductVariantManagementTest {
     // Given
     var productId = UUID.randomUUID();
     var globalProductId = new GlobalId("Product", productId.toString()).encode();
-    when(variantRepository.findByProductIdAndSystemGenerated(productId, true))
+    when(variantRepository.findByProductIdAndSystemGenerated(productId))
         .thenReturn(Optional.empty());
     when(variantRepository.saveAndFlush(any(ProductVariantEntity.class))).thenAnswer(invocation -> {
       ProductVariantEntity variantEntity = invocation.getArgument(0);

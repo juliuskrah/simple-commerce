@@ -1,4 +1,4 @@
-package com.simplecommerce.actor;
+package com.simplecommerce.shared.types;
 
 import org.jspecify.annotations.Nullable;
 
@@ -21,11 +21,11 @@ public record PermissionTupleInput(
     SubjectInput subject
 ) {
 
-  record SubjectInput(@Nullable String subjectId, @Nullable SubjectSetInput subjectSet) {
+  public record SubjectInput(@Nullable String subjectId, @Nullable SubjectSetInput subjectSet) {
 
   }
 
-  record SubjectSetInput(String namespace, String object, String relation) {
+  public record SubjectSetInput(String namespace, String object, String relation) {
 
   }
 }

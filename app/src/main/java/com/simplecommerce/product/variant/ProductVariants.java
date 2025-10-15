@@ -6,6 +6,7 @@ import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
 /**
@@ -25,6 +26,9 @@ public interface ProductVariants extends Repository<ProductVariantEntity, UUID> 
   ProductVariantEntity saveAndFlush(ProductVariantEntity entity);
   
   void deleteById(UUID id);
-  
-  Optional<ProductVariantEntity> findByProductIdAndSystemGenerated(UUID productId, Boolean systemGenerated);
+
+  void deleteByProductId(UUID productId);
+
+  @Query("FROM ProductVariant v WHERE v.product.id = :productId AND v.systemGenerated = true")
+  Optional<ProductVariantEntity> findByProductIdAndSystemGenerated(UUID productId);
 }

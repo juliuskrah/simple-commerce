@@ -1,5 +1,6 @@
 package com.simplecommerce.actor;
 
+import com.simplecommerce.node.Node;
 import java.time.OffsetDateTime;
 
 /**
@@ -10,7 +11,8 @@ import java.time.OffsetDateTime;
  * @since 1.0
  * @author julius.krah
  */
-public sealed interface Actor permits User, Bot {
+public sealed interface Actor extends Node permits User, Bot {
+  @Override
   String id();
   String username();
   OffsetDateTime createdAt();

@@ -3,10 +3,15 @@ package com.simplecommerce.actor;
 import com.simplecommerce.actor.bot.BotEntity;
 import com.simplecommerce.actor.user.UserEntity;
 import com.simplecommerce.actor.user.Users;
+import com.simplecommerce.shared.authorization.BuiltIns;
 import com.simplecommerce.shared.authorization.KetoAuthorizationService;
 import com.simplecommerce.shared.exceptions.NotFoundException;
+import com.simplecommerce.shared.types.PermissionTupleInput;
+import com.simplecommerce.shared.types.Role;
+import com.simplecommerce.shared.types.Role.Permission;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -119,5 +124,24 @@ public class ActorManagement implements ActorService {
   public Optional<Actor> removePermissionsFromActor(String username, List<PermissionTupleInput> permissions) {
     ketoAuthorizationService.transactRelationship(toRelationTuplesRequest(Action.ACTION_DELETE, permissions));
     return actorRepository.findByUsername(username).map(this::fromEntity);
+  }
+
+  @Override
+  public List<Role> findRoles() {
+    var roles = Arrays.stream(BuiltIns.DEFAULT_ROLES);
+    return roles.map(role -> new Role(
+        role.getName(), Arrays.stream(role.getPermissions()).map(
+        permission -> new Permission(
+            permission.getNamespace(),
+            permission.getPermission())).toList()
+    )).toList();
+  }
+
+  @Override
+  public List<Permission> findPermissions() {
+    return Arrays.stream(BuiltIns.DEFAULT_PERMISSIONS).map(
+        permission -> new Permission(
+            permission.getNamespace(),
+            permission.getPermission())).toList();
   }
 }
