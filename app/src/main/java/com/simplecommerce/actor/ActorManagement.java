@@ -3,12 +3,12 @@ package com.simplecommerce.actor;
 import com.simplecommerce.actor.bot.BotEntity;
 import com.simplecommerce.actor.user.UserEntity;
 import com.simplecommerce.actor.user.Users;
+import com.simplecommerce.shared.authorization.BasePermissions;
 import com.simplecommerce.shared.authorization.BuiltIns;
 import com.simplecommerce.shared.authorization.KetoAuthorizationService;
 import com.simplecommerce.shared.exceptions.NotFoundException;
 import com.simplecommerce.shared.types.PermissionTupleInput;
 import com.simplecommerce.shared.types.Role;
-import com.simplecommerce.shared.types.Role.Permission;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
@@ -131,18 +131,12 @@ public class ActorManagement implements ActorService {
   public List<Role> findRoles() {
     var roles = Arrays.stream(BuiltIns.DEFAULT_ROLES);
     return roles.map(role -> new Role(
-        role.getName(), Arrays.stream(role.getPermissions()).map(
-        permission -> new Permission(
-            permission.getNamespace(),
-            permission.getPermission())).toList()
+        role.getName(), Arrays.asList(role.getPermissions())
     )).toList();
   }
 
   @Override
-  public List<Permission> findPermissions() {
-    return Arrays.stream(BuiltIns.DEFAULT_PERMISSIONS).map(
-        permission -> new Permission(
-            permission.getNamespace(),
-            permission.getPermission())).toList();
+  public List<BasePermissions> findPermissions() {
+    return Arrays.asList(BuiltIns.DEFAULT_PERMISSIONS);
   }
 }

@@ -1,9 +1,12 @@
 package com.simplecommerce.shared.authorization;
 
+import static com.simplecommerce.shared.authorization.BasePermissions.DELETE_PRODUCTS;
+import static com.simplecommerce.shared.authorization.BasePermissions.VIEW_PRODUCTS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.protobuf.util.JsonFormat;
 import com.simplecommerce.config.security.KetoConfiguration;
+import com.simplecommerce.shared.authorization.BasePermissions.Namespaces;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -115,7 +118,14 @@ class KetoAuthorizationServiceIT {
     var namespaces = ketoAuthorizationService.listNamespaces();
     assertThat(namespaces).isNotNull()
         .isNotEmpty()
-        .containsOnly("Actor", "Group", "Product", "ProductVariant", "Order", "Category", "Role");
+        .containsOnly(
+            Namespaces.ACTOR_NAMESPACE,
+            Namespaces.GROUP_NAMESPACE,
+            Namespaces.PRODUCT_NAMESPACE,
+            Namespaces.PRODUCT_VARIANT_NAMESPACE,
+            Namespaces.ORDER_NAMESPACE,
+            Namespaces.CATEGORY_NAMESPACE,
+            Namespaces.ROLE_NAMESPACE);
   }
 
   @Test
@@ -135,9 +145,9 @@ class KetoAuthorizationServiceIT {
     @DisplayName("Actor has read permission on ancestor category")
     void testHasReadPermissionAncestorCategory() {
       var categoryMedia = "daba3cfa-5a44-44a9-827e-b100094d06a6"; // Media
-      var hasPermission = ketoAuthorizationService.checkPermission("Category", categoryMedia, "view", ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY);
+      var hasPermission = ketoAuthorizationService.checkPermission(Namespaces.CATEGORY_NAMESPACE, categoryMedia, "view", ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY);
       assertThat(hasPermission).isTrue();
-      var hasPermissionViaWrite = ketoAuthorizationService.checkPermission("Category", categoryMedia, "view", ACTOR_HAS_WRITE_ON_ANCESTOR_CATEGORY);
+      var hasPermissionViaWrite = ketoAuthorizationService.checkPermission(Namespaces.CATEGORY_NAMESPACE, categoryMedia, "view", ACTOR_HAS_WRITE_ON_ANCESTOR_CATEGORY);
       assertThat(hasPermissionViaWrite).isTrue();
     }
 
@@ -145,7 +155,7 @@ class KetoAuthorizationServiceIT {
     @DisplayName("Actor has write permission on ancestor category")
     void testHasWritePermissionAncestorCategory() {
       var categoryMedia = "daba3cfa-5a44-44a9-827e-b100094d06a6"; // Media
-      var hasPermission = ketoAuthorizationService.checkPermission("Category", categoryMedia, "edit", ACTOR_HAS_WRITE_ON_ANCESTOR_CATEGORY);
+      var hasPermission = ketoAuthorizationService.checkPermission(Namespaces.CATEGORY_NAMESPACE, categoryMedia, "edit", ACTOR_HAS_WRITE_ON_ANCESTOR_CATEGORY);
       assertThat(hasPermission).isTrue();
     }
 
@@ -153,7 +163,7 @@ class KetoAuthorizationServiceIT {
     @DisplayName("Actor has no read permission on ancestor category")
     void testHasNoReadPermissionCategory() {
       var categoryMedia = "daba3cfa-5a44-44a9-827e-b100094d06a6"; // Media
-      var hasPermission = ketoAuthorizationService.checkPermission("Category", categoryMedia, "view", ACTOR_HAS_READ_ON_PARENT_CATEGORY_VIA_GROUP_MEMBERSHIP);
+      var hasPermission = ketoAuthorizationService.checkPermission(Namespaces.CATEGORY_NAMESPACE, categoryMedia, "view", ACTOR_HAS_READ_ON_PARENT_CATEGORY_VIA_GROUP_MEMBERSHIP);
       assertThat(hasPermission).isFalse();
     }
 
@@ -161,9 +171,9 @@ class KetoAuthorizationServiceIT {
     @DisplayName("Actor has no write permission on ancestor category")
     void testHasNoWritePermissionCategory() {
       var categoryMedia = "daba3cfa-5a44-44a9-827e-b100094d06a6"; // Media
-      var hasPermission = ketoAuthorizationService.checkPermission("Category", categoryMedia, "edit", ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY);
+      var hasPermission = ketoAuthorizationService.checkPermission(Namespaces.CATEGORY_NAMESPACE, categoryMedia, "edit", ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY);
       assertThat(hasPermission).isFalse();
-      var hasPermissionViaGroup = ketoAuthorizationService.checkPermission("Category", categoryMedia, "edit", ACTOR_HAS_READ_ON_PARENT_CATEGORY_VIA_GROUP_MEMBERSHIP);
+      var hasPermissionViaGroup = ketoAuthorizationService.checkPermission(Namespaces.CATEGORY_NAMESPACE, categoryMedia, "edit", ACTOR_HAS_READ_ON_PARENT_CATEGORY_VIA_GROUP_MEMBERSHIP);
       assertThat(hasPermissionViaGroup).isFalse();
     }
 
@@ -171,11 +181,11 @@ class KetoAuthorizationServiceIT {
     @DisplayName("Actor has read permission on parent category")
     void testHasReadPermissionParentCategory() {
       var categoryVideos = "393ce9a2-c562-4dc1-8d67-2d28ab6e2776"; // Media > Videos
-      var hasPermission = ketoAuthorizationService.checkPermission("Category", categoryVideos, "view", ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY);
+      var hasPermission = ketoAuthorizationService.checkPermission(Namespaces.CATEGORY_NAMESPACE, categoryVideos, "view", ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY);
       assertThat(hasPermission).isTrue();
-      var hasPermissionViaGroup = ketoAuthorizationService.checkPermission("Category", categoryVideos, "view", ACTOR_HAS_READ_ON_PARENT_CATEGORY_VIA_GROUP_MEMBERSHIP);
+      var hasPermissionViaGroup = ketoAuthorizationService.checkPermission(Namespaces.CATEGORY_NAMESPACE, categoryVideos, "view", ACTOR_HAS_READ_ON_PARENT_CATEGORY_VIA_GROUP_MEMBERSHIP);
       assertThat(hasPermissionViaGroup).isTrue();
-      var hasPermissionViaWrite = ketoAuthorizationService.checkPermission("Category", categoryVideos, "view", ACTOR_HAS_WRITE_ON_ANCESTOR_CATEGORY);
+      var hasPermissionViaWrite = ketoAuthorizationService.checkPermission(Namespaces.CATEGORY_NAMESPACE, categoryVideos, "view", ACTOR_HAS_WRITE_ON_ANCESTOR_CATEGORY);
       assertThat(hasPermissionViaWrite).isTrue();
     }
 
@@ -183,9 +193,9 @@ class KetoAuthorizationServiceIT {
     @DisplayName("Actor has no write permission on parent category")
     void testHasNoWritePermissionParentCategory() {
       var categoryVideos = "393ce9a2-c562-4dc1-8d67-2d28ab6e2776"; // Media > Videos
-      var hasPermission = ketoAuthorizationService.checkPermission("Category", categoryVideos, "edit", ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY);
+      var hasPermission = ketoAuthorizationService.checkPermission(Namespaces.CATEGORY_NAMESPACE, categoryVideos, "edit", ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY);
       assertThat(hasPermission).isFalse();
-      var hasPermissionViaGroup = ketoAuthorizationService.checkPermission("Category", categoryVideos, "edit", ACTOR_HAS_READ_ON_PARENT_CATEGORY_VIA_GROUP_MEMBERSHIP);
+      var hasPermissionViaGroup = ketoAuthorizationService.checkPermission(Namespaces.CATEGORY_NAMESPACE, categoryVideos, "edit", ACTOR_HAS_READ_ON_PARENT_CATEGORY_VIA_GROUP_MEMBERSHIP);
       assertThat(hasPermissionViaGroup).isFalse();
     }
 
@@ -193,11 +203,11 @@ class KetoAuthorizationServiceIT {
     @DisplayName("Actor has read permission on child category")
     void testHasReadPermissionChildCategory() {
       var categoryDocumentaries = "64b66eab-e1d0-4b00-ac64-a8cf1daebcc3"; // Media > Videos > Digital Downloads
-      var hasPermission = ketoAuthorizationService.checkPermission("Category", categoryDocumentaries, "view", ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY);
+      var hasPermission = ketoAuthorizationService.checkPermission(Namespaces.CATEGORY_NAMESPACE, categoryDocumentaries, "view", ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY);
       assertThat(hasPermission).isTrue();
-      var hasPermissionViaGroup = ketoAuthorizationService.checkPermission("Category", categoryDocumentaries, "view", ACTOR_HAS_READ_ON_PARENT_CATEGORY_VIA_GROUP_MEMBERSHIP);
+      var hasPermissionViaGroup = ketoAuthorizationService.checkPermission(Namespaces.CATEGORY_NAMESPACE, categoryDocumentaries, "view", ACTOR_HAS_READ_ON_PARENT_CATEGORY_VIA_GROUP_MEMBERSHIP);
       assertThat(hasPermissionViaGroup).isTrue();
-      var hasPermissionViaWrite = ketoAuthorizationService.checkPermission("Category", categoryDocumentaries, "view", ACTOR_HAS_WRITE_ON_ANCESTOR_CATEGORY);
+      var hasPermissionViaWrite = ketoAuthorizationService.checkPermission(Namespaces.CATEGORY_NAMESPACE, categoryDocumentaries, "view", ACTOR_HAS_WRITE_ON_ANCESTOR_CATEGORY);
       assertThat(hasPermissionViaWrite).isTrue();
     }
 
@@ -205,9 +215,9 @@ class KetoAuthorizationServiceIT {
     @DisplayName("Actor has no write permission on child category")
     void testHasNoWritePermissionChildCategory() {
       var categoryDocumentaries = "64b66eab-e1d0-4b00-ac64-a8cf1daebcc3"; // Media > Videos > Digital Downloads
-      var hasPermission = ketoAuthorizationService.checkPermission("Category", categoryDocumentaries, "edit", ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY);
+      var hasPermission = ketoAuthorizationService.checkPermission(Namespaces.CATEGORY_NAMESPACE, categoryDocumentaries, "edit", ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY);
       assertThat(hasPermission).isFalse();
-      var hasPermissionViaGroup = ketoAuthorizationService.checkPermission("Category", categoryDocumentaries, "edit", ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY);
+      var hasPermissionViaGroup = ketoAuthorizationService.checkPermission(Namespaces.CATEGORY_NAMESPACE, categoryDocumentaries, "edit", ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY);
       assertThat(hasPermissionViaGroup).isFalse();
     }
   }
@@ -221,8 +231,7 @@ class KetoAuthorizationServiceIT {
     @Test
     @DisplayName("Actor has read permission on all products")
     void testHasReadPermissionOnAllProducts() {
-      // TODO: Add object
-      var hasPermission = ketoAuthorizationService.checkPermission("Product", "", "view", ACTOR_HAS_READ_ON_ALL_PRODUCTS);
+      var hasPermission = ketoAuthorizationService.checkPermission(Namespaces.PRODUCT_NAMESPACE, "__ALL__", VIEW_PRODUCTS.getPermission(), ACTOR_HAS_READ_ON_ALL_PRODUCTS);
       assertThat(hasPermission).isTrue();
     }
 
@@ -231,7 +240,7 @@ class KetoAuthorizationServiceIT {
     @ValueSource(strings = {"delete", "edit", "view"})
     void testOwnerHasPermissionsOnProduct(String permission) {
       var productId = "eff5dfb9-3caf-40ff-9ed9-55045e2022be"; // The Matrix
-      var hasPermission = ketoAuthorizationService.checkPermission("Product", productId, permission, ACTOR_HAS_OWNER_ON_PRODUCT);
+      var hasPermission = ketoAuthorizationService.checkPermission(Namespaces.PRODUCT_NAMESPACE, productId, permission, ACTOR_HAS_OWNER_ON_PRODUCT);
       assertThat(hasPermission).isTrue();
     }
 
@@ -239,7 +248,7 @@ class KetoAuthorizationServiceIT {
     @DisplayName("Actor has no delete permission on specific product")
     void testNonOwnerHasNoDeletePermissionOnProduct() {
       var productId = "eff5dfb9-3caf-40ff-9ed9-55045e2022be"; // The Matrix
-      var hasPermission = ketoAuthorizationService.checkPermission("Product", productId, "delete", ACTOR_HAS_READ_ON_ALL_PRODUCTS);
+      var hasPermission = ketoAuthorizationService.checkPermission(Namespaces.PRODUCT_NAMESPACE, productId, DELETE_PRODUCTS.getPermission(), ACTOR_HAS_READ_ON_ALL_PRODUCTS);
       assertThat(hasPermission).isFalse();
     }
   }

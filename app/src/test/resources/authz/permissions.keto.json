@@ -42,28 +42,6 @@
     {
       "action": "ACTION_INSERT",
       "relation_tuple": {
-        "namespace": "Group",
-        "object": "Nebuchadnezzar",
-        "relation": "members",
-        "subject": {
-          "id": "trinity"
-        }
-      }
-    },
-    {
-      "action": "ACTION_INSERT",
-      "relation_tuple": {
-        "namespace": "Group",
-        "object": "Nebuchadnezzar",
-        "relation": "members",
-        "subject": {
-          "id": "tank"
-        }
-      }
-    },
-    {
-      "action": "ACTION_INSERT",
-      "relation_tuple": {
         "namespace": "Category",
         "object": "393ce9a2-c562-4dc1-8d67-2d28ab6e2776",
         "relation": "viewers",
@@ -90,6 +68,28 @@
     {
       "action": "ACTION_INSERT",
       "relation_tuple": {
+        "namespace": "Group",
+        "object": "Nebuchadnezzar",
+        "relation": "members",
+        "subject": {
+          "id": "trinity"
+        }
+      }
+    },
+    {
+      "action": "ACTION_INSERT",
+      "relation_tuple": {
+        "namespace": "Group",
+        "object": "Nebuchadnezzar",
+        "relation": "members",
+        "subject": {
+          "id": "tank"
+        }
+      }
+    },
+    {
+      "action": "ACTION_INSERT",
+      "relation_tuple": {
         "namespace": "Product",
         "object": "eff5dfb9-3caf-40ff-9ed9-55045e2022be",
         "relation": "owners",
@@ -102,6 +102,7 @@
       "action": "ACTION_INSERT",
       "relation_tuple": {
         "namespace": "Product",
+        "object": "__ALL__",
         "relation": "viewers",
         "subject": {
           "set": {

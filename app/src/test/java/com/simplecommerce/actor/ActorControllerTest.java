@@ -7,10 +7,13 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.simplecommerce.shared.GlobalId;
+import com.simplecommerce.shared.authorization.BasePermissions;
+import com.simplecommerce.shared.types.Role;
 import com.simplecommerce.shared.types.Types;
 import com.simplecommerce.shared.types.UserType;
 import graphql.ErrorType;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,6 +23,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -257,5 +261,35 @@ class ActorControllerTest {
             .element(0)
             .hasFieldOrPropertyWithValue("message", "Exactly one key must be specified for OneOf type 'SubjectInput'.")
             .hasFieldOrPropertyWithValue("errorType", ErrorType.ValidationError));
+  }
+
+  @Test
+  @DisplayName("Should show all permissions in the system")
+  void shouldShowAllPermissions() {
+    when(actorService.findPermissions()).thenReturn(Arrays.asList(BasePermissions.values()));
+
+    graphQlTester.documentName("actorDetails")
+        .operationName("permissions")
+        .execute()
+        .path("permissions")
+        .hasValue().entity(BasePermissions[].class).satisfies(permissions -> assertThat(permissions).isNotNull().hasSize(8)
+            .containsExactly(BasePermissions.values()));
+  }
+
+  @Test
+  @DisplayName("Should show custom and built-in roles in the system")
+  void shouldShowAllRoles() {
+    var roles = List.of(new Role("Administrator", List.of(BasePermissions.DELETE_PRODUCTS)));
+    when(actorService.findRoles()).thenReturn(roles);
+
+    graphQlTester.documentName("actorDetails")
+        .operationName("roles")
+        .execute()
+        .path("roles")
+        .hasValue().entity(new ParameterizedTypeReference<List<Role>>() {
+        }).satisfies(baseRoles -> {
+          assertThat(baseRoles).isNotNull().hasSize(1)
+              .containsExactly(roles.toArray(new Role[0]));
+        });
   }
 }

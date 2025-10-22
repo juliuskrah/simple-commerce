@@ -1,5 +1,6 @@
 package com.simplecommerce.product;
 
+import static com.simplecommerce.shared.authorization.BasePermissions.VIEW_PRODUCTS;
 import static com.simplecommerce.shared.utils.VirtualThreadHelper.callInScope;
 import static com.simplecommerce.shared.utils.VirtualThreadHelper.runInScope;
 
@@ -14,6 +15,7 @@ import com.simplecommerce.security.aspects.Check;
 import com.simplecommerce.security.aspects.Permit;
 import com.simplecommerce.shared.Event;
 import com.simplecommerce.shared.GlobalId;
+import com.simplecommerce.shared.authorization.BasePermissions.Namespaces;
 import com.simplecommerce.shared.authorization.BaseRoles;
 import com.simplecommerce.shared.authorization.KetoAuthorizationService;
 import com.simplecommerce.shared.exceptions.NotFoundException;
@@ -125,7 +127,7 @@ class ProductManagement implements ProductService, NodeService {
   /**
    * {@inheritDoc}
    */
-  @Check(namespace = "Product", relation = "view", returnObject = "returnObject.status", object = "T(com.simplecommerce.shared.GlobalId).decode(#id).id")
+  @Check(namespace = Namespaces.PRODUCT_NAMESPACE, relation = "view", returnObject = "returnObject.status", object = "T(com.simplecommerce.shared.GlobalId).decode(#id).id")
   @Transactional(readOnly = true)
   @Override
   public Product findProduct(String id) {
@@ -158,7 +160,7 @@ class ProductManagement implements ProductService, NodeService {
     boolean hasPermission = false;
     var authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication != null) {
-      hasPermission = ketoAuthorizationService.checkPermission("Group", BaseRoles.MERCHANDISER.getName(), "members", authentication.getName());
+      hasPermission = ketoAuthorizationService.checkPermission(Namespaces.PRODUCT_NAMESPACE, "__ALL__", VIEW_PRODUCTS.getPermission(), authentication.getName());
     }
     // Limit to published products if no permission
     Specification<ProductEntity> spec = hasPermission ? Specification.unrestricted() : (root, _, cb) ->
@@ -215,7 +217,7 @@ class ProductManagement implements ProductService, NodeService {
   /**
    * {@inheritDoc}
    */
-  @Permit(namespace = "Product", relation = "delete", object = "T(com.simplecommerce.shared.GlobalId).decode(#id).id")
+  @Permit(namespace = Namespaces.PRODUCT_NAMESPACE, relation = "delete", object = "T(com.simplecommerce.shared.GlobalId).decode(#id).id")
   @Override
   public String deleteProduct(String id) {
     var gid = GlobalId.decode(id);

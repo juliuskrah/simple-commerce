@@ -34,20 +34,20 @@ staticClients:
 enablePasswordDB: true
 staticPasswords:
   # Staff / Admin / Owner
-  - email: "julius.krah@example.com"
+  - email: "storeowner@simple-commerce.com"
     # password: simple_commerce
     hash: "$2a$12$.EoexsiydIigTXvbC3S06.hs7FVM6d.6yryz2mtoqNFSQz/Hh3qBS"
     username: "simple_commerce"
     userID: "1f1de938-6c08-4435-8ef1-068f7b9c7f16"
   # Customer
-  - email: "customer@simple-commerce.com"
-    # password: customer123
-    hash: "$2a$12$FGCQFs2XH5dG4.XdXR9Wu.3wcZHHld9J4c2lL81Ny/r402w7JRMJ."
-    username: "customer"
+  - email: "naomi@simple-commerce.com"
+    # password: naomi123
+    hash: "$2a$12$9Mxg34s7Mq621FA1Xpf5M.rhVwrbIWVlBL7IdPUgo7OR74wroNM0W"
+    username: "naomi"
     userID: "aab278e5-5495-4706-bc0c-7aa53eecff2f"
-  # Staff / Vendor / Seller
-  - email: "vendor@simple-commerce.com"
-    # password: vendor123
-    hash: "$2a$12$S4K2N9OgCXTPEjYi2fkUQ.Da6QcjHl0XfGE407v5K7b97O2bp0xpK"
-    username: "vendor"
+  # Staff / Merchandiser
+  - email: "trinity@simple-commerce.com"
+    # password: trinity123
+    hash: "$2a$12$w1Gab2Wmlrb9GAMMCZu90u4NS8Oq2VIGAPwsloZx5h5EPuSZkjpUC"
+    username: "trinity"
     userID: "93a38a0f-1c1e-4c24-87be-99b13446f73c"

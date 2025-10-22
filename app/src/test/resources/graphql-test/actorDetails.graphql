@@ -22,11 +22,18 @@ query me {
         email
         createdAt
         updatedAt
-        ... on User {
-            lastLogin
-        }
+        userType
+        lastLogin
     }
 }
 
+query permissions {
+    permissions
+}
 
-
+query roles {
+    roles {
+        name
+        permissions
+    }
+}

@@ -8,26 +8,32 @@ extend type Query {
 extend type Mutation {
     """
     Assign permissions to an actor. The permissions are specified as a list of PermissionTupleInput objects. The following namespaces are supported:
-    - Product
-    - Order
-    - Group
     - Actor
     - Category
+    - Group
+    - Order
+    - Product
     - ProductVariant
+    - Role
     Returns the updated Actor object with the newly assigned permissions if an actor exists for the provided username; otherwise, returns null.
     """
     assignPermissionsToActor(username: String!, permissions: [PermissionTupleInput!]!): Actor
     """
     Revoke permissions from an actor. The permissions are specified as a list of PermissionTupleInput objects. The following namespaces are supported:
-    - Product
-    - Order
-    - Group
     - Actor
     - Category
+    - Group
+    - Order
+    - Product
     - ProductVariant
+    - Role
     Returns the updated Actor object with the revoked permissions if an actor exists for the provided username; otherwise, returns null.
     """
     revokePermissionsFromActor(username: String!, permissions: [PermissionTupleInput!]!): Actor
+    "Assign the given roles to actor"
+    assignRolesToActor(username: String!, roleNames: [String!]!): ActorRolesPayload
+    "Revoke the given roles from actor"
+    revokeRolesFromActor(username: String!, roleNames: [String!]!): ActorRolesPayload
     createUser(input: CreateUserInput!): User!
     createBot(input: CreateBotInput!): Bot!
 }
@@ -62,14 +68,26 @@ type Bot implements Node & Actor {
     updatedAt: DateTime!
 }
 
-type Permission {
-    namespace: String!
-    permission: String!
-}
-
 type Role {
     name: String!
+    description: JsonString
     permissions: [Permission!]!
+}
+
+type ActorRolesPayload {
+    actor: Actor
+    roles: [Role]
+}
+
+enum Permission {
+    VIEW_PRODUCTS
+    VIEW_PRODUCT_COSTS
+    CREATE_AND_EDIT_PRODUCTS
+    EDIT_PRODUCT_COSTS
+    EDIT_PRODUCT_PRICES
+    EXPORT_PRODUCTS
+    DELETE_PRODUCTS
+    VIEW_DASHBOARD
 }
 
 enum UserType {
@@ -81,14 +99,15 @@ enum UserType {
 input CreateUserInput {
     username: String!
     email: String!
-    roles: [String!]
+    "Ids of the roles to assign to the user"
+    roles: [ID!]
 }
 
 input CreateBotInput {
     username: String!
     email: String
     appId: String
-    permissions: [String!]
+    permissions: [Permission!]
 }
 
 input PermissionTupleInput {

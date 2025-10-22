@@ -1,8 +1,8 @@
 package com.simplecommerce.actor;
 
+import com.simplecommerce.shared.authorization.BasePermissions;
 import com.simplecommerce.shared.types.PermissionTupleInput;
 import com.simplecommerce.shared.types.Role;
-import com.simplecommerce.shared.types.Role.Permission;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,5 +24,5 @@ public interface ActorService {
 
   List<Role> findRoles();
 
-  List<Permission> findPermissions();
+  List<BasePermissions> findPermissions();
 }

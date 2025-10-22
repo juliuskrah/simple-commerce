@@ -4,9 +4,9 @@ import static com.simplecommerce.shared.types.Types.NODE_BOT;
 import static com.simplecommerce.shared.types.Types.NODE_USER;
 
 import com.simplecommerce.shared.GlobalId;
+import com.simplecommerce.shared.authorization.BasePermissions;
 import com.simplecommerce.shared.types.PermissionTupleInput;
 import com.simplecommerce.shared.types.Role;
-import com.simplecommerce.shared.types.Role.Permission;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
@@ -61,7 +61,7 @@ class ActorController {
   }
 
   @QueryMapping
-  List<Permission> permissions() {
+  List<BasePermissions> permissions() {
     return actorService.getIfAvailable(actorServiceSupplier).findPermissions();
   }
 
