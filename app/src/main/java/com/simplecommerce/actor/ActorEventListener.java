@@ -3,6 +3,7 @@ package com.simplecommerce.actor;
 import static java.time.ZoneOffset.UTC;
 
 import com.simplecommerce.actor.user.UserEntity;
+import com.simplecommerce.shared.types.UserType;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
 import java.util.Objects;
@@ -33,11 +34,9 @@ public class ActorEventListener {
 
   private UserEntity mapToUserEntity(JwtAuthenticationToken jwt) {
     UserEntity entity = new UserEntity();
+    entity.setUserType(UserType.STAFF);
     mapCommonFields(entity, jwt);
-    
-    // Map staff-specific fields from JWT claims
-    entity.setDepartment(jwt.getToken().getClaimAsString("department"));
-    
+
     return entity;
   }
 
@@ -45,8 +44,8 @@ public class ActorEventListener {
     entity.setUsername(jwt.getName());
     entity.setEmail(jwt.getToken().getClaimAsString("email"));
     entity.setExternalId(jwt.getToken().getSubject());
-    if (Objects.nonNull(jwt.getToken().getIssuedAt())) {
-      entity.setLastLogin(jwt.getToken().getIssuedAt().atOffset(UTC));
+    if (Objects.nonNull(jwt.getToken().getIssuedAt()) && entity instanceof UserEntity userEntity) {
+      userEntity.setLastLogin(jwt.getToken().getIssuedAt().atOffset(UTC));
     }
   }
 
@@ -54,7 +53,7 @@ public class ActorEventListener {
    * Upserts an actor in the database. Creates new actor if not exists,
    * otherwise updates the last login time.
    */
-  private void upsertActor(ActorEntity entity) {
+  private void upsertActor(UserEntity entity) {
     var lastLogin = entity.getLastLogin();
     var sessionFactory = emf.unwrap(SessionFactory.class);
     
@@ -78,7 +77,7 @@ public class ActorEventListener {
     if (event.getAuthentication() instanceof JwtAuthenticationToken jwt) {
       LOG.debug("Authentication success for: {}", jwt.getName());
 
-      ActorEntity actor = mapToUserEntity(jwt);
+      UserEntity actor = mapToUserEntity(jwt);
       upsertActor(actor);
       
       LOG.debug("{} logged in at {}", actor.getUsername(), actor.getLastLogin());

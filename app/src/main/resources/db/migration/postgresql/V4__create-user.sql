@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
     id UUID NOT NULL,
     email VARCHAR(512) NOT NULL,
     username VARCHAR(250) NOT NULL,
-    department VARCHAR(100),
+    user_type VARCHAR(50) NOT NULL DEFAULT 'STAFF',
     external_id VARCHAR(128),
     PRIMARY KEY (id)
 );
@@ -22,4 +22,9 @@ ALTER TABLE IF EXISTS users
 
 ALTER TABLE IF EXISTS users
     ADD CONSTRAINT users_email_unique
-    UNIQUE (email)
+    UNIQUE (email);
+
+-- Add check constraint for user type
+ALTER TABLE IF EXISTS users
+    ADD CONSTRAINT user_type_check
+        CHECK (user_type IN ('STAFF', 'COLLABORATOR', 'CUSTOMER'))

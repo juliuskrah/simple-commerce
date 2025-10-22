@@ -38,8 +38,6 @@ public abstract class ActorEntity implements Auditable<String, UUID, OffsetDateT
   @Column(unique = true)
   private String externalId;
 
-  private OffsetDateTime lastLogin;
-
   @CreationTimestamp
   @Column(nullable = false)
   private OffsetDateTime createdAt;
@@ -84,14 +82,6 @@ public abstract class ActorEntity implements Auditable<String, UUID, OffsetDateT
 
   public void setExternalId(String externalId) {
     this.externalId = externalId;
-  }
-
-  public OffsetDateTime getLastLogin() {
-    return lastLogin;
-  }
-
-  public void setLastLogin(OffsetDateTime lastLogin) {
-    this.lastLogin = lastLogin;
   }
 
   // Auditable implementation
@@ -164,7 +154,6 @@ public abstract class ActorEntity implements Auditable<String, UUID, OffsetDateT
         ", username='" + username + '\'' +
         ", email='" + email + '\'' +
         ", externalId='" + externalId + '\'' +
-        ", lastLogin=" + lastLogin +
         ", createdAt=" + createdAt +
         ", updatedAt=" + updatedAt +
         ", createdBy='" + createdBy + '\'' +

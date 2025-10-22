@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.simplecommerce.DataPostgresTest;
 import com.simplecommerce.actor.bot.BotEntity;
 import com.simplecommerce.actor.user.UserEntity;
+import com.simplecommerce.shared.types.UserType;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ class ActorsTest {
     UserEntity user = new UserEntity();
     user.setUsername("testuser");
     user.setEmail("test@example.com");
-    user.setDepartment("Engineering");
+    user.setUserType(UserType.STAFF);
     UserEntity savedUser = em.persistFlushFind(user);
     UUID userId = savedUser.getId();
     em.detach(savedUser);
@@ -120,7 +121,7 @@ class ActorsTest {
     UserEntity user = new UserEntity();
     user.setUsername("uniqueuser");
     user.setEmail("unique@example.com");
-    user.setDepartment("HR");
+    user.setUserType(UserType.COLLABORATOR);
     em.persistAndFlush(user);
     em.detach(user);
 
@@ -132,7 +133,7 @@ class ActorsTest {
         .get()
         .hasFieldOrPropertyWithValue("username", "uniqueuser")
         .hasFieldOrPropertyWithValue("email", "unique@example.com")
-        .hasFieldOrPropertyWithValue("department", "HR");
+        .hasFieldOrPropertyWithValue("userType", UserType.COLLABORATOR);
   }
 
   @Test
@@ -176,7 +177,7 @@ class ActorsTest {
     UserEntity user = new UserEntity();
     user.setUsername("usertype");
     user.setEmail("usertype@example.com");
-    user.setDepartment("Sales");
+    user.setUserType(UserType.CUSTOMER);
     em.persist(user);
 
     BotEntity bot = new BotEntity();

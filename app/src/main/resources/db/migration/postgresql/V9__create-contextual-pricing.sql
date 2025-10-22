@@ -2,7 +2,7 @@
 -- This migration adds price sets and price rules for complex pricing scenarios
 
 -- Create price_sets table
-CREATE TABLE price_sets (
+CREATE TABLE IF NOT EXISTS price_sets (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     variant_id UUID NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE price_sets (
 );
 
 -- Create price_rules table
-CREATE TABLE price_rules (
+CREATE TABLE IF NOT EXISTS price_rules (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     price_set_id UUID NOT NULL,
     context_type VARCHAR(50) NOT NULL CHECK (context_type IN ('GEOGRAPHIC', 'CURRENCY', 'CUSTOMER_GROUP', 'DEFAULT')),
@@ -52,15 +52,15 @@ CREATE TABLE price_rules (
 );
 
 -- Create indexes for better performance
-CREATE INDEX idx_price_sets_variant_id ON price_sets(variant_id);
-CREATE INDEX idx_price_sets_active ON price_sets(active) WHERE active = true;
-CREATE INDEX idx_price_sets_priority ON price_sets(priority);
+CREATE INDEX IF NOT EXISTS idx_price_sets_variant_id ON price_sets(variant_id);
+CREATE INDEX IF NOT EXISTS idx_price_sets_active ON price_sets(active) WHERE active = true;
+CREATE INDEX IF NOT EXISTS idx_price_sets_priority ON price_sets(priority);
 
-CREATE INDEX idx_price_rules_price_set_id ON price_rules(price_set_id);
-CREATE INDEX idx_price_rules_context ON price_rules(context_type, context_value);
-CREATE INDEX idx_price_rules_active ON price_rules(active) WHERE active = true;
-CREATE INDEX idx_price_rules_quantity ON price_rules(min_quantity, max_quantity);
-CREATE INDEX idx_price_rules_validity ON price_rules(valid_from, valid_until);
+CREATE INDEX IF NOT EXISTS idx_price_rules_price_set_id ON price_rules(price_set_id);
+CREATE INDEX IF NOT EXISTS idx_price_rules_context ON price_rules(context_type, context_value);
+CREATE INDEX IF NOT EXISTS idx_price_rules_active ON price_rules(active) WHERE active = true;
+CREATE INDEX IF NOT EXISTS idx_price_rules_quantity ON price_rules(min_quantity, max_quantity);
+CREATE INDEX IF NOT EXISTS idx_price_rules_validity ON price_rules(valid_from, valid_until);
 
 -- Create a default price set for each existing variant
 -- This ensures backward compatibility with existing variants

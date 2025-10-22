@@ -1,7 +1,13 @@
 import {Context, Namespace, SubjectSet} from "@ory/keto-namespace-types"
 
-// Customers, Staff and Bots
+// Users and Bots
 class Actor implements Namespace {
+}
+
+class Role implements Namespace {
+  related: {
+    assignees: (Actor | SubjectSet<Group, "members">)[]
+  }
 }
 
 // Group for organizational structure
@@ -14,10 +20,11 @@ class Group implements Namespace {
 class Product implements Namespace {
   related: {
     parents: Category[]
-    editors: (Actor | SubjectSet<Group, "members">)[]
-    viewers: (Actor | SubjectSet<Group, "members">)[]
-    owners: (Actor | SubjectSet<Group, "members">)[]
+    editors: (Actor | SubjectSet<Role, "assignees"> | SubjectSet<Group, "members">)[]
+    viewers: (Actor | SubjectSet<Role, "assignees"> | SubjectSet<Group, "members">)[]
+    owners: (Actor | SubjectSet<Role, "assignees"> | SubjectSet<Group, "members">)[]
   }
+
   permits = {
     edit: (ctx: Context): boolean => this.permits.delete(ctx) ||
         this.related.editors.includes(ctx.subject) ||
@@ -35,6 +42,7 @@ class ProductVariant implements Namespace {
     editors: (Actor | SubjectSet<Group, "members">)[]
     viewers: (Actor | SubjectSet<Group, "members">)[]
   }
+
   permits = {
     edit: (ctx: Context): boolean => this.related.editors.includes(ctx.subject) ||
         this.related.parents.traverse(p => p.permits.edit(ctx)),
@@ -46,7 +54,7 @@ class ProductVariant implements Namespace {
 
 class Order implements Namespace {
   related: {
-    owners: (Actor | SubjectSet<Group, "members">)[]
+    owners: Actor[]
     contains: ProductVariant[]
   }
 }
@@ -58,6 +66,7 @@ class Category implements Namespace {
     editors: (Actor | SubjectSet<Group, "members">)[]
     viewers: (Actor | SubjectSet<Group, "members">)[]
   }
+
   permits = {
     edit: (ctx: Context): boolean => this.related.editors.includes(ctx.subject) ||
         this.related.parents.traverse(p => p.permits.edit(ctx)),

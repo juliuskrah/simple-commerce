@@ -71,6 +71,7 @@ public class ActorManagement implements ActorService {
     return new User(
         entity.getId().toString(),
         entity.getUsername(),
+        entity.getUserType(),
         entity.getLastModifiedDate().orElseGet(epoch),
         entity.getCreatedDate().orElseGet(epoch),
         entity.getLastLogin(),

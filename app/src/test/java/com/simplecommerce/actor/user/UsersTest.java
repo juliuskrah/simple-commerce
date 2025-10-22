@@ -1,5 +1,8 @@
 package com.simplecommerce.actor.user;
 
+import static com.simplecommerce.shared.types.UserType.COLLABORATOR;
+import static com.simplecommerce.shared.types.UserType.CUSTOMER;
+import static com.simplecommerce.shared.types.UserType.STAFF;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.simplecommerce.DataPostgresTest;
@@ -30,7 +33,7 @@ class UsersTest {
     UserEntity user = new UserEntity();
     user.setUsername("testuser");
     user.setEmail("test@example.com");
-    user.setDepartment("Engineering");
+    user.setUserType(COLLABORATOR);
     UserEntity savedUser = em.persistFlushFind(user);
     UUID userId = savedUser.getId();
     em.detach(savedUser);
@@ -43,7 +46,7 @@ class UsersTest {
         .get()
         .hasFieldOrPropertyWithValue("username", "testuser")
         .hasFieldOrPropertyWithValue("email", "test@example.com")
-        .hasFieldOrPropertyWithValue("department", "Engineering");
+        .hasFieldOrPropertyWithValue("userType", COLLABORATOR);
   }
 
   @Test
@@ -64,7 +67,7 @@ class UsersTest {
     UserEntity user = new UserEntity();
     user.setUsername("johndoe");
     user.setEmail("john.doe@example.com");
-    user.setDepartment("Marketing");
+    user.setUserType(STAFF);
     em.persistAndFlush(user);
     em.detach(user);
 
@@ -76,7 +79,7 @@ class UsersTest {
         .get()
         .hasFieldOrPropertyWithValue("username", "johndoe")
         .hasFieldOrPropertyWithValue("email", "john.doe@example.com")
-        .hasFieldOrPropertyWithValue("department", "Marketing");
+        .hasFieldOrPropertyWithValue("userType", STAFF);
   }
 
   @Test
@@ -97,7 +100,7 @@ class UsersTest {
     UserEntity user = new UserEntity();
     user.setUsername("newuser");
     user.setEmail("new.user@example.com");
-    user.setDepartment("Finance");
+    user.setUserType(CUSTOMER);
 
     // When
     UserEntity savedUser = userRepository.saveAndFlush(user);
@@ -111,6 +114,6 @@ class UsersTest {
     assertThat(retrievedUser)
         .hasFieldOrPropertyWithValue("username", "newuser")
         .hasFieldOrPropertyWithValue("email", "new.user@example.com")
-        .hasFieldOrPropertyWithValue("department", "Finance");
+        .hasFieldOrPropertyWithValue("userType", CUSTOMER);
   }
 }

@@ -57,7 +57,6 @@ public class BotEntity extends ActorEntity {
         ", email='" + getEmail() + '\'' +
         ", appId='" + appId + '\'' +
         ", externalId='" + getExternalId() + '\'' +
-        ", lastLogin=" + getLastLogin() +
         ", createdAt=" + getCreatedDate() +
         ", updatedAt=" + getLastModifiedDate() +
         '}';

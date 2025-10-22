@@ -15,7 +15,7 @@ import picocli.CommandLine;
 @SpringBootApplication(proxyBeanMethods = false)
 public class SimpleCommerceApplication {
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
       new CommandLine(new Command())
           .addSubcommand(new ServeCommand(SimpleCommerceApplication.class))
           .addSubcommand(new MigrateCommand(SimpleCommerceApplication.class))

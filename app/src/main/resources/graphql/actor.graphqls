@@ -45,20 +45,7 @@ type User implements Node & Actor {
     id: ID!
     username: String!
     email: String
-    department: String
-    createdAt: DateTime!
-    updatedAt: DateTime!
-    lastLogin: DateTime
-}
-
-"A customer who can interact with the storefront and complete purchases."
-type Customer implements Node & Actor {
-    id: ID!
-    username: String!
-    email: String
-    firstName: String
-    lastName: String
-    customerGroup: CustomerGroup!
+    userType: UserType!
     createdAt: DateTime!
     updatedAt: DateTime!
     lastLogin: DateTime
@@ -70,10 +57,9 @@ type Bot implements Node & Actor {
     username: String!
     email: String
     appId: String
-    permissions: [String!]!
+    permissions: [Permission!]!
     createdAt: DateTime!
     updatedAt: DateTime!
-    lastLogin: DateTime
 }
 
 type Permission {
@@ -86,18 +72,16 @@ type Role {
     permissions: [Permission!]!
 }
 
-enum CustomerGroup {
-    B2C
-    B2B
-    VIP
-    WHOLESALE
+enum UserType {
+    STAFF
+    COLLABORATOR
+    CUSTOMER
 }
 
 input CreateUserInput {
     username: String!
     email: String!
-    department: String
-    role: String
+    roles: [String!]
 }
 
 input CreateBotInput {

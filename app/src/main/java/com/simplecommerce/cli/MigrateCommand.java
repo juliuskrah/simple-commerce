@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import picocli.CommandLine;
-import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.Spec;
@@ -52,18 +52,16 @@ public class MigrateCommand implements Runnable {
 
     ParseResult parseResult = spec.commandLine().getParseResult();
 
-    ConfigurableApplicationContext context = springBuilder.run(parseResult.originalArgs().toArray(String[]::new));
-    Flyway flyway = context.getBean(Flyway.class);
-    if (exclusive != null && exclusive.clean) {
-      flyway.clean();
+    try (ConfigurableApplicationContext context = springBuilder.run(parseResult.originalArgs().toArray(String[]::new))) {
+
+      Flyway flyway = context.getBean(Flyway.class);
+      if (exclusive != null && exclusive.clean) {
+        flyway.clean();
+      }
+      flyway.migrate();
+      LOG.info("Migration completed successfully {}",
+          (exclusive != null && exclusive.seed ? "with seeding" : ""));
     }
-    flyway.migrate();
-
-    // Migration completes, close context
-    context.close();
-
-    LOG.info("Migration completed successfully {}",
-        (exclusive != null && exclusive.seed ? "with seeding" : ""));
   }
 
 }

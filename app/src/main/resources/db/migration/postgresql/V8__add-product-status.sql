@@ -1,9 +1,9 @@
 -- Add status column to products table
-ALTER TABLE products 
+ALTER TABLE IF EXISTS products
 ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'DRAFT';
 
 -- Add constraint to ensure valid status values
-ALTER TABLE products 
+ALTER TABLE IF EXISTS products
 ADD CONSTRAINT products_status_check 
 CHECK (status IN ('DRAFT', 'PUBLISHED', 'ARCHIVED'));
 

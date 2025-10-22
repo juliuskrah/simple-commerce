@@ -7,6 +7,7 @@ import com.simplecommerce.actor.Actor;
 import com.simplecommerce.product.category.Category;
 import com.simplecommerce.product.pricing.PriceResolutionService;
 import com.simplecommerce.shared.GlobalId;
+import com.simplecommerce.shared.exceptions.NotFoundException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -147,7 +148,7 @@ class ProductController {
         var productEntity = service.findProductEntity(id);
         
         if (productEntity == null) {
-            throw new IllegalArgumentException("Product not found: " + id);
+            throw new NotFoundException("Product not found: " + id);
         }
         
         // Validate business rules before attempting state transition

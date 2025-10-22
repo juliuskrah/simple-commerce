@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.types.Types;
+import com.simplecommerce.shared.types.UserType;
 import graphql.ErrorType;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -45,7 +46,7 @@ class ActorControllerTest {
   @WithMockUser(username = "testuser")
   @DisplayName("Should fetch the current user")
   void shouldFetchCurrentUser() {
-    User user = new User(USER_ID, "testuser", now, now, now, "test@example.com");
+    User user = new User(USER_ID, "testuser", UserType.STAFF, now, now, now, "test@example.com");
     when(actorService.findUser(anyString())).thenReturn(user);
 
     graphQlTester.documentName("actorDetails")
@@ -64,7 +65,7 @@ class ActorControllerTest {
   @WithMockUser(username = "testuser")
   @DisplayName("Should return correct global ID for User")
   void shouldReturnCorrectGlobalIdForUser() {
-    User user = new User(USER_ID, "testuser", now, now, now, "test@example.com");
+    User user = new User(USER_ID, "testuser", UserType.CUSTOMER, now, now, now, "test@example.com");
     when(actorService.findUser(anyString())).thenReturn(user);
 
     String expectedGlobalId = new GlobalId(Types.NODE_USER, USER_ID).encode();
@@ -96,7 +97,7 @@ class ActorControllerTest {
   @Test
   @DisplayName("Should fetch actor by username")
   void shouldFetchActorByUsername() {
-    User user = new User(USER_ID, "testuser", now, now, now, "test@example.com");
+    User user = new User(USER_ID, "testuser", UserType.COLLABORATOR, now, now, now, "test@example.com");
     when(actorService.findActor("testuser")).thenReturn(Optional.of(user));
 
     graphQlTester.documentName("actorDetails")
@@ -149,7 +150,7 @@ class ActorControllerTest {
   @Test
   @DisplayName("Should revoke permissions from actor")
   void shouldRevokePermissionsFromActor() {
-    User user = new User(USER_ID, "testuser", now, now, now, "test@example.com");
+    User user = new User(USER_ID, "testuser", UserType.STAFF, now, now, now, "test@example.com");
     when(actorService.removePermissionsFromActor(anyString(), anyList())).thenReturn(Optional.of(user));
     List<Map<String, Object>> permissions = List.of(Map.of(
             "namespace", "Product",

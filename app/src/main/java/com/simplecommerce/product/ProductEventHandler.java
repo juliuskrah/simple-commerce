@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.annotation.Profile;
 import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Component;
 import sh.ory.keto.relation_tuples.v1alpha2.RelationQuery;
@@ -26,6 +27,7 @@ import sh.ory.keto.write.v1alpha2.TransactRelationTuplesRequest;
  * @author julius.krah
  */
 @Component
+@Profile("keto-authz")
 class ProductEventHandler implements ApplicationEventPublisherAware {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProductEventHandler.class);

@@ -7,6 +7,7 @@ query actor($username: String!) {
         ... on User {
             email
             lastLogin
+            userType
         }
         ... on Bot {
             appId

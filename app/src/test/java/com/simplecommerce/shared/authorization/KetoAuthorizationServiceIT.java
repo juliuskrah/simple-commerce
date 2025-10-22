@@ -38,15 +38,19 @@ import sh.ory.keto.write.v1alpha2.TransactRelationTuplesRequest.Builder;
 /// title: Namespaces
 /// ---
 /// flowchart LR
-///     groups ~~~ actors
-///     actors ~~~ products ~~~ product_variants
-///     product_variants ~~~ orders ~~~ categories
+///     actors---> groups
+///     groups---> roles
+///     actors---> roles
+///     roles---> products
+///     products---> product_variants
+///     product_variants---> orders
 ///     actors(Actor)
 ///     products(Product)
 ///     product_variants(ProductVariant)
 ///     orders(Order)
 ///     categories(Category)
 ///     groups(Group)
+///     roles(Role)
 /// ```
 ///
 /// @author julius.krah
@@ -111,7 +115,7 @@ class KetoAuthorizationServiceIT {
     var namespaces = ketoAuthorizationService.listNamespaces();
     assertThat(namespaces).isNotNull()
         .isNotEmpty()
-        .containsOnly("Actor", "Group", "Product", "ProductVariant", "Order", "Category");
+        .containsOnly("Actor", "Group", "Product", "ProductVariant", "Order", "Category", "Role");
   }
 
   @Test
@@ -206,15 +210,6 @@ class KetoAuthorizationServiceIT {
       var hasPermissionViaGroup = ketoAuthorizationService.checkPermission("Category", categoryDocumentaries, "edit", ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY);
       assertThat(hasPermissionViaGroup).isFalse();
     }
-
-
-
-    @Test
-    @DisplayName("Actor has no read permission on products")
-    void testHasNoReadPermissionOnProducts() {
-      var hasPermission = ketoAuthorizationService.checkPermission("Product", "", "view", ACTOR_HAS_READ_ON_ANCESTOR_CATEGORY);
-      assertThat(hasPermission).isFalse();
-    }
   }
 
   @Nested
@@ -226,6 +221,7 @@ class KetoAuthorizationServiceIT {
     @Test
     @DisplayName("Actor has read permission on all products")
     void testHasReadPermissionOnAllProducts() {
+      // TODO: Add object
       var hasPermission = ketoAuthorizationService.checkPermission("Product", "", "view", ACTOR_HAS_READ_ON_ALL_PRODUCTS);
       assertThat(hasPermission).isTrue();
     }

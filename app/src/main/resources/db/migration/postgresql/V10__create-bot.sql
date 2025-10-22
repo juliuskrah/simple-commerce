@@ -7,7 +7,6 @@ CREATE TABLE IF NOT EXISTS bots (
     api_key VARCHAR(512),
     app_id VARCHAR(100),
     permissions TEXT, -- JSON array of permissions
-    last_login TIMESTAMP(6) WITH TIME ZONE,
     created_at TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP(6) WITH TIME ZONE NOT NULL,
     created_by VARCHAR(250),

@@ -1,9 +1,13 @@
 package com.simplecommerce.actor.user;
 
 import com.simplecommerce.actor.ActorEntity;
+import com.simplecommerce.shared.types.UserType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 
 /**
@@ -16,16 +20,26 @@ import java.util.Objects;
 @Entity(name = "User")
 @Table(name = "users")
 public class UserEntity extends ActorEntity {
-  
-  @Column
-  private String department;
+  private OffsetDateTime lastLogin;
 
-  public String getDepartment() {
-    return department;
+  @Column
+  @Enumerated(EnumType.STRING)
+  private UserType userType;
+
+  public OffsetDateTime getLastLogin() {
+    return lastLogin;
   }
 
-  public void setDepartment(String department) {
-    this.department = department;
+  public void setLastLogin(OffsetDateTime lastLogin) {
+    this.lastLogin = lastLogin;
+  }
+
+  public UserType getUserType() {
+    return userType;
+  }
+
+  public void setUserType(UserType userType) {
+    this.userType = userType;
   }
 
   @Override
@@ -54,7 +68,7 @@ public class UserEntity extends ActorEntity {
         "id=" + getId() +
         ", username='" + getUsername() + '\'' +
         ", email='" + getEmail() + '\'' +
-        ", department='" + department + '\'' +
+        ", userType=" + getUserType() +
         ", externalId='" + getExternalId() + '\'' +
         ", lastLogin=" + getLastLogin() +
         ", createdAt=" + getCreatedDate() +
