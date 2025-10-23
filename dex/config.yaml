@@ -40,7 +40,7 @@ staticPasswords:
     username: "simple_commerce"
     userID: "1f1de938-6c08-4435-8ef1-068f7b9c7f16"
   # Customer
-  - email: "naomi@simple-commerce.com"
+  - email: "naomi@example.com"
     # password: naomi123
     hash: "$2a$12$9Mxg34s7Mq621FA1Xpf5M.rhVwrbIWVlBL7IdPUgo7OR74wroNM0W"
     username: "naomi"
@@ -51,3 +51,9 @@ staticPasswords:
     hash: "$2a$12$w1Gab2Wmlrb9GAMMCZu90u4NS8Oq2VIGAPwsloZx5h5EPuSZkjpUC"
     username: "trinity"
     userID: "93a38a0f-1c1e-4c24-87be-99b13446f73c"
+  # External Collaborator
+  - email: "tank.ext@simple-commerce.com"
+    # password: tank123
+    hash: "$2a$12$opUqe0FiPBTJvOD6qPJLruJhIokMkWEz/m0rklIZmOk0x6gbfO/h."
+    username: "tank"
+    userID: "14f6055e-cb8a-439f-939d-7a936fd24bb3"

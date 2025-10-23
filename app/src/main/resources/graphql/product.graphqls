@@ -81,7 +81,9 @@ type Product implements Node {
 type ProductVariant implements Node {
     id: ID!
     createdAt: DateTime!
+    createdBy: Actor
     updatedAt: DateTime!
+    updatedBy: Actor
     "The product this variant belongs to."
     product: Product!
     "Stock Keeping Unit - a unique identifier for this variant."
@@ -148,18 +150,6 @@ input PriceContextInput {
     quantity: Int = 1
 }
 
-"Types of pricing contexts that can be applied to price rules."
-enum PriceContextType {
-    "Geographic context (country, region, state)"
-    GEOGRAPHIC
-    "Currency context for multi-currency pricing"
-    CURRENCY
-    "Customer group context for tiered pricing (B2B, B2C, VIP, etc.)"
-    CUSTOMER_GROUP
-    "Default pricing rule (no specific context)"
-    DEFAULT
-}
-
 input ProductInput {
     description: String
     price: Decimal
@@ -215,4 +205,16 @@ enum ProductVariantOrderField {
     sku
     createdAt
     updatedAt
+}
+
+"Types of pricing contexts that can be applied to price rules."
+enum PriceContextType {
+    "Geographic context (country, region, state)"
+    GEOGRAPHIC
+    "Currency context for multi-currency pricing"
+    CURRENCY
+    "Customer group context for tiered pricing (B2B, B2C, VIP, etc.)"
+    CUSTOMER_GROUP
+    "Default pricing rule (no specific context)"
+    DEFAULT
 }

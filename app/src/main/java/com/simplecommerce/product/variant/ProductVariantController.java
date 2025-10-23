@@ -2,13 +2,14 @@ package com.simplecommerce.product.variant;
 
 import static com.simplecommerce.shared.types.Types.NODE_PRODUCT_VARIANT;
 
+import com.simplecommerce.actor.Actor;
 import com.simplecommerce.product.Product;
-import com.simplecommerce.shared.types.ProductStatus;
 import com.simplecommerce.product.pricing.PriceContextInput;
 import com.simplecommerce.product.pricing.PriceResolutionService;
 import com.simplecommerce.shared.GlobalId;
-import com.simplecommerce.shared.utils.MonetaryUtils;
 import com.simplecommerce.shared.types.Money;
+import com.simplecommerce.shared.types.ProductStatus;
+import com.simplecommerce.shared.utils.MonetaryUtils;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -64,6 +65,16 @@ class ProductVariantController {
   Product product(ProductVariant source) {
     // TODO: Return a minimal Product record for the variant's product
     return new Product(source.productId(), null, null, null, null, null, ProductStatus.DRAFT);
+  }
+
+  @SchemaMapping(typeName = "ProductVariant")
+  Optional<Actor> createdBy() {
+    return Optional.empty();
+  }
+
+  @SchemaMapping(typeName = "ProductVariant")
+  Optional<Actor> updatedBy() {
+    return Optional.empty();
   }
 
   @SchemaMapping(typeName = "ProductVariant")

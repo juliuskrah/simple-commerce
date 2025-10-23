@@ -67,13 +67,6 @@ class ProductEventHandler implements ApplicationEventPublisherAware {
     subjectIdOption.ifPresent(subjectId -> {
       var permission = toRelationTuplesRequest(new SubjectInput(subjectId, null), "owners", product.getId().toString());
       ketoAuthorizationService.transactRelationship(permission);
-      LOG.debug("Assigned owner on Product:{} to subject {}", product.getId(), subjectId);
-      AuditApplicationEvent auditEvent = new AuditApplicationEvent(subjectId, PERMISSION_ASSIGNED, Map.of(
-          "namespace", "Product",
-          "object", product.getId(),
-          "relation", "owner"
-      ));
-      publisher.publishEvent(auditEvent);
     });
   }
 
@@ -81,20 +74,29 @@ class ProductEventHandler implements ApplicationEventPublisherAware {
   void assignActorPermission(ProductEvent event) {
     var source = event.source();
     createPermissionForActor(source);
+    LOG.debug("Assigned owner on Product:{} to subject {}", source.getId(), source.getCreatedBy());
+    AuditApplicationEvent auditEvent = new AuditApplicationEvent(source.getCreatedBy().orElse(null), PERMISSION_ASSIGNED, Map.of(
+        "namespace", "Product",
+        "object", source.getId(),
+        "permission", "delete",
+        "subject", source.getCreatedBy().orElse(null)
+    ));
+    publisher.publishEvent(auditEvent);
   }
 
   @ApplicationModuleListener(condition = "#event.eventType == T(com.simplecommerce.product.ProductEvent.ProductEventType).CREATED")
-  void assignGroupPermission(ProductEvent event) {
+  void assignRolePermission(ProductEvent event) {
     var source = event.source();
     var permission = toRelationTuplesRequest(new SubjectInput(null,
-            new SubjectSetInput("Group", BaseRoles.MERCHANDISER.getName(), "members")),
+            new SubjectSetInput("Role", BaseRoles.MERCHANDISER.getName(), "assignees")),
         "owners", source.getId().toString());
     ketoAuthorizationService.transactRelationship(permission);
-    LOG.debug("Assigned owner on Product:{} to group {}", source.getId(), BaseRoles.MERCHANDISER.getName());
-    AuditApplicationEvent auditEvent = new AuditApplicationEvent(BaseRoles.MERCHANDISER.getName(), PERMISSION_ASSIGNED, Map.of(
+    LOG.debug("Assigned owner on Product:{} to role {}", source.getId(), BaseRoles.MERCHANDISER.getName());
+    AuditApplicationEvent auditEvent = new AuditApplicationEvent("system", PERMISSION_ASSIGNED, Map.of(
         "namespace", "Product",
         "object", source.getId(),
-        "relation", "owner"
+        "permission", "delete",
+        "subject", "Role:" + BaseRoles.MERCHANDISER.getName() + "#assignees"
     ));
     publisher.publishEvent(auditEvent);
   }
@@ -106,7 +108,7 @@ class ProductEventHandler implements ApplicationEventPublisherAware {
         .setRelationQuery(RelationQuery.newBuilder().setNamespace("Product").setObject(source.getId().toString())).build();
     ketoAuthorizationService.deleteRelationship(request);
     LOG.debug("Revoked all permissions for Product:{}", source.getId());
-    AuditApplicationEvent auditEvent = new AuditApplicationEvent(null, PERMISSION_REVOKED, Map.of(
+    AuditApplicationEvent auditEvent = new AuditApplicationEvent("system", PERMISSION_REVOKED, Map.of(
         "namespace", "Product",
         "object", source.getId()
     ));
