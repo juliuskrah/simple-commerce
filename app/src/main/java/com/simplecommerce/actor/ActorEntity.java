@@ -1,5 +1,6 @@
 package com.simplecommerce.actor;
 
+import com.simplecommerce.product.ProductEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,6 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.domain.Auditable;
 
 /**
@@ -24,7 +26,7 @@ import org.springframework.data.domain.Auditable;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class ActorEntity implements Auditable<String, UUID, OffsetDateTime> {
+public abstract class ActorEntity extends AbstractAggregateRoot<ActorEntity> implements Auditable<String, UUID, OffsetDateTime> {
   @Id
   @GeneratedValue
   private UUID id;

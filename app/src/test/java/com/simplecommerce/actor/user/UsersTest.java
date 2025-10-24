@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
 
 /**
  * Test class for the Users repository interface.
@@ -19,6 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
  */
 @DataPostgresTest
 @ActiveProfiles("test")
+@RecordApplicationEvents
 class UsersTest {
 
   @Autowired
@@ -28,7 +31,7 @@ class UsersTest {
   private Users userRepository;
 
   @Test
-  void shouldFindUserById() {
+  void shouldFindUserById(ApplicationEvents events) {
     // Given
     UserEntity user = new UserEntity();
     user.setUsername("testuser");
@@ -95,7 +98,7 @@ class UsersTest {
   }
 
   @Test
-  void shouldSaveAndFlushUser() {
+  void shouldSaveUser(ApplicationEvents events) {
     // Given
     UserEntity user = new UserEntity();
     user.setUsername("newuser");
@@ -115,5 +118,9 @@ class UsersTest {
         .hasFieldOrPropertyWithValue("username", "newuser")
         .hasFieldOrPropertyWithValue("email", "new.user@example.com")
         .hasFieldOrPropertyWithValue("userType", CUSTOMER);
+
+    var firedEvent = events.stream(UserEvent.class).map(UserEvent::source).findFirst();
+    assertThat(firedEvent).isPresent()
+        .get().isSameAs(savedUser);
   }
 }

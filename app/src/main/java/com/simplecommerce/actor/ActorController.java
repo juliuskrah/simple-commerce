@@ -1,13 +1,11 @@
 package com.simplecommerce.actor;
 
 import static com.simplecommerce.shared.types.Types.NODE_BOT;
-import static com.simplecommerce.shared.types.Types.NODE_USER;
 
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.authorization.BasePermissions;
 import com.simplecommerce.shared.types.PermissionTupleInput;
 import com.simplecommerce.shared.types.Role;
-import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -35,19 +33,9 @@ class ActorController {
     this.actorService = actorService;
   }
 
-  @SchemaMapping(typeName = "User")
-  String id(User source) {
-    return new GlobalId(NODE_USER, source.id()).encode();
-  }
-
   @SchemaMapping(typeName = "Bot")
   String id(Bot source) {
     return new GlobalId(NODE_BOT, source.id()).encode();
-  }
-
-  @QueryMapping
-  User me(Principal principal) {
-    return actorService.getIfAvailable(actorServiceSupplier).findUser(principal.getName());
   }
 
   @QueryMapping

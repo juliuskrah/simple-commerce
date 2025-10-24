@@ -33,6 +33,7 @@ services:
       KETO_READ: keto:4466
       KETO_WRITE: keto:4467
       KETO_OPL: keto:4469
+      DEX_GRPC: oidc:5557
     ports:
       - "8080:8080"
     depends_on:

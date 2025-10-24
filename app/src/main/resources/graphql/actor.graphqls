@@ -34,8 +34,8 @@ extend type Mutation {
     assignRolesToActor(username: String!, roleNames: [String!]!): ActorRolesPayload
     "Revoke the given roles from actor"
     revokeRolesFromActor(username: String!, roleNames: [String!]!): ActorRolesPayload
-    createUser(input: CreateUserInput!): User!
-    createBot(input: CreateBotInput!): Bot!
+    addUser(input: CreateUserInput!): User
+    addBot(input: CreateBotInput!): Bot
 }
 
 "An `Actor` is an entity that can perform actions in the system."
@@ -99,8 +99,7 @@ enum UserType {
 input CreateUserInput {
     username: String!
     email: String!
-    "Ids of the roles to assign to the user"
-    roles: [ID!]
+    userType: UserType! = STAFF
 }
 
 input CreateBotInput {

@@ -1,19 +1,16 @@
 package com.simplecommerce.actor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
+import com.simplecommerce.actor.bot.BotEntity;
+import com.simplecommerce.actor.user.UserEntity;
+import com.simplecommerce.shared.authorization.KetoAuthorizationService;
 import com.simplecommerce.shared.types.PermissionTupleInput;
 import com.simplecommerce.shared.types.PermissionTupleInput.SubjectInput;
 import com.simplecommerce.shared.types.PermissionTupleInput.SubjectSetInput;
-import com.simplecommerce.actor.bot.BotEntity;
-import com.simplecommerce.actor.user.UserEntity;
-import com.simplecommerce.actor.user.Users;
-import com.simplecommerce.shared.authorization.KetoAuthorizationService;
-import com.simplecommerce.shared.exceptions.NotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,9 +39,6 @@ class ActorManagementTest {
   private Actors actorRepository;
 
   @Mock
-  private Users userRepository;
-
-  @Mock
   private KetoAuthorizationService ketoAuthorizationService;
 
   @InjectMocks
@@ -52,37 +46,6 @@ class ActorManagementTest {
 
   private static final UUID USER_ID = UUID.fromString("18d25652-5870-4555-8146-5166fec97c3f");
   private static final UUID BOT_ID = UUID.fromString("28e35762-6980-5666-9257-6277fed08d4f");
-
-  @Test
-  void shouldFindUserByUsername() {
-    // Given
-    UserEntity userEntity = new UserEntity();
-    userEntity.setId(USER_ID);
-    userEntity.setUsername("testuser");
-    userEntity.setEmail("test@example.com");
-    when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(userEntity));
-
-    // When
-    User user = actorManagement.findUser("testuser");
-
-    // Then
-    assertThat(user).isNotNull()
-        .hasFieldOrPropertyWithValue("id", USER_ID.toString())
-        .hasFieldOrPropertyWithValue("username", "testuser")
-        .hasFieldOrPropertyWithValue("email", "test@example.com");
-  }
-
-  @Test
-  void shouldThrowNotFoundExceptionWhenUserNotFound() {
-    // Given
-    when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
-
-    // When
-    var throwable = catchThrowable(() -> actorManagement.findUser("nonexistent"));
-
-    // Then
-    assertThat(throwable).isInstanceOf(NotFoundException.class);
-  }
 
   @Test
   void shouldFindUserActorByUsername() {

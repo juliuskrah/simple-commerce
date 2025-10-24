@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.graphql.test.tester.GraphQlTester;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /**
@@ -45,41 +44,6 @@ class ActorControllerTest {
 
   private final OffsetDateTime now = OffsetDateTime.now();
   private static final String USER_ID = "18d25652-5870-4555-8146-5166fec97c3f";
-
-  @Test
-  @WithMockUser(username = "testuser")
-  @DisplayName("Should fetch the current user")
-  void shouldFetchCurrentUser() {
-    User user = new User(USER_ID, "testuser", UserType.STAFF, now, now, now, "test@example.com");
-    when(actorService.findUser(anyString())).thenReturn(user);
-
-    graphQlTester.documentName("actorDetails")
-        .operationName("me")
-        .execute()
-        .path("me").entity(User.class)
-        .satisfies(fetchedUser -> {
-          assertThat(fetchedUser).isNotNull();
-          assertThat(fetchedUser.id()).isEqualTo(new GlobalId(Types.NODE_USER, USER_ID).encode());
-          assertThat(fetchedUser.username()).isEqualTo("testuser");
-          assertThat(fetchedUser.email()).isEqualTo("test@example.com");
-        });
-  }
-
-  @Test
-  @WithMockUser(username = "testuser")
-  @DisplayName("Should return correct global ID for User")
-  void shouldReturnCorrectGlobalIdForUser() {
-    User user = new User(USER_ID, "testuser", UserType.CUSTOMER, now, now, now, "test@example.com");
-    when(actorService.findUser(anyString())).thenReturn(user);
-
-    String expectedGlobalId = new GlobalId(Types.NODE_USER, USER_ID).encode();
-
-    graphQlTester.documentName("actorDetails")
-        .operationName("me")
-        .execute()
-        .path("me.id").entity(String.class)
-        .isEqualTo(expectedGlobalId);
-  }
 
   @Test
   @DisplayName("Should return correct global ID for Bot")
@@ -111,9 +75,8 @@ class ActorControllerTest {
         .path("actor").entity(User.class)
         .satisfies(actor -> {
           assertThat(actor).isNotNull()
-              .extracting(Actor::id, as(InstanceOfAssertFactories.STRING))
-              .isEqualTo(new GlobalId(Types.NODE_USER, USER_ID).encode());
-          assertThat(actor).extracting(Actor::username).isEqualTo("testuser");
+              .extracting(Actor::username, as(InstanceOfAssertFactories.STRING))
+              .isEqualTo("testuser");
         });
   }
 

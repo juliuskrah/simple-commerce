@@ -235,7 +235,6 @@ class ProductManagement implements ProductService, NodeService {
   @Override
   public Product createProduct(ProductInput product) {
     var productEntity = toEntity(product);
-    productEntity.publishProductCreatedEvent();
     runInScope(() -> productRepository.saveAndFlush(productEntity));
     
     // Create default variant

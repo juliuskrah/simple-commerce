@@ -39,7 +39,6 @@ class ProductsTest {
     product.setTitle("DataWave");
     product.setSlug("data-wave");
     product.addTags("technology", "software", "cloud_computing");
-    product.publishProductCreatedEvent();
     var entity = productRepository.saveAndFlush(product);
     assertThat(entity).isNotNull()
         .hasNoNullFieldsOrPropertiesExcept("description", "createdBy", "updatedBy", "category")

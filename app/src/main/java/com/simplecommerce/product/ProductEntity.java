@@ -16,6 +16,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -63,6 +64,7 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> implemen
   /**
    * Publishes a {@link ProductEvent} of type {@link ProductEventType#CREATED}.
    */
+  @PrePersist
   void publishProductCreatedEvent() {
     registerEvent(new ProductEvent(this, ProductEventType.CREATED));
   }

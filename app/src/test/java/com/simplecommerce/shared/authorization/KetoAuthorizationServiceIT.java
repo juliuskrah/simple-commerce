@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.protobuf.util.JsonFormat;
 import com.simplecommerce.config.security.KetoConfiguration;
 import com.simplecommerce.shared.authorization.BasePermissions.Namespaces;
+import com.simplecommerce.shared.authorization.KetoAuthorizationServiceIT.KetoInnerConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -21,13 +22,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ssl.SslAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.PathResource;
 import org.springframework.grpc.autoconfigure.client.GrpcClientAutoConfiguration;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.DynamicPropertyRegistrar;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -59,44 +61,48 @@ import sh.ory.keto.write.v1alpha2.TransactRelationTuplesRequest.Builder;
 /// @author julius.krah
 @Testcontainers
 @ActiveProfiles({"test", "keto-authz"})
-@Import({KetoConfiguration.class, GrpcClientAutoConfiguration.class, SslAutoConfiguration.class })
+@Import({KetoConfiguration.class, GrpcClientAutoConfiguration.class, SslAutoConfiguration.class, KetoInnerConfiguration.class})
 @SpringBootTest(webEnvironment = WebEnvironment.NONE, classes = KetoAuthorizationService.class)
 class KetoAuthorizationServiceIT {
 
-  static final int KETO_READ_PORT = 4466;
-  static final int KETO_WRITE_PORT = 4467;
-  static final int KETO_OPL_PORT = 4469;
-
+  private static final int KETO_READ_PORT = 4466;
+  private static final int KETO_WRITE_PORT = 4467;
+  private static final int KETO_OPL_PORT = 4469;
+  @Autowired
+  private KetoAuthorizationService ketoAuthorizationService;
   @Container
-  static final ComposeContainer KETO_COMPOSE_CONTAINER = new ComposeContainer(
+  static final ComposeContainer COMMERCE_COMPOSE_CONTAINER = new ComposeContainer(
       new File("../compose.yaml"))
-      .withOptions("--profile", "keto-authz")
+      .withEnv("COMPOSE_PROFILES", "oidc-authn,keto-authz")
       .withExposedService("keto", 1, KETO_READ_PORT)
       .withExposedService("keto", 1, KETO_WRITE_PORT)
       .withExposedService("keto", 1, KETO_OPL_PORT);
 
-  @Autowired
-  KetoAuthorizationService ketoAuthorizationService;
+  @TestConfiguration
+  static class KetoInnerConfiguration {
 
-  @DynamicPropertySource
-  static void ketoProperties(DynamicPropertyRegistry registry) {
-    var readAddress = "%s:%d".formatted(
-        KETO_COMPOSE_CONTAINER.getServiceHost("keto-1",
-            KETO_READ_PORT), KETO_COMPOSE_CONTAINER.getServicePort("keto-1", KETO_READ_PORT));
-    var writeAddress = "%s:%d".formatted(
-        KETO_COMPOSE_CONTAINER.getServiceHost("keto-1",
-            KETO_WRITE_PORT), KETO_COMPOSE_CONTAINER.getServicePort("keto-1", KETO_WRITE_PORT));
-    var oplAddress = "%s:%d".formatted(
-        KETO_COMPOSE_CONTAINER.getServiceHost("keto-1",
-            KETO_OPL_PORT), KETO_COMPOSE_CONTAINER.getServicePort("keto-1", KETO_OPL_PORT));
-    registry.add("spring.grpc.client.channels.keto-read.address", () -> readAddress);
-    registry.add("spring.grpc.client.channels.keto-write.address", () -> writeAddress);
-    registry.add("spring.grpc.client.channels.keto-opl.address", () -> oplAddress);
+    @Bean
+    DynamicPropertyRegistrar ketoProperties() {
+      var readAddress = "%s:%d".formatted(
+          COMMERCE_COMPOSE_CONTAINER.getServiceHost("keto-1",
+              KETO_READ_PORT), COMMERCE_COMPOSE_CONTAINER.getServicePort("keto-1", KETO_READ_PORT));
+      var writeAddress = "%s:%d".formatted(
+          COMMERCE_COMPOSE_CONTAINER.getServiceHost("keto-1",
+              KETO_WRITE_PORT), COMMERCE_COMPOSE_CONTAINER.getServicePort("keto-1", KETO_WRITE_PORT));
+      var oplAddress = "%s:%d".formatted(
+          COMMERCE_COMPOSE_CONTAINER.getServiceHost("keto-1",
+              KETO_OPL_PORT), COMMERCE_COMPOSE_CONTAINER.getServicePort("keto-1", KETO_OPL_PORT));
+      return registry -> {
+        registry.add("spring.grpc.client.channels.keto-read.address", () -> readAddress);
+        registry.add("spring.grpc.client.channels.keto-write.address", () -> writeAddress);
+        registry.add("spring.grpc.client.channels.keto-opl.address", () -> oplAddress);
+      };
+    }
   }
 
   @BeforeEach
   void confirmRunningServiceAndCreateRelationship() throws IOException {
-    assertThat(KETO_COMPOSE_CONTAINER.getContainerByServiceName("keto-1")).isPresent()
+    assertThat(COMMERCE_COMPOSE_CONTAINER.getContainerByServiceName("keto-1")).isPresent()
         .get().hasFieldOrPropertyWithValue("running", true);
     var parser = JsonFormat.parser().ignoringUnknownFields();
     var permissionResource = new ClassPathResource("authz/permissions.keto.json");

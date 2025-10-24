@@ -1,11 +1,13 @@
 package com.simplecommerce.actor.user;
 
 import com.simplecommerce.actor.ActorEntity;
+import com.simplecommerce.actor.user.UserEvent.UserEventType;
 import com.simplecommerce.shared.types.UserType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 import java.util.Objects;
@@ -40,6 +42,14 @@ public class UserEntity extends ActorEntity {
 
   public void setUserType(UserType userType) {
     this.userType = userType;
+  }
+
+  /**
+   * Publishes a {@link UserEvent} of type {@link UserEventType#CREATED}.
+   */
+  @PrePersist
+  void publishProductCreatedEvent() {
+    registerEvent(new UserEvent(this, UserEventType.CREATED));
   }
 
   @Override

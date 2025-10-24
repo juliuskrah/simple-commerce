@@ -1,12 +1,12 @@
 package com.simplecommerce.actor;
 
+import static com.simplecommerce.actor.user.UserManagement.getUser;
+
 import com.simplecommerce.actor.bot.BotEntity;
 import com.simplecommerce.actor.user.UserEntity;
-import com.simplecommerce.actor.user.Users;
 import com.simplecommerce.shared.authorization.BasePermissions;
 import com.simplecommerce.shared.authorization.BuiltIns;
 import com.simplecommerce.shared.authorization.KetoAuthorizationService;
-import com.simplecommerce.shared.exceptions.NotFoundException;
 import com.simplecommerce.shared.types.PermissionTupleInput;
 import com.simplecommerce.shared.types.Role;
 import java.time.OffsetDateTime;
@@ -40,16 +40,11 @@ public class ActorManagement implements ActorService {
     this.actorRepository = actorRepository.getObject();
   }
 
-  public void setUserRepository(ObjectFactory<Users> userRepository) {
-    this.userRepository = userRepository.getObject();
-  }
-
   public void setKetoAuthorizationService(ObjectFactory<KetoAuthorizationService> ketoAuthorizationService) {
     this.ketoAuthorizationService = ketoAuthorizationService.getObject();
   }
 
   private Actors actorRepository;
-  private Users userRepository;
   private KetoAuthorizationService ketoAuthorizationService;
 
   private Actor fromEntity(ActorEntity entity) {
@@ -67,16 +62,7 @@ public class ActorManagement implements ActorService {
   }
 
   private User fromEntity(UserEntity entity) {
-    Supplier<OffsetDateTime> epoch = () -> OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
-    return new User(
-        entity.getId().toString(),
-        entity.getUsername(),
-        entity.getUserType(),
-        entity.getLastModifiedDate().orElseGet(epoch),
-        entity.getCreatedDate().orElseGet(epoch),
-        entity.getLastLogin(),
-        entity.getEmail()
-    );
+    return getUser(entity);
   }
 
   private TransactRelationTuplesRequest toRelationTuplesRequest(Action action, List<PermissionTupleInput> permissions) {
@@ -108,11 +94,6 @@ public class ActorManagement implements ActorService {
   @Override
   public Optional<Actor> findActor(String username) {
     return actorRepository.findByUsername(username).map(this::fromEntity);
-  }
-
-  @Override
-  public User findUser(String username) {
-    return userRepository.findByUsername(username).map(this::fromEntity).orElseThrow(NotFoundException::new);
   }
 
   @Override

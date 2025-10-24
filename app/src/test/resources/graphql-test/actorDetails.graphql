@@ -15,18 +15,6 @@ query actor($username: String!) {
     }
 }
 
-query me {
-    me {
-        id
-        username
-        email
-        createdAt
-        updatedAt
-        userType
-        lastLogin
-    }
-}
-
 query permissions {
     permissions
 }
