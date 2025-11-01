@@ -38,7 +38,7 @@ public class DexIdpService {
   /// @param email the email of the user
   /// @param username the username of the user
   /// @param rawPassword the plain password of the user
-  /// @return false when a new user is created otherwise false
+  /// @return false when a new user is created otherwise true
   public boolean addUser(String email, String username, CharSequence rawPassword) {
     LOG.debug("Adding {} / {}", username, email);
     var password = getPasswordEncoder().encode(rawPassword);

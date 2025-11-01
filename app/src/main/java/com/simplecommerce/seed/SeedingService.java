@@ -1,16 +1,22 @@
 package com.simplecommerce.seed;
 
+import static com.simplecommerce.shared.authorization.BaseRoles.ADMINISTRATOR;
+import static com.simplecommerce.shared.authorization.BaseRoles.MERCHANDISER;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.execution.ExecutionId;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.intellij.lang.annotations.Language;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,10 +25,10 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.graphql.ExecutionGraphQlResponse;
 import org.springframework.graphql.ExecutionGraphQlService;
 import org.springframework.graphql.support.DefaultExecutionGraphQlRequest;
 import org.springframework.http.HttpHeaders;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import reactor.core.publisher.Flux;
@@ -52,14 +58,6 @@ public class SeedingService {
   }
 
   private void seedProductMedia(Flux<Product> products) throws IOException {
-    var addProductToMedia = """
-        mutation addMediaToProduct($id: ID!, $file: FileInput!) {
-          addProductMedia(productId: $id, file: $file) {
-            id
-            url
-          }
-        }
-        """;
     var productMedia = loadResource(directoryPrefix + "product_media.json");
     var productMediaVariables = objectMapper.readValue(productMedia.getInputStream(),
         new TypeReference<Set<Map<String, Object>>>() {
@@ -222,32 +220,86 @@ public class SeedingService {
   }
 
   public void seed() throws IOException {
-    // TODO drop existing data
     var products = seedProduct();
     seedProductMedia(products);
     seedProductVariants(products);
   }
 
-  /**
-   * Seed the database when the application is ready.
-   * @param event ApplicationReadyEvent
-   */
-  @Async
-  @EventListener
-  void on(ApplicationReadyEvent event) {
-    try {
-      LOG.info("Starting database seeding process...");
-      seed();
-      LOG.info("Database seeding completed successfully");
-    } catch (IOException e) {
-      LOG.error("Failed to seed database", e);
-      throw new RuntimeException("Database seeding failed", e);
+  private Mono<ExecutionGraphQlResponse> assignRolesToSubject(List<@NonNull String> roles, Subject subject) {
+    var subjectMap = new HashMap<String, String>();
+    if (subject.actor != null) {
+      subjectMap.put("actor", subject.actor);
+    } else if (subject.group != null) {
+      subjectMap.put("group", subject.group);
     }
+    var variables = Map.of(
+        "roles", roles,
+        "subject", subjectMap
+    );
+    @Language("GraphQL") var addRolesForSubject = """
+        mutation addRolesForSubject($roles: [String!]!, $subject: SubjectRoleInput!) {
+            assignRolesToSubject(roles: $roles, subject: $subject) {
+                actor {
+                    id
+                    username
+                }
+                group {
+                    id
+                    name
+                }
+            }
+        }
+        """;
+    return executionService.execute(new DefaultExecutionGraphQlRequest(
+        addRolesForSubject, null, variables, null, id(), null));
+  }
+
+  @EventListener(ApplicationReadyEvent.class)
+  void assignOwnerGroupToStoreOwner() {
+    LOG.info("Assigning group:{} to subject:{}", "Owners", "simple_commerce");
+  }
+
+  @EventListener(ApplicationReadyEvent.class)
+  void assignMerchandiseGroupToStaff() {
+    LOG.info("Assigning group:{} to subject:{}", "Merchandising Operations", "trinity");
+  }
+
+  @EventListener(ApplicationReadyEvent.class)
+  Mono<Void> assignAdministratorRoleToOwnerGroup() {
+    var group = "Owners";
+    var roles = List.of(ADMINISTRATOR.getName());
+    LOG.info("Assigning Store owner roles:{} to group:{}", roles, group);
+    return assignRolesToSubject(roles, new Subject(null, group))
+        .doOnNext(response -> LOG.debug("Store owner assignment result:{}", response.getExecutionResult()))
+        .doOnError(throwable -> LOG.error("Error assigning owner roles", throwable))
+        .then();
+  }
+
+  @EventListener(ApplicationReadyEvent.class)
+  Mono<Void> assignMerchandiserRoleToMerchandiseGroup() {
+    var group = "Merchandising Operations";
+    var roles = List.of(MERCHANDISER.getName());
+    LOG.info("Assigning Staff roles:{} to group:{}", roles, group);
+    return assignRolesToSubject(roles, new Subject(null, group))
+        .doOnNext(response -> LOG.debug("Staff assignment result:{}", response.getExecutionResult()))
+        .doOnError(throwable -> LOG.error("Error assigning staff roles", throwable))
+        .then();
+  }
+
+  @EventListener(ApplicationReadyEvent.class)
+  void assignPermissionsToRole() {
+    // Assign basic product permissions to roles (Administrator, Merchandiser)
+    // 1. list products
+    // 2. create products
   }
 
   record Product(String syntheticId, String naturalId) {
     Product withNaturalId(String naturalId) {
       return new Product(syntheticId, naturalId);
     }
+  }
+
+  record Subject(@Nullable String actor, @Nullable String group) {
+
   }
 }

@@ -1,6 +1,7 @@
 package com.simplecommerce.actor.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -9,13 +10,20 @@ import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.types.Types;
 import com.simplecommerce.shared.types.UserType;
 import java.time.OffsetDateTime;
+import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * Test for {@link UserController}.
@@ -23,6 +31,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
  * @author julius.krah
  * @since 1.0
  */
+@ExtendWith(MockitoExtension.class)
 @GraphQlTest(UserController.class)
 class UserControllerTest {
 
@@ -67,5 +76,23 @@ class UserControllerTest {
         .execute()
         .path("me.id").entity(String.class)
         .isEqualTo(expectedGlobalId);
+  }
+
+  @Test
+  @DisplayName("Should create user")
+  void shouldCreateNewUser(@Captor ArgumentCaptor<CreateUserInput> captor) {
+    User user = new User(USER_ID, "testuser", UserType.CUSTOMER, now, now, now, "test@example.com");
+    when(userService.createUser(captor.capture())).thenReturn(Optional.of(user));
+
+    graphQlTester.documentName("userDetails")
+        .operationName("createUser")
+        .variables(Map.of("input", Map.of("username", "testuser", "email", "testuser@example.com")))
+        .execute()
+        .path("addUser").entity(User.class)
+        .satisfies(fetchedUser -> assertThat(fetchedUser).isNotNull()
+            .extracting(User::id).asString().isBase64());
+
+    assertThat(captor.getValue()).isNotNull()
+        .extracting(CreateUserInput::userType).isEqualTo(UserType.STAFF); // Default is STAFF
   }
 }

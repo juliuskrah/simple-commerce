@@ -99,4 +99,22 @@ The element must be a positive number.
 directive @Positive(message : String = "graphql.validation.Positive.message")
     on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 
+"""
+The list's or input object's size must be between the specified min and max boundaries (inclusive).
+
+- Example : `assignRolesToSubject(roles: [String!]! @ContainerSize( min : 1, max : 100), subject: SubjectRoleInput!): AssignRolesToSubjectPayload`
+- Applies to : Lists, Input Objects
+"""
+directive @ContainerSize(min : Int = 0, max : Int = 2147483647, message : String = "graphql.validation.ContainerSize.message")
+    on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
+"""
+The String must contain at least one non-whitespace character, according to Java's Character.isWhitespace().
+
+- Example : addProduct(name : String @NotBlank) : Product
+- Applies to : String, ID, Lists
+"""
+directive @NotBlank(message : String = "graphql.validation.NotBlank.message")
+    on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+
 directive @oneOf on INPUT_OBJECT

@@ -48,7 +48,7 @@ public class UserEntity extends ActorEntity {
    * Publishes a {@link UserEvent} of type {@link UserEventType#CREATED}.
    */
   @PrePersist
-  void publishProductCreatedEvent() {
+  void publishUserCreatedEvent() {
     registerEvent(new UserEvent(this, UserEventType.CREATED));
   }
 

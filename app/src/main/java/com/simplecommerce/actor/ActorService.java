@@ -1,8 +1,8 @@
 package com.simplecommerce.actor;
 
 import com.simplecommerce.shared.authorization.BasePermissions;
-import com.simplecommerce.shared.types.PermissionTupleInput;
 import com.simplecommerce.shared.types.Role;
+import com.simplecommerce.shared.types.SubjectInput;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,9 +16,7 @@ public interface ActorService {
 
   Optional<Actor> findActor(String username);
 
-  Optional<Actor> addPermissionsToActor(String username, List<PermissionTupleInput> permissions);
-
-  Optional<Actor> removePermissionsFromActor(String username, List<PermissionTupleInput> permissions);
+  PermissionAssignmentPayload addRolesToSubject(List<String> roles, SubjectInput subject);
 
   List<Role> findRoles();
 

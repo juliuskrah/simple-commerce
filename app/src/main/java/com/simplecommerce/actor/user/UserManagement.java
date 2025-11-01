@@ -1,9 +1,15 @@
 package com.simplecommerce.actor.user;
 
+import static com.simplecommerce.shared.authorization.BaseRoles.ADMINISTRATOR;
+import static com.simplecommerce.shared.utils.VirtualThreadHelper.callInScope;
+
 import com.simplecommerce.actor.User;
+import com.simplecommerce.security.aspects.Permit;
+import com.simplecommerce.shared.authentication.DexIdpService;
 import com.simplecommerce.shared.exceptions.NotFoundException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.ObjectFactory;
@@ -21,9 +27,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserManagement implements UserService {
 
   private Users userRepository;
+  private DexIdpService oidcService;
 
   public void setUserRepository(ObjectFactory<Users> userRepository) {
     this.userRepository = userRepository.getObject();
+  }
+
+  public void setDexIdpService(ObjectFactory<DexIdpService> dexIdpService) {
+    this.oidcService = dexIdpService.getObject();
   }
 
   private User fromEntity(UserEntity entity) {
@@ -46,6 +57,22 @@ public class UserManagement implements UserService {
 
   @Override
   public User findUser(String username) {
-    return userRepository.findByUsername(username).map(this::fromEntity).orElseThrow(NotFoundException::new);
+    return callInScope(() -> userRepository.findByUsername(username).map(this::fromEntity).orElseThrow(NotFoundException::new));
+  }
+
+  @Permit(namespace = "Role", object = "'Administrator'", relation = "assignees")
+  @Override
+  public Optional<User> createUser(CreateUserInput user) {
+    var userPassword = user.username().toLowerCase() + "123";
+    var alreadyExist = oidcService.addUser(user.email(), user.username(), userPassword);
+    if (alreadyExist) {
+      return Optional.empty();
+    }
+    var entity = new UserEntity();
+    entity.setUsername(user.username());
+    entity.setEmail(user.email());
+    entity.setUserType(user.userType());
+    userRepository.saveAndFlush(entity);
+    return Optional.of(fromEntity(entity));
   }
 }

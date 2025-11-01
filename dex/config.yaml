@@ -33,18 +33,12 @@ staticClients:
 
 enablePasswordDB: true
 staticPasswords:
-  # Staff / Admin / Owner
+  # Admin / Owner
   - email: "storeowner@simple-commerce.com"
     # password: simple_commerce
     hash: "$2a$12$.EoexsiydIigTXvbC3S06.hs7FVM6d.6yryz2mtoqNFSQz/Hh3qBS"
     username: "simple_commerce"
     userID: "1f1de938-6c08-4435-8ef1-068f7b9c7f16"
-  # Customer
-  - email: "naomi@example.com"
-    # password: naomi123
-    hash: "$2a$12$9Mxg34s7Mq621FA1Xpf5M.rhVwrbIWVlBL7IdPUgo7OR74wroNM0W"
-    username: "naomi"
-    userID: "aab278e5-5495-4706-bc0c-7aa53eecff2f"
   # Staff / Merchandiser
   - email: "trinity@simple-commerce.com"
     # password: trinity123
@@ -57,3 +51,9 @@ staticPasswords:
     hash: "$2a$12$opUqe0FiPBTJvOD6qPJLruJhIokMkWEz/m0rklIZmOk0x6gbfO/h."
     username: "tank"
     userID: "14f6055e-cb8a-439f-939d-7a936fd24bb3"
+  # Customer
+  - email: "naomi@example.com"
+    # password: naomi123
+    hash: "$2a$12$9Mxg34s7Mq621FA1Xpf5M.rhVwrbIWVlBL7IdPUgo7OR74wroNM0W"
+    username: "naomi"
+    userID: "aab278e5-5495-4706-bc0c-7aa53eecff2f"

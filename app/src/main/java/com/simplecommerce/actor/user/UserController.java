@@ -43,7 +43,7 @@ class UserController {
 
   @MutationMapping
   Optional<User> addUser(@Valid @Argument CreateUserInput input) {
-    LOG.debug("Adding new user: {}", input);
-    return Optional.empty();
+    LOG.debug("Attempting to add new user. User details: {}", input);
+    return userService.getIfAvailable(userServiceSupplier).createUser(input);
   }
 }

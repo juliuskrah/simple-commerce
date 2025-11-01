@@ -1,10 +1,8 @@
 package com.simplecommerce.cli;
 
-import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.context.ConfigurableApplicationContext;
 import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Model.CommandSpec;
@@ -43,8 +41,12 @@ public class MigrateCommand implements Runnable {
     // Set profiles for migration mode
     var springBuilder = new SpringApplicationBuilder(applicationClass).profiles("migrate");
     if (exclusive != null && exclusive.seed) {
-      springBuilder.profiles("seed");
+      springBuilder.profiles("seed", "keto-authz");
       System.setProperty("simple-commerce.seeder.enabled", "true");
+    }
+
+    if (exclusive != null && exclusive.clean) {
+      springBuilder.profiles("clean");
     }
     // Enable specific properties for migration
     System.setProperty("spring.flyway.enabled", "true");
@@ -52,13 +54,7 @@ public class MigrateCommand implements Runnable {
 
     ParseResult parseResult = spec.commandLine().getParseResult();
 
-    try (ConfigurableApplicationContext context = springBuilder.run(parseResult.originalArgs().toArray(String[]::new))) {
-
-      Flyway flyway = context.getBean(Flyway.class);
-      if (exclusive != null && exclusive.clean) {
-        flyway.clean();
-      }
-      flyway.migrate();
+    try (var _ = springBuilder.run(parseResult.originalArgs().toArray(String[]::new))) {
       LOG.info("Migration completed successfully {}",
           (exclusive != null && exclusive.seed ? "with seeding" : ""));
     }

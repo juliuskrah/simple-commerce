@@ -2,30 +2,18 @@ package com.simplecommerce.actor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import com.simplecommerce.actor.bot.BotEntity;
 import com.simplecommerce.actor.user.UserEntity;
 import com.simplecommerce.shared.authorization.KetoAuthorizationService;
-import com.simplecommerce.shared.types.PermissionTupleInput;
-import com.simplecommerce.shared.types.PermissionTupleInput.SubjectInput;
-import com.simplecommerce.shared.types.PermissionTupleInput.SubjectSetInput;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sh.ory.keto.relation_tuples.v1alpha2.Subject;
-import sh.ory.keto.relation_tuples.v1alpha2.SubjectSet;
-import sh.ory.keto.write.v1alpha2.RelationTupleDelta;
-import sh.ory.keto.write.v1alpha2.RelationTupleDelta.Action;
-import sh.ory.keto.write.v1alpha2.TransactRelationTuplesRequest;
 
 /**
  * Test class for the ActorManagement service implementation.
@@ -97,73 +85,5 @@ class ActorManagementTest {
 
     // Then
     assertThat(actor).isEmpty();
-  }
-
-  @Test
-  void shouldAddPermissionsToActor(@Captor ArgumentCaptor<TransactRelationTuplesRequest> relationCaptor) {
-    // Given
-    UserEntity userEntity = new UserEntity();
-    userEntity.setId(USER_ID);
-    userEntity.setUsername("neo");
-    userEntity.setEmail("neo@example.com");
-    when(actorRepository.findByUsername(anyString())).thenReturn(Optional.of(userEntity));
-    doNothing().when(ketoAuthorizationService).transactRelationship(relationCaptor.capture());
-
-    // When
-    List<PermissionTupleInput> permissions = List.of(
-        new PermissionTupleInput(
-            "Category", "Media > Videos > Digital Download", "viewers",
-            new SubjectInput(null, new SubjectSetInput("Group", "staff", "members"))
-        )
-    );
-    var result = actorManagement.addPermissionsToActor("neo", permissions);
-
-    // Then
-    assertThat(result).isPresent();
-    // Verify the captured relation tuples request
-    var capturedRequest = relationCaptor.getValue();
-    assertThat(capturedRequest.getRelationTupleDeltasList()).hasSize(1)
-        .element(0)
-        .hasFieldOrPropertyWithValue("action", Action.ACTION_INSERT)
-        .extracting(RelationTupleDelta::getRelationTupleOrBuilder)
-        .extracting("subject")
-        .hasFieldOrPropertyWithValue("id", "")
-        .usingRecursiveComparison()
-        .isEqualTo(Subject.newBuilder().setSet(
-            SubjectSet.newBuilder()
-                .setNamespace("Group")
-                .setObject("staff")
-                .setRelation("members")).build());
-  }
-
-  @Test
-  void shouldRemovePermissionsFromActor(@Captor ArgumentCaptor<TransactRelationTuplesRequest> relationCaptor) {
-    // Given
-    UserEntity userEntity = new UserEntity();
-    userEntity.setId(USER_ID);
-    userEntity.setUsername("trinity");
-    userEntity.setEmail("neo@example.com");
-    when(actorRepository.findByUsername(anyString())).thenReturn(Optional.of(userEntity));
-    doNothing().when(ketoAuthorizationService).transactRelationship(relationCaptor.capture());
-
-    // When
-    List<PermissionTupleInput> permissions = List.of(
-        new PermissionTupleInput(
-            "Category", "Media > Videos > Digital Download", "viewers",
-            new SubjectInput("trinity", null)
-        )
-    );
-    var result = actorManagement.removePermissionsFromActor("trinity", permissions);
-
-    // Then
-    assertThat(result).isPresent();
-    // Verify the captured relation tuples request
-    var capturedRequest = relationCaptor.getValue();
-    assertThat(capturedRequest.getRelationTupleDeltasList()).hasSize(1)
-        .element(0)
-        .hasFieldOrPropertyWithValue("action", Action.ACTION_DELETE)
-        .extracting(RelationTupleDelta::getRelationTupleOrBuilder)
-        .extracting("subject")
-        .isEqualTo(Subject.newBuilder().setId("trinity").build());
   }
 }

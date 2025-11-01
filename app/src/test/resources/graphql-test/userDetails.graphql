@@ -10,3 +10,10 @@ query me {
     }
 }
 
+mutation createUser($input: CreateUserInput!) {
+    addUser(input: $input) {
+        id
+        username
+        email
+    }
+}

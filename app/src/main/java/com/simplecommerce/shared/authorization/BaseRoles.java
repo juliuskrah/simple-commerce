@@ -1,7 +1,7 @@
 package com.simplecommerce.shared.authorization;
 
 public enum BaseRoles {
-  ADMINISTRATOR("Administrator", BasePermissions.DELETE_PRODUCTS, BasePermissions.EXPORT_PRODUCTS, BasePermissions.VIEW_DASHBOARD),
+  ADMINISTRATOR("Administrator"),
   ONLINE_STORE_EDITOR("Online store editor", BasePermissions.VIEW_DASHBOARD),
   CUSTOMER_SUPPORT("Customer support", BasePermissions.VIEW_DASHBOARD),
   MERCHANDISER("Merchandiser", BasePermissions.DELETE_PRODUCTS, BasePermissions.VIEW_DASHBOARD),

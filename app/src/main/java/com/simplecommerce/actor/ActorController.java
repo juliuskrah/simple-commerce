@@ -4,12 +4,11 @@ import static com.simplecommerce.shared.types.Types.NODE_BOT;
 
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.authorization.BasePermissions;
-import com.simplecommerce.shared.types.PermissionTupleInput;
 import com.simplecommerce.shared.types.Role;
+import com.simplecommerce.shared.types.SubjectInput;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
-import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -54,12 +53,7 @@ class ActorController {
   }
 
   @MutationMapping
-  Optional<Actor> assignPermissionsToActor(@Argument String username, @Argument List<@NonNull PermissionTupleInput> permissions) {
-    return actorService.getIfAvailable(actorServiceSupplier).addPermissionsToActor(username, permissions);
-  }
-
-  @MutationMapping
-  Optional<Actor> revokePermissionsFromActor(@Argument String username, @Argument List<@NonNull PermissionTupleInput> permissions) {
-    return actorService.getIfAvailable(actorServiceSupplier).removePermissionsFromActor(username, permissions);
+  PermissionAssignmentPayload assignRolesToSubject(@Argument List<String> roles, @Argument SubjectInput subject) {
+    return actorService.getIfAvailable(actorServiceSupplier).addRolesToSubject(roles, subject);
   }
 }

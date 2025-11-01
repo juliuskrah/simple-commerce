@@ -6,34 +6,12 @@ extend type Query {
 }
 
 extend type Mutation {
-    """
-    Assign permissions to an actor. The permissions are specified as a list of PermissionTupleInput objects. The following namespaces are supported:
-    - Actor
-    - Category
-    - Group
-    - Order
-    - Product
-    - ProductVariant
-    - Role
-    Returns the updated Actor object with the newly assigned permissions if an actor exists for the provided username; otherwise, returns null.
-    """
-    assignPermissionsToActor(username: String!, permissions: [PermissionTupleInput!]!): Actor
-    """
-    Revoke permissions from an actor. The permissions are specified as a list of PermissionTupleInput objects. The following namespaces are supported:
-    - Actor
-    - Category
-    - Group
-    - Order
-    - Product
-    - ProductVariant
-    - Role
-    Returns the updated Actor object with the revoked permissions if an actor exists for the provided username; otherwise, returns null.
-    """
-    revokePermissionsFromActor(username: String!, permissions: [PermissionTupleInput!]!): Actor
-    "Assign the given roles to actor"
-    assignRolesToActor(username: String!, roleNames: [String!]!): ActorRolesPayload
-    "Revoke the given roles from actor"
-    revokeRolesFromActor(username: String!, roleNames: [String!]!): ActorRolesPayload
+    "Assign the given permissions to a subject"
+    assignPermissionsToSubject(permissions: [Permission!]!, subject: SubjectInput!): AssignPermissionsToSubjectPayload
+    "Revoke the given permissions from a subject"
+    revokePermissionsFromSubject(permissions: [Permission!]!, subject: SubjectInput!): RevokePermissionsFromSubjectPayload
+    assignRolesToSubject(roles: [String!]! @ContainerSize( min : 1, max : 100), subject: SubjectRoleInput!): AssignRolesToSubjectPayload
+    revokeRolesFromSubject(roles: [String!]!, subject: SubjectRoleInput!): ID
     addUser(input: CreateUserInput!): User
     addBot(input: CreateBotInput!): Bot
 }
@@ -57,6 +35,33 @@ type User implements Node & Actor {
     lastLogin: DateTime
 }
 
+type StaffUser implements Node & Actor {
+    id: ID!
+    username: String!
+    email: String
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    lastLogin: DateTime
+}
+
+type CollaboratorUser implements Node & Actor {
+    id: ID!
+    username: String!
+    email: String
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    lastLogin: DateTime
+}
+
+type CustomerUser implements Node & Actor {
+    id: ID!
+    username: String!
+    email: String
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    lastLogin: DateTime
+}
+
 "A bot used for automation and external application integration."
 type Bot implements Node & Actor {
     id: ID!
@@ -74,9 +79,28 @@ type Role {
     permissions: [Permission!]!
 }
 
-type ActorRolesPayload {
-    actor: Actor
+type Group implements Node {
+    id: ID!
+    name: String!
+    description: JsonString
     roles: [Role]
+}
+
+type AssignPermissionsToSubjectPayload {
+    actor: Actor
+    role: Role
+    group: Group
+}
+
+type RevokePermissionsFromSubjectPayload {
+    actor: Actor
+    role: Role
+    group: Group
+}
+
+type AssignRolesToSubjectPayload {
+    actor: Actor
+    group: Group
 }
 
 enum Permission {
@@ -109,29 +133,18 @@ input CreateBotInput {
     permissions: [Permission!]
 }
 
-input PermissionTupleInput {
-    "The namespace of the object, e.g., 'Product', 'Order', 'Group', 'Actor', 'Category', 'ProductVariant'."
-    namespace: String!
-    "The specific object within the namespace, e.g., a product ID, order ID, or group name."
-    object: String!
-    "Represents the relation or action being performed, e.g., 'viewer', 'editor', 'owner'."
-    relation: String!
-    "The subject (actor) to whom the permission applies. This can be either a specific actor ID or a subject set."
-    subject: SubjectInput!
-}
-
 input SubjectInput @oneOf {
-    "The ID of a specific actor (user, customer, or bot)."
-    subjectId: String
-    "A set of subjects defined by namespace, object, and relation."
-    subjectSet: SubjectSetInput
+    "The username of an actor (user or bot)."
+    actor: String
+    "The ID of a group"
+    group: ID
+    "The name of a role"
+    role: String
 }
 
-input SubjectSetInput {
-    "The namespace of the subject set, e.g., 'Product', 'Order', 'Group', 'Actor', 'Category', 'ProductVariant'."
-    namespace: String
-    "The specific object within the namespace, e.g., a product ID, order ID, or group name."
-    object: String
-    "Represents the relation or action being performed, e.g., 'member', 'parent', 'editor'."
-    relation: String
+input SubjectRoleInput @oneOf {
+    "The username of an actor (user or bot)"
+    actor: String @NotBlank
+    "The ID of a group"
+    group: ID @NotBlank
 }

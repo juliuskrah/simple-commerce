@@ -73,7 +73,7 @@ class KetoAuthorizationServiceIT {
   @Container
   static final ComposeContainer COMMERCE_COMPOSE_CONTAINER = new ComposeContainer(
       new File("../compose.yaml"))
-      .withEnv("COMPOSE_PROFILES", "oidc-authn,keto-authz")
+      .withOptions("--profile", "keto-authz")
       .withExposedService("keto", 1, KETO_READ_PORT)
       .withExposedService("keto", 1, KETO_WRITE_PORT)
       .withExposedService("keto", 1, KETO_OPL_PORT);

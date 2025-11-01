@@ -34,7 +34,7 @@ class DexIdpServiceIT {
   @Container
   static final ComposeContainer COMMERCE_COMPOSE_CONTAINER = new ComposeContainer(
       new File("../compose.yaml"))
-      .withEnv("COMPOSE_PROFILES", "oidc-authn,keto-authz")
+      .withOptions("--profile", "oidc-authn")
       .withExposedService("oidc", 1, DEX_GRPC_PORT);
 
   @TestConfiguration

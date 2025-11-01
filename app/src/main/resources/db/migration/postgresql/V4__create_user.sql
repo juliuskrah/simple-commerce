@@ -18,7 +18,7 @@ ALTER TABLE IF EXISTS users
 
 ALTER TABLE IF EXISTS users
     ADD CONSTRAINT users_external_id_unique
-    UNIQUE (external_id);
+    UNIQUE NULLS NOT DISTINCT (external_id);
 
 ALTER TABLE IF EXISTS users
     ADD CONSTRAINT users_email_unique

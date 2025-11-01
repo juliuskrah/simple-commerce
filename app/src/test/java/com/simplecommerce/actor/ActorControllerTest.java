@@ -2,8 +2,6 @@ package com.simplecommerce.actor;
 
 import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.simplecommerce.shared.GlobalId;
@@ -11,13 +9,10 @@ import com.simplecommerce.shared.authorization.BasePermissions;
 import com.simplecommerce.shared.types.Role;
 import com.simplecommerce.shared.types.Types;
 import com.simplecommerce.shared.types.UserType;
-import graphql.ErrorType;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -90,140 +85,6 @@ class ActorControllerTest {
         .variable("username", "unknownuser")
         .execute()
         .path("actor").valueIsNull();
-  }
-
-  @Test
-  @DisplayName("Should assign permissions to actor")
-  void shouldAssignPermissionsToActor() {
-    Bot bot = new Bot(UUID.randomUUID().toString(), "testbot", now, now);
-    when(actorService.addPermissionsToActor(anyString(), anyList())).thenReturn(Optional.of(bot));
-    List<Map<String, Object>> permissions = List.of(Map.of(
-            "namespace", "Product",
-            "object", " The Matrix",
-            "relation", "viewer",
-            "subject", Map.of("subjectId", "neo")
-        )
-    );
-    graphQlTester.documentName("actorPermissions")
-        .operationName("assignPermissions")
-        .variable("username", "testuser")
-        .variable("permissions", permissions)
-        .execute()
-        .path("assignPermissionsToActor")
-        .entity(Bot.class)
-        .satisfies(actor -> assertThat(actor).isNotNull().hasFieldOrPropertyWithValue("username", "testbot"));
-  }
-
-  @Test
-  @DisplayName("Should revoke permissions from actor")
-  void shouldRevokePermissionsFromActor() {
-    User user = new User(USER_ID, "testuser", UserType.STAFF, now, now, now, "test@example.com");
-    when(actorService.removePermissionsFromActor(anyString(), anyList())).thenReturn(Optional.of(user));
-    List<Map<String, Object>> permissions = List.of(Map.of(
-            "namespace", "Product",
-            "object", "The Matrix",
-            "relation", "viewer",
-            "subject", Map.of("subjectId", "neo")
-        )
-    );
-    graphQlTester.documentName("actorPermissions")
-        .operationName("revokePermissions")
-        .variable("username", "testuser")
-        .variable("permissions", permissions)
-        .execute()
-        .path("revokePermissionsFromActor")
-        .entity(User.class)
-        .satisfies(actor -> assertThat(actor).isNotNull().hasFieldOrPropertyWithValue("username", "testuser"));
-  }
-
-  @Test
-  @DisplayName("Should validate permission tuple with subjectId")
-  void shouldValidatePermissionTupleWithSubjectId() {
-    List<Map<String, Object>> permissions = List.of(Map.of(
-        "namespace", "Product",
-        "object", "The Matrix",
-        "relation", "viewer",
-        "subject", Map.of("subjectId", "neo")
-    ));
-
-    graphQlTester.documentName("actorPermissions")
-        .operationName("assignPermissions")
-        .variable("username", "testuser")
-        .variable("permissions", permissions)
-        .execute().path("assignPermissionsToActor").valueIsNull();
-  }
-
-  @Test
-  @DisplayName("Should validate permission tuple with subjectSet")
-  void shouldValidatePermissionTupleWithSubjectSet() {
-    List<Map<String, Object>> permissions = List.of(Map.of(
-        "namespace", "Product",
-        "object", "The Matrix",
-        "relation", "viewer",
-        "subject", Map.of("subjectSet", Map.of(
-            "namespace", "Group",
-            "object", "admin",
-            "relation", "member"
-        ))
-    ));
-
-    graphQlTester.documentName("actorPermissions")
-        .operationName("assignPermissions")
-        .variable("username", "testuser")
-        .variable("permissions", permissions)
-        .execute()
-        .errors().verify();
-  }
-
-  @Test
-  @DisplayName("Should reject permission tuple with both subjectId and subjectSet")
-  void shouldRejectPermissionTupleWithBothSubjectIdAndSubjectSet() {
-    List<Map<String, Object>> permissions = List.of(Map.of(
-        "namespace", "Product",
-        "object", "The Matrix",
-        "relation", "viewer",
-        "subject", Map.of(
-            "subjectId", "neo",
-            "subjectSet", Map.of(
-                "namespace", "Group",
-                "object", "admin",
-                "relation", "member"
-            )
-        )
-    ));
-
-    graphQlTester.documentName("actorPermissions")
-        .operationName("assignPermissions")
-        .variable("username", "testuser")
-        .variable("permissions", permissions)
-        .execute()
-        .errors()
-        .satisfy(errors -> assertThat(errors).isNotEmpty().hasSize(1)
-            .element(0)
-            .hasFieldOrPropertyWithValue("message", "Exactly one key must be specified for OneOf type 'SubjectInput'.")
-            .hasFieldOrPropertyWithValue("errorType", ErrorType.ValidationError));
-  }
-
-  @Test
-  @DisplayName("Should reject permission tuple with neither subjectId nor subjectSet")
-  void shouldRejectPermissionTupleWithNeitherSubjectIdNorSubjectSet() {
-    List<Map<String, Object>> permissions = List.of(Map.of(
-        "namespace", "Product",
-        "object", "The Matrix",
-        "relation", "viewer",
-        "subject", Map.of()
-    ));
-
-    graphQlTester.documentName("actorPermissions")
-        .operationName("assignPermissions")
-        .variable("username", "testuser")
-        .variable("permissions", permissions)
-        .execute()
-        .errors()
-        .satisfy(errors -> assertThat(errors).isNotEmpty().hasSize(1)
-            .element(0)
-            .hasFieldOrPropertyWithValue("message", "Exactly one key must be specified for OneOf type 'SubjectInput'.")
-            .hasFieldOrPropertyWithValue("errorType", ErrorType.ValidationError));
   }
 
   @Test

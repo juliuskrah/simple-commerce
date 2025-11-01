@@ -64,9 +64,17 @@ class ProductEventHandler implements ApplicationEventPublisherAware {
 
   private void createPermissionForActor(ProductEntity product) {
     var subjectIdOption = product.getCreatedBy();
-    subjectIdOption.ifPresent(subjectId -> {
-      var permission = toRelationTuplesRequest(new SubjectInput(subjectId, null), "owners", product.getId().toString());
+    subjectIdOption.filter(subject -> !"system".equals(subject)).ifPresent(subject -> {
+      var permission = toRelationTuplesRequest(new SubjectInput(subject, null), "owners", product.getId().toString());
       ketoAuthorizationService.transactRelationship(permission);
+      LOG.debug("Assigned owner on Product:{} to subject:{}", product.getId(), subject);
+      AuditApplicationEvent auditEvent = new AuditApplicationEvent(subject, PERMISSION_ASSIGNED, Map.of(
+          "namespace", "Product",
+          "object", product.getId(),
+          "permission", "delete",
+          "subject", subject
+      ));
+      publisher.publishEvent(auditEvent);
     });
   }
 
@@ -74,29 +82,38 @@ class ProductEventHandler implements ApplicationEventPublisherAware {
   void assignActorPermission(ProductEvent event) {
     var source = event.source();
     createPermissionForActor(source);
-    LOG.debug("Assigned owner on Product:{} to subject {}", source.getId(), source.getCreatedBy());
-    AuditApplicationEvent auditEvent = new AuditApplicationEvent(source.getCreatedBy().orElse(null), PERMISSION_ASSIGNED, Map.of(
-        "namespace", "Product",
-        "object", source.getId(),
-        "permission", "delete",
-        "subject", source.getCreatedBy().orElse(null)
-    ));
-    publisher.publishEvent(auditEvent);
   }
 
   @ApplicationModuleListener(condition = "#event.eventType == T(com.simplecommerce.product.ProductEvent.ProductEventType).CREATED")
-  void assignRolePermission(ProductEvent event) {
+  void assignMerchandiserRolePermission(ProductEvent event) {
     var source = event.source();
     var permission = toRelationTuplesRequest(new SubjectInput(null,
             new SubjectSetInput("Role", BaseRoles.MERCHANDISER.getName(), "assignees")),
         "owners", source.getId().toString());
     ketoAuthorizationService.transactRelationship(permission);
-    LOG.debug("Assigned owner on Product:{} to role {}", source.getId(), BaseRoles.MERCHANDISER.getName());
+    LOG.debug("Merchandiser assigned owner on Product:{}", source.getId());
     AuditApplicationEvent auditEvent = new AuditApplicationEvent("system", PERMISSION_ASSIGNED, Map.of(
         "namespace", "Product",
         "object", source.getId(),
         "permission", "delete",
         "subject", "Role:" + BaseRoles.MERCHANDISER.getName() + "#assignees"
+    ));
+    publisher.publishEvent(auditEvent);
+  }
+
+  @ApplicationModuleListener(condition = "#event.eventType == T(com.simplecommerce.product.ProductEvent.ProductEventType).CREATED")
+  void assignAdministratorRolePermission(ProductEvent event) {
+    var source = event.source();
+    var permission = toRelationTuplesRequest(new SubjectInput(null,
+            new SubjectSetInput("Role", BaseRoles.ADMINISTRATOR.getName(), "assignees")),
+        "owners", source.getId().toString());
+    ketoAuthorizationService.transactRelationship(permission);
+    LOG.debug("Administrator assigned owner on Product:{}", source.getId());
+    AuditApplicationEvent auditEvent = new AuditApplicationEvent("system", PERMISSION_ASSIGNED, Map.of(
+        "namespace", "Product",
+        "object", source.getId(),
+        "permission", "delete",
+        "subject", "Role:" + BaseRoles.ADMINISTRATOR.getName() + "#assignees"
     ));
     publisher.publishEvent(auditEvent);
   }

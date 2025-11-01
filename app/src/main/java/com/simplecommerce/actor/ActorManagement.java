@@ -4,11 +4,12 @@ import static com.simplecommerce.actor.user.UserManagement.getUser;
 
 import com.simplecommerce.actor.bot.BotEntity;
 import com.simplecommerce.actor.user.UserEntity;
+import com.simplecommerce.security.aspects.Permit;
 import com.simplecommerce.shared.authorization.BasePermissions;
 import com.simplecommerce.shared.authorization.BuiltIns;
 import com.simplecommerce.shared.authorization.KetoAuthorizationService;
-import com.simplecommerce.shared.types.PermissionTupleInput;
 import com.simplecommerce.shared.types.Role;
+import com.simplecommerce.shared.types.SubjectInput;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -65,49 +67,70 @@ public class ActorManagement implements ActorService {
     return getUser(entity);
   }
 
-  private TransactRelationTuplesRequest toRelationTuplesRequest(Action action, List<PermissionTupleInput> permissions) {
+  private TransactRelationTuplesRequest toRelationTuplesRequest(List<String> roles, SubjectInput subject) {
     var builder = TransactRelationTuplesRequest.newBuilder();
-    for (var permission : permissions) {
-      var subjectBuilder = Subject.newBuilder();
-      if (Objects.nonNull(permission.subject().subjectId())) {
-        subjectBuilder.setId(permission.subject().subjectId());
-      } else if (Objects.nonNull(permission.subject().subjectSet())) {
-        subjectBuilder.setSet(SubjectSet.newBuilder()
-            .setNamespace(permission.subject().subjectSet().namespace())
-            .setObject(permission.subject().subjectSet().object())
-            .setRelation(permission.subject().subjectSet().relation()));
+    for (var role : roles) {
+      if (Objects.nonNull(subject.group())) {
+        builder.addRelationTupleDeltas(assignRoleToGroup(role, subject.group()));
+      } else if (Objects.nonNull(subject.actor())) {
+        builder.addRelationTupleDeltas(assignRoleToActor(role, subject.actor()));
       }
-
-      var deltaBuilder = RelationTupleDelta.newBuilder()
-          .setAction(action);
-      var tupleBuilder = RelationTuple.newBuilder()
-          .setNamespace(permission.namespace())
-          .setObject(permission.object())
-          .setRelation(permission.relation())
-          .setSubject(subjectBuilder);
-      deltaBuilder.setRelationTuple(tupleBuilder);
-      builder.addRelationTupleDeltas(deltaBuilder);
     }
     return builder.build();
   }
 
-  @Override
-  public Optional<Actor> findActor(String username) {
-    return actorRepository.findByUsername(username).map(this::fromEntity);
+  private RelationTupleDelta.Builder assignRoleToGroup(@NonNull String role, @NonNull String groupId) {
+    return RelationTupleDelta.newBuilder()
+        .setAction(Action.ACTION_INSERT)
+        .setRelationTuple(RelationTuple.newBuilder()
+            .setNamespace("Role")
+            .setObject(role)
+            .setRelation("assignees")
+            .setSubject(Subject.newBuilder()
+                .setSet(SubjectSet.newBuilder()
+                    .setNamespace("Group")
+                    .setObject(groupId)
+                    .setRelation("members"))
+            )
+        );
+  }
+
+  private RelationTupleDelta.Builder assignRoleToActor(@NonNull String role, @NonNull String username) {
+    return RelationTupleDelta.newBuilder()
+        .setAction(Action.ACTION_INSERT)
+        .setRelationTuple(RelationTuple.newBuilder()
+            .setNamespace("Role")
+            .setObject(role)
+            .setRelation("assignees")
+            .setSubject(Subject.newBuilder()
+                .setId(username)
+            )
+        );
   }
 
   @Override
-  public Optional<Actor> addPermissionsToActor(String username, List<PermissionTupleInput> permissions) {
-    ketoAuthorizationService.transactRelationship(toRelationTuplesRequest(Action.ACTION_INSERT, permissions));
+  public Optional<Actor> findActor(@NonNull String username) {
     return actorRepository.findByUsername(username).map(this::fromEntity);
   }
 
+  @Permit(namespace = "Role", object = "'Administrator'", relation = "assignees")
   @Override
-  public Optional<Actor> removePermissionsFromActor(String username, List<PermissionTupleInput> permissions) {
-    ketoAuthorizationService.transactRelationship(toRelationTuplesRequest(Action.ACTION_DELETE, permissions));
-    return actorRepository.findByUsername(username).map(this::fromEntity);
+  public PermissionAssignmentPayload addRolesToSubject(List<String> roles, SubjectInput subject) {
+    if (Objects.nonNull(subject.actor())) {
+      return findActor(subject.actor()).map(actor -> {
+            ketoAuthorizationService.transactRelationship(toRelationTuplesRequest(roles, subject));
+            return new PermissionAssignmentPayload(actor, null, null);
+          }
+      ).orElse(new PermissionAssignmentPayload(null, null, null));
+    } else if (Objects.nonNull(subject.group())) {
+
+      return new PermissionAssignmentPayload(null, null, null);
+    } else {
+      return new PermissionAssignmentPayload(null, null, null);
+    }
   }
 
+  @Permit(namespace = "Role", object = "'Administrator'", relation = "assignees")
   @Override
   public List<Role> findRoles() {
     var roles = Arrays.stream(BuiltIns.DEFAULT_ROLES);
@@ -116,6 +139,7 @@ public class ActorManagement implements ActorService {
     )).toList();
   }
 
+  @Permit(namespace = "Role", object = "'Administrator'", relation = "assignees")
   @Override
   public List<BasePermissions> findPermissions() {
     return Arrays.asList(BuiltIns.DEFAULT_PERMISSIONS);
