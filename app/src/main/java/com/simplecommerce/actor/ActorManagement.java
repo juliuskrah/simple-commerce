@@ -55,7 +55,7 @@ public class ActorManagement implements ActorService {
     return switch (entity) {
       case UserEntity user -> fromEntity(user);
       case BotEntity bot -> new Bot(
-          bot.getId().toString(),
+          Objects.requireNonNull(bot.getId(), "Bot ID not generated").toString(),
           bot.getUsername(),
           bot.getLastModifiedDate().orElseGet(epoch),
           bot.getCreatedDate().orElseGet(epoch)
@@ -72,9 +72,11 @@ public class ActorManagement implements ActorService {
     var builder = TransactRelationTuplesRequest.newBuilder();
     for (var role : roles) {
       if (Objects.nonNull(subject.group())) {
-        builder.addRelationTupleDeltas(assignRoleToGroup(role, subject.group()));
+        var gid = Objects.requireNonNull(subject.group());
+        builder.addRelationTupleDeltas(assignRoleToGroup(role, gid));
       } else if (Objects.nonNull(subject.actor())) {
-        builder.addRelationTupleDeltas(assignRoleToActor(role, subject.actor()));
+        var username = Objects.requireNonNull(subject.actor());
+        builder.addRelationTupleDeltas(assignRoleToActor(role, username));
       }
     }
     return builder.build();
@@ -118,13 +120,16 @@ public class ActorManagement implements ActorService {
   @Override
   public PermissionAssignmentPayload addRolesToSubject(List<String> roles, SubjectInput subject) {
     if (Objects.nonNull(subject.actor())) {
-      return findActor(subject.actor()).map(actor -> {
+      var username = Objects.requireNonNull(subject.actor());
+      return findActor(username).map(actor -> {
             ketoAuthorizationService.transactRelationship(toRelationTuplesRequest(roles, subject));
             return new PermissionAssignmentPayload(actor, null, null);
           }
       ).orElse(new PermissionAssignmentPayload(null, null, null));
     } else if (Objects.nonNull(subject.group())) {
-
+      // For group subjects we still write Role:<role>#assignees@(Group:<gid>#members)
+      // Add permission and return group in `PermissionAssignmentPayload` when group with id exists
+      ketoAuthorizationService.transactRelationship(toRelationTuplesRequest(roles, subject));
       return new PermissionAssignmentPayload(null, null, null);
     } else {
       return new PermissionAssignmentPayload(null, null, null);

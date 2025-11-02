@@ -22,6 +22,7 @@ class GroupManagement implements GroupService {
 
   private Groups groupRepository;
   private GroupMembers groupMembersRepository;
+  @org.jspecify.annotations.Nullable
   private AuthorizationBridge authorizationBridge; // may be null when keto-authz profile not active
   private static final String EDITORS_RELATION = "editors";
   private static final String VIEWERS_RELATION = "viewers";
@@ -71,11 +72,11 @@ class GroupManagement implements GroupService {
       groupMembersRepository.saveAndFlush(entity);
     }
     for (UUID nested : nestedUUIDs) {
-      if (nested.equals(gid)) {
-        continue; // prevent self-cycle
+      boolean skip = nested.equals(gid) || wouldCreateCycle(gid, nested);
+      if (!skip) {
+        var entity = GroupMemberEntity.forNestedGroup(gid, nested);
+        groupMembersRepository.saveAndFlush(entity);
       }
-      var entity = GroupMemberEntity.forNestedGroup(gid, nested);
-      groupMembersRepository.saveAndFlush(entity);
     }
     if (authorizationBridge != null) {
       if (!users.isEmpty()) {
@@ -158,5 +159,29 @@ class GroupManagement implements GroupService {
 
   private UUID decodeRequired(String id) {
     return decode(id).orElseThrow(() -> new IllegalArgumentException("Invalid group id " + id));
+  }
+
+  /**
+   * Detect if adding candidate as nested group of parent would introduce a cycle.
+   * Performs a DFS from candidate following existing nested group relationships.
+   */
+  private boolean wouldCreateCycle(UUID parent, UUID candidate) {
+    if (parent.equals(candidate)) return true;
+    var visited = new java.util.HashSet<UUID>();
+    var stack = new java.util.ArrayDeque<UUID>();
+    stack.push(candidate);
+    while (!stack.isEmpty()) {
+      var current = stack.pop();
+      if (!visited.add(current)) continue;
+      if (current.equals(parent)) return true; // cycle detected
+      var members = groupMembersRepository.findByGroupId(current);
+      for (var nested : members.stream()
+          .map(GroupMemberEntity::getMemberGroupId)
+          .filter(java.util.Objects::nonNull)
+          .toList()) {
+        stack.push(nested);
+      }
+    }
+    return false;
   }
 }

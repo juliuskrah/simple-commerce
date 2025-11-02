@@ -4,6 +4,7 @@ import static com.simplecommerce.shared.types.Types.NODE_GROUP;
 
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.authorization.BasePermissions;
+import com.simplecommerce.shared.types.Role;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -66,6 +67,18 @@ class GroupController {
   @MutationMapping
   Group assignProductPermissionsToGroup(@Argument AssignGroupProductPermissionsInput input) {
     return groupService.getIfAvailable(groupServiceSupplier).assignGroupProductPermissions(input.groupId(), input.productIds(), input.permission());
+  }
+
+  @MutationMapping
+  Group revokeProductPermissionsFromGroup(@Argument AssignGroupProductPermissionsInput input) {
+    return groupService.getIfAvailable(groupServiceSupplier).revokeGroupProductPermissions(input.groupId(), input.productIds(), input.permission());
+  }
+
+  @SchemaMapping(typeName = "Group")
+  List<Role> roles(Group source) {
+    // Phase 3 placeholder: resolve roles via Keto by listing Role:<name>#assignees@(Group:<gid>#members)
+    // For now return empty list until query implementation is added.
+    return List.of();
   }
 }
 

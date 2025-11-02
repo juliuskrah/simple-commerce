@@ -24,6 +24,7 @@ extend type Mutation {
     assignMembersToGroup(groupId: ID!, input: AddGroupMembersInput!): Group
     revokeMembersFromGroup(groupId: ID!, input: AddGroupMembersInput!): Group
     assignProductPermissionsToGroup(input: AssignGroupProductPermissionsInput!): Group
+    revokeProductPermissionsFromGroup(input: AssignGroupProductPermissionsInput!): Group
 }
 
 "An `Actor` is an entity that can perform actions in the system."
