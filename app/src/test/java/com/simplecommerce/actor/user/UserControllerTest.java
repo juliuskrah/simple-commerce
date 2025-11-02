@@ -1,7 +1,6 @@
 package com.simplecommerce.actor.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -23,7 +22,6 @@ import org.springframework.boot.test.autoconfigure.graphql.GraphQlTest;
 import org.springframework.graphql.test.tester.GraphQlTester;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * Test for {@link UserController}.

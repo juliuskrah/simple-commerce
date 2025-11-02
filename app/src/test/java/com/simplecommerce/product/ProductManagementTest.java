@@ -53,7 +53,7 @@ class ProductManagementTest {
     entity.setTitle("Kaspersky");
     when(productRepository.findById(any(UUID.class))).thenReturn(Optional.of(entity));
     // gid://SimpleCommerce/Product/1c7e429c-45ed-45d7-9d1a-36f561b9d6b9
-    var product = productService.node("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvUHJvZHVjdC8xYzdlNDI5Yy00NWVkLTQ1ZDctOWQxYS0zNmY1NjFiOWQ2Yjk=");
+    var product = productService.node("Z2lkOi8vU2ltcGxlQ29tbWVyY2UvR3JvdXAvMzI3Nzk4NDgtNzhiNS00YmEyLWJkYzMtZmM5N2ZjN2YwYzhh");
     assertThat(product).isNotNull()
         .hasFieldOrPropertyWithValue("id", "1c7e429c-45ed-45d7-9d1a-36f561b9d6b9")
         .hasFieldOrPropertyWithValue("title", "Kaspersky");

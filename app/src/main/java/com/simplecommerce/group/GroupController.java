@@ -4,17 +4,24 @@ import static com.simplecommerce.shared.types.Types.NODE_GROUP;
 
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.authorization.BasePermissions;
+import com.simplecommerce.shared.authorization.BuiltIns;
+import com.simplecommerce.shared.authorization.KetoAuthorizationService;
 import com.simplecommerce.shared.types.Role;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.data.domain.ScrollPosition;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Window;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.graphql.data.query.ScrollSubrange;
 import org.springframework.stereotype.Controller;
 
 /**
@@ -25,9 +32,11 @@ class GroupController {
   private final ObjectProvider<GroupService> groupService;
   // Defer creation of the GroupService to avoid early initialization of aspectj proxy
   private final Supplier<GroupService> groupServiceSupplier = StableValue.supplier(GroupManagement::new);
+  private final KetoAuthorizationService ketoService;
 
-  GroupController(ObjectProvider<GroupService> groupService) {
+  GroupController(ObjectProvider<GroupService> groupService, ObjectProvider<KetoAuthorizationService> ketoService) {
     this.groupService = groupService;
+    this.ketoService = ketoService.getObject();
   }
 
   @SchemaMapping(typeName = "Group")
@@ -41,8 +50,10 @@ class GroupController {
   }
 
   @QueryMapping
-  List<Group> groups(@Argument int limit) {
-    return groupService.getIfAvailable(groupServiceSupplier).findGroups(limit);
+  Window<Group> groups(ScrollSubrange subrange, Sort sort) {
+    var limit = subrange.count().orElse(100);
+    var scroll = subrange.position().orElse(ScrollPosition.keyset());
+    return groupService.getIfAvailable(groupServiceSupplier).findGroups(limit, sort, scroll);
   }
 
   @MutationMapping
@@ -76,9 +87,15 @@ class GroupController {
 
   @SchemaMapping(typeName = "Group")
   List<Role> roles(Group source) {
-    // Phase 3 placeholder: resolve roles via Keto by listing Role:<name>#assignees@(Group:<gid>#members)
-    // For now return empty list until query implementation is added.
-    return List.of();
+    if (ketoService == null) {
+      return List.of();
+    }
+    // Check each built-in role assignment via Keto: Role:<name>#assignees includes Group:<gid>#members
+    var gid = source.id();
+    return Arrays.stream(BuiltIns.DEFAULT_ROLES)
+        .filter(r -> ketoService.checkPermission("Role", r.getName(), "assignees", gid))
+        .map(r -> new Role(r.getName(), Arrays.asList(r.getPermissions())))
+        .toList();
   }
 }
 

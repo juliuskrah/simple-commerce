@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.ScrollPosition;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Window;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -22,7 +26,7 @@ class GroupManagement implements GroupService {
 
   private Groups groupRepository;
   private GroupMembers groupMembersRepository;
-  @org.jspecify.annotations.Nullable
+  @Nullable
   private AuthorizationBridge authorizationBridge; // may be null when keto-authz profile not active
   private static final String EDITORS_RELATION = "editors";
   private static final String VIEWERS_RELATION = "viewers";
@@ -50,9 +54,15 @@ class GroupManagement implements GroupService {
     return groupRepository.findBy(Limit.of(limit)).stream().map(this::toDto).toList();
   }
 
+  @Override
+  public Window<Group> findGroups(int limit, Sort sort, ScrollPosition scroll) {
+    var window = groupRepository.findBy(Limit.of(limit), sort, scroll);
+    return window.map(this::toDto);
+  }
+
   @Transactional
   @Override
-  public Group addGroup(String name, @org.jspecify.annotations.Nullable String description) {
+  public Group addGroup(String name, @Nullable String description) {
     var entity = new GroupEntity();
     entity.setName(name);
     entity.setDescription(description);
@@ -62,7 +72,7 @@ class GroupManagement implements GroupService {
 
   @Transactional
   @Override
-  public Group addMembers(String groupId, @org.jspecify.annotations.Nullable List<String> actorUsernames, @org.jspecify.annotations.Nullable List<String> nestedGroupIds) {
+  public Group addMembers(String groupId, @Nullable List<String> actorUsernames, @Nullable List<String> nestedGroupIds) {
     var gid = decodeRequired(groupId);
     // Basic cycle prevention for direct nesting only (deep cycle detection deferred)
     var nestedUUIDs = nestedGroupIds == null ? List.<UUID>of() : nestedGroupIds.stream().map(this::decodeRequired).toList();
@@ -91,7 +101,7 @@ class GroupManagement implements GroupService {
 
   @Transactional
   @Override
-  public Group removeMembers(String groupId, @org.jspecify.annotations.Nullable List<String> actorUsernames, @org.jspecify.annotations.Nullable List<String> nestedGroupIds) {
+  public Group removeMembers(String groupId, @Nullable List<String> actorUsernames, @Nullable List<String> nestedGroupIds) {
     var gid = decodeRequired(groupId);
     if (actorUsernames != null && !actorUsernames.isEmpty()) {
       var actors = groupMembersRepository.findByGroupIdAndActorUsernameIn(gid, actorUsernames);

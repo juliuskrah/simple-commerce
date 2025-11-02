@@ -38,6 +38,7 @@ import sh.ory.keto.write.v1alpha2.TransactRelationTuplesRequest;
 @Transactional
 @Configurable(autowire = Autowire.BY_TYPE)
 public class ActorManagement implements ActorService {
+  private static final String ASSIGNEES_RELATION = "assignees";
 
   public void setActorRepository(ObjectFactory<Actors> actorRepository) {
     this.actorRepository = actorRepository.getObject();
@@ -88,7 +89,7 @@ public class ActorManagement implements ActorService {
         .setRelationTuple(RelationTuple.newBuilder()
             .setNamespace("Role")
             .setObject(role)
-            .setRelation("assignees")
+            .setRelation(ASSIGNEES_RELATION)
             .setSubject(Subject.newBuilder()
                 .setSet(SubjectSet.newBuilder()
                     .setNamespace("Group")
@@ -104,16 +105,56 @@ public class ActorManagement implements ActorService {
         .setRelationTuple(RelationTuple.newBuilder()
             .setNamespace("Role")
             .setObject(role)
-            .setRelation("assignees")
+            .setRelation(ASSIGNEES_RELATION)
             .setSubject(Subject.newBuilder()
                 .setId(username)
             )
         );
   }
 
+  private RelationTupleDelta.Builder revokeRoleFromGroup(@NonNull String role, @NonNull String groupId) {
+  return RelationTupleDelta.newBuilder()
+    .setAction(Action.ACTION_DELETE)
+    .setRelationTuple(RelationTuple.newBuilder()
+      .setNamespace("Role")
+      .setObject(role)
+            .setRelation(ASSIGNEES_RELATION)
+      .setSubject(Subject.newBuilder().setSet(SubjectSet.newBuilder()
+        .setNamespace("Group")
+        .setObject(groupId)
+        .setRelation("members")))
+    );
+  }
+
+  private RelationTupleDelta.Builder revokeRoleFromActor(@NonNull String role, @NonNull String username) {
+  return RelationTupleDelta.newBuilder()
+    .setAction(Action.ACTION_DELETE)
+    .setRelationTuple(RelationTuple.newBuilder()
+      .setNamespace("Role")
+      .setObject(role)
+            .setRelation(ASSIGNEES_RELATION)
+      .setSubject(Subject.newBuilder().setId(username))
+    );
+  }
+
   @Override
   public Optional<Actor> findActor(@NonNull String username) {
     return actorRepository.findByUsername(username).map(this::fromEntity);
+  }
+
+  @Permit(namespace = ROLE_NAMESPACE, object = "'Administrator'", relation = "assignees")
+  @Override
+  public PermissionAssignmentPayload revokeRolesFromSubject(List<String> roles, SubjectInput subject) {
+    var builder = TransactRelationTuplesRequest.newBuilder();
+    for (var role : roles) {
+      if (Objects.nonNull(subject.group())) {
+        builder.addRelationTupleDeltas(revokeRoleFromGroup(role, Objects.requireNonNull(subject.group())));
+      } else if (Objects.nonNull(subject.actor())) {
+        builder.addRelationTupleDeltas(revokeRoleFromActor(role, Objects.requireNonNull(subject.actor())));
+      }
+    }
+    ketoAuthorizationService.transactRelationship(builder.build());
+    return new PermissionAssignmentPayload(null, null, null);
   }
 
   @Permit(namespace = ROLE_NAMESPACE, object = "'Administrator'", relation = "assignees")

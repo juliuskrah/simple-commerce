@@ -4,7 +4,8 @@ extend type Query {
     roles: [Role!]!
     permissions: [Permission!]!
     group(id: ID!): Group
-    groups(limit: Int!): [Group!]!
+    groupsWindow(first: Int @Positive, after: String, last: Int @Positive, before: String,):
+        GroupConnection! @Expression(value : "${args.containsOneOf('first','last')}")
 }
 
 extend type Mutation {

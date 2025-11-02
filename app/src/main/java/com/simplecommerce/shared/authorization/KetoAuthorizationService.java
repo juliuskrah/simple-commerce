@@ -123,4 +123,6 @@ public class KetoAuthorizationService {
       LOG.debug("Relation deleted");
     }
 
+  // Role listing for group will be implemented when Keto read relation listing stubs are available.
+
 }
