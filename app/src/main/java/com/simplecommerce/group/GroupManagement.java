@@ -2,6 +2,7 @@ package com.simplecommerce.group;
 
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.authorization.BasePermissions;
+import com.simplecommerce.shared.authorization.AuthorizationBridge;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -21,6 +22,7 @@ class GroupManagement implements GroupService {
 
   private Groups groupRepository;
   private GroupMembers groupMembersRepository;
+  private AuthorizationBridge authorizationBridge; // may be null when keto-authz profile not active
 
   public void setGroupRepository(ObjectProvider<Groups> groupRepository) {
     this.groupRepository = groupRepository.getObject();
@@ -28,6 +30,10 @@ class GroupManagement implements GroupService {
 
   public void setGroupMembersRepository(ObjectProvider<GroupMembers> groupMembersRepository) {
     this.groupMembersRepository = groupMembersRepository.getObject();
+  }
+
+  public void setAuthorizationBridge(ObjectProvider<AuthorizationBridge> authorizationBridge) {
+    this.authorizationBridge = authorizationBridge.getIfAvailable();
   }
 
   @Override
@@ -68,6 +74,14 @@ class GroupManagement implements GroupService {
       var entity = GroupMemberEntity.forNestedGroup(gid, nested);
       groupMembersRepository.saveAndFlush(entity);
     }
+    if (authorizationBridge != null) {
+      if (!users.isEmpty()) {
+        authorizationBridge.addActorsToGroup(gid.toString(), users);
+      }
+      if (!nestedUUIDs.isEmpty()) {
+        authorizationBridge.addGroupsToGroup(gid.toString(), nestedUUIDs.stream().map(UUID::toString).toList());
+      }
+    }
     return groupRepository.findById(gid).map(this::toDto).orElseThrow();
   }
 
@@ -90,8 +104,16 @@ class GroupManagement implements GroupService {
   @Transactional
   @Override
   public Group assignGroupProductPermissions(String groupId, List<String> productIds, BasePermissions permission) {
-    // Phase 1 placeholder: Keto tuple writes deferred. Here we simply return the group.
     var gid = decodeRequired(groupId);
+    if (authorizationBridge != null && !productIds.isEmpty()) {
+      var relation = switch (permission) {
+        case CREATE_AND_EDIT_PRODUCTS, EDIT_PRODUCT_COSTS, EDIT_PRODUCT_PRICES -> "editors";
+        case VIEW_PRODUCTS, VIEW_PRODUCT_COSTS, EXPORT_PRODUCTS -> "viewers";
+        case DELETE_PRODUCTS -> "owners";
+        case VIEW_DASHBOARD -> "viewers"; // not product-specific, fallback
+      };
+      authorizationBridge.assignGroupPermissionOnProducts(gid.toString(), productIds, relation);
+    }
     return groupRepository.findById(gid).map(this::toDto).orElseThrow();
   }
 
