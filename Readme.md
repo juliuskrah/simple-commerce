@@ -39,7 +39,7 @@ SPRING_PROFILES_ACTIVE=oidc-authn,keto-authz ./gradlew bootRun --args="serve"
 # Clean database and run migrations
 ./gradlew bootRun --args="migrate --clean"
 
-# Run migrations and seed the database
+# Run migrations and seed the database (runs clean first)
 ./gradlew bootRun --args="migrate --seed"
 ```
 
@@ -55,7 +55,7 @@ java -jar app/build/libs/app-*.jar serve
 # Run migrations only
 java -jar app/build/libs/app-*.jar migrate
 
-# Run migrations and seed the database
+# Run migrations and seed the database (runs clean first)
 java -jar app/build/libs/app-*.jar migrate --seed
 
 # Clean database and run migrations

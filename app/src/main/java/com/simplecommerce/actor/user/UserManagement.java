@@ -1,6 +1,6 @@
 package com.simplecommerce.actor.user;
 
-import static com.simplecommerce.shared.authorization.BaseRoles.ADMINISTRATOR;
+import static com.simplecommerce.shared.authorization.BasePermissions.Namespaces.ROLE_NAMESPACE;
 import static com.simplecommerce.shared.utils.VirtualThreadHelper.callInScope;
 
 import com.simplecommerce.actor.User;
@@ -60,7 +60,7 @@ public class UserManagement implements UserService {
     return callInScope(() -> userRepository.findByUsername(username).map(this::fromEntity).orElseThrow(NotFoundException::new));
   }
 
-  @Permit(namespace = "Role", object = "'Administrator'", relation = "assignees")
+  @Permit(namespace = ROLE_NAMESPACE, object = "'Administrator'", relation = "assignees")
   @Override
   public Optional<User> createUser(CreateUserInput user) {
     var userPassword = user.username().toLowerCase() + "123";

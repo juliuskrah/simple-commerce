@@ -10,9 +10,13 @@ extend type Mutation {
     assignPermissionsToSubject(permissions: [Permission!]!, subject: SubjectInput!): AssignPermissionsToSubjectPayload
     "Revoke the given permissions from a subject"
     revokePermissionsFromSubject(permissions: [Permission!]!, subject: SubjectInput!): RevokePermissionsFromSubjectPayload
+    "Assign the given roles to a subject"
     assignRolesToSubject(roles: [String!]! @ContainerSize( min : 1, max : 100), subject: SubjectRoleInput!): AssignRolesToSubjectPayload
-    revokeRolesFromSubject(roles: [String!]!, subject: SubjectRoleInput!): ID
+    "Revoke the given roles from a subject"
+    revokeRolesFromSubject(roles: [String!]!, subject: SubjectRoleInput!): RevokeRolesFromSubjectPayload
+    "Create a new human actor"
     addUser(input: CreateUserInput!): User
+    "Create a new bot actor"
     addBot(input: CreateBotInput!): Bot
 }
 
@@ -99,6 +103,11 @@ type RevokePermissionsFromSubjectPayload {
 }
 
 type AssignRolesToSubjectPayload {
+    actor: Actor
+    group: Group
+}
+
+type RevokeRolesFromSubjectPayload {
     actor: Actor
     group: Group
 }

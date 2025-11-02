@@ -1,6 +1,7 @@
 package com.simplecommerce.actor;
 
 import static com.simplecommerce.actor.user.UserManagement.getUser;
+import static com.simplecommerce.shared.authorization.BasePermissions.Namespaces.ROLE_NAMESPACE;
 
 import com.simplecommerce.actor.bot.BotEntity;
 import com.simplecommerce.actor.user.UserEntity;
@@ -113,7 +114,7 @@ public class ActorManagement implements ActorService {
     return actorRepository.findByUsername(username).map(this::fromEntity);
   }
 
-  @Permit(namespace = "Role", object = "'Administrator'", relation = "assignees")
+  @Permit(namespace = ROLE_NAMESPACE, object = "'Administrator'", relation = "assignees")
   @Override
   public PermissionAssignmentPayload addRolesToSubject(List<String> roles, SubjectInput subject) {
     if (Objects.nonNull(subject.actor())) {
@@ -130,7 +131,7 @@ public class ActorManagement implements ActorService {
     }
   }
 
-  @Permit(namespace = "Role", object = "'Administrator'", relation = "assignees")
+  @Permit(namespace = ROLE_NAMESPACE, object = "'Administrator'", relation = "assignees")
   @Override
   public List<Role> findRoles() {
     var roles = Arrays.stream(BuiltIns.DEFAULT_ROLES);
@@ -139,7 +140,7 @@ public class ActorManagement implements ActorService {
     )).toList();
   }
 
-  @Permit(namespace = "Role", object = "'Administrator'", relation = "assignees")
+  @Permit(namespace = ROLE_NAMESPACE, object = "'Administrator'", relation = "assignees")
   @Override
   public List<BasePermissions> findPermissions() {
     return Arrays.asList(BuiltIns.DEFAULT_PERMISSIONS);
