@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.domain.Auditable;
 
@@ -42,6 +43,8 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> implemen
   private String title;
   @Column(unique = true, nullable = false)
   private String slug;
+  @Column(columnDefinition = "text")
+  @Nullable
   private String description;
   @CreationTimestamp
   @Column(nullable = false)
@@ -49,7 +52,9 @@ public class ProductEntity extends AbstractAggregateRoot<ProductEntity> implemen
   @UpdateTimestamp
   @Column(nullable = false)
   private OffsetDateTime updatedAt;
+  @Nullable
   private String createdBy;
+  @Nullable
   private String updatedBy;
   @ElementCollection
   @CollectionTable(name = "product_tag", joinColumns = @JoinColumn(name = "product_id"))

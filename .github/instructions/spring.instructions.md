@@ -16,7 +16,8 @@ description: Provide project context and coding guidelines that AI should follow
 - Each module should be self-contained and encapsulate its domain logic.
 - Use domain events to communicate between modules.
 - Keep module dependencies to a minimum and use interfaces to decouple modules.
-  - `product` module should not depend on `file` module.
+  - e.g. `product` module should not depend on `file` module.
+- After each iteration run `app/src/test/java/../SimpleCommerceApplicationTest.java` to ensure the module is working correctly.
 
 
 ## Testing Guidelines

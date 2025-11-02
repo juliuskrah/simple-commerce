@@ -3,6 +3,8 @@ extend type Query {
     actor(username: String!): Actor
     roles: [Role!]!
     permissions: [Permission!]!
+    group(id: ID!): Group
+    groups(limit: Int!): [Group!]!
 }
 
 extend type Mutation {
@@ -18,6 +20,10 @@ extend type Mutation {
     addUser(input: CreateUserInput!): User
     "Create a new bot actor"
     addBot(input: CreateBotInput!): Bot
+    addGroup(name: String!, description: JsonString): Group
+    assignMembersToGroup(groupId: ID!, input: AddGroupMembersInput!): Group
+    revokeMembersFromGroup(groupId: ID!, input: AddGroupMembersInput!): Group
+    assignProductPermissionsToGroup(input: AssignGroupProductPermissionsInput!): Group
 }
 
 "An `Actor` is an entity that can perform actions in the system."
@@ -88,6 +94,21 @@ type Group implements Node {
     name: String!
     description: JsonString
     roles: [Role]
+}
+
+input AddGroupMembersInput {
+    subject: SubjectGroupInput!
+}
+
+input SubjectGroupInput @oneOf {
+    actors: [String!] @ContainerSize( min : 1, max : 100)
+    groups: [ID!] @ContainerSize( min : 1, max : 100)
+}
+
+input AssignGroupProductPermissionsInput {
+    groupId: ID! @NotBlank
+    productIds: [ID!]! @ContainerSize( min : 1, max : 100)
+    permission: Permission!
 }
 
 type AssignPermissionsToSubjectPayload {
