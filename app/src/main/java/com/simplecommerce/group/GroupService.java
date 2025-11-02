@@ -15,4 +15,5 @@ public interface GroupService {
   Group addMembers(String groupId, @Nullable List<String> actorUsernames, @Nullable List<String> nestedGroupIds);
   Group removeMembers(String groupId, @Nullable List<String> actorUsernames, @Nullable List<String> nestedGroupIds);
   Group assignGroupProductPermissions(String groupId, List<String> productIds, BasePermissions permission);
+  Group revokeGroupProductPermissions(String groupId, List<String> productIds, BasePermissions permission);
 }

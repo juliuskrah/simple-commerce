@@ -17,6 +17,7 @@ import sh.ory.keto.write.v1alpha2.TransactRelationTuplesRequest;
 @Profile("keto-authz")
 class KetoAuthorizationBridge implements AuthorizationBridge {
   private static final String GROUP_NAMESPACE = Namespaces.GROUP_NAMESPACE;
+  private static final String PRODUCT_NAMESPACE = Namespaces.PRODUCT_NAMESPACE;
   private static final String MEMBERS_RELATION = "members";
   private static final Logger LOG = LoggerFactory.getLogger(KetoAuthorizationBridge.class);
   private final KetoAuthorizationService keto;
@@ -66,7 +67,7 @@ class KetoAuthorizationBridge implements AuthorizationBridge {
     for (var pid : productIds) {
       builder.addRelationTupleDeltas(RelationTupleDelta.newBuilder().setAction(Action.ACTION_INSERT)
           .setRelationTuple(RelationTuple.newBuilder()
-              .setNamespace("Product")
+              .setNamespace(PRODUCT_NAMESPACE)
               .setObject(pid)
               .setRelation(relation)
               .setSubject(Subject.newBuilder().setSet(SubjectSet.newBuilder()
@@ -76,6 +77,59 @@ class KetoAuthorizationBridge implements AuthorizationBridge {
     }
     keto.transactRelationship(builder.build());
     LOG.debug("Assigned relation '{}' on {} products via Group:{}#members", relation, productIds.size(), groupId);
+  }
+
+  @Override
+  public void revokeGroupPermissionOnProducts(String groupId, List<String> productIds, String relation) {
+    if (productIds.isEmpty()) return;
+    var builder = TransactRelationTuplesRequest.newBuilder();
+    for (var pid : productIds) {
+      builder.addRelationTupleDeltas(RelationTupleDelta.newBuilder().setAction(Action.ACTION_DELETE)
+          .setRelationTuple(RelationTuple.newBuilder()
+              .setNamespace(PRODUCT_NAMESPACE)
+              .setObject(pid)
+              .setRelation(relation)
+              .setSubject(Subject.newBuilder().setSet(SubjectSet.newBuilder()
+                  .setNamespace(GROUP_NAMESPACE)
+                  .setObject(groupId)
+                  .setRelation(MEMBERS_RELATION)))));
+    }
+    keto.transactRelationship(builder.build());
+    LOG.debug("Revoked '{}' from {} products via Group:{}#members", relation, productIds.size(), groupId);
+  }
+
+  @Override
+  public void removeActorsFromGroup(String groupId, List<String> actorUsernames) {
+    if (actorUsernames.isEmpty()) return;
+    var builder = TransactRelationTuplesRequest.newBuilder();
+    for (var username : actorUsernames) {
+      builder.addRelationTupleDeltas(RelationTupleDelta.newBuilder().setAction(Action.ACTION_DELETE)
+          .setRelationTuple(RelationTuple.newBuilder()
+              .setNamespace(GROUP_NAMESPACE)
+              .setObject(groupId)
+              .setRelation(MEMBERS_RELATION)
+              .setSubject(Subject.newBuilder().setId(username))));
+    }
+    keto.transactRelationship(builder.build());
+    LOG.debug("Removed {} actors from Group:{}", actorUsernames.size(), groupId);
+  }
+
+  @Override
+  public void removeGroupsFromGroup(String parentGroupId, List<String> nestedGroupIds) {
+    if (nestedGroupIds.isEmpty()) return;
+    var builder = TransactRelationTuplesRequest.newBuilder();
+    for (var child : nestedGroupIds) {
+      builder.addRelationTupleDeltas(RelationTupleDelta.newBuilder().setAction(Action.ACTION_DELETE)
+          .setRelationTuple(RelationTuple.newBuilder()
+              .setNamespace(GROUP_NAMESPACE)
+              .setObject(parentGroupId)
+              .setRelation(MEMBERS_RELATION)
+              .setSubject(Subject.newBuilder().setSet(SubjectSet.newBuilder()
+                  .setNamespace(GROUP_NAMESPACE).setObject(child)
+              ))));
+    }
+    keto.transactRelationship(builder.build());
+    LOG.debug("Removed {} nested groups from Group:{}", nestedGroupIds.size(), parentGroupId);
   }
 
   @Override

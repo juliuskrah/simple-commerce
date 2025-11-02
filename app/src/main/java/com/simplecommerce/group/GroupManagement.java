@@ -23,6 +23,9 @@ class GroupManagement implements GroupService {
   private Groups groupRepository;
   private GroupMembers groupMembersRepository;
   private AuthorizationBridge authorizationBridge; // may be null when keto-authz profile not active
+  private static final String EDITORS_RELATION = "editors";
+  private static final String VIEWERS_RELATION = "viewers";
+  private static final String OWNERS_RELATION = "owners";
 
   public void setGroupRepository(ObjectProvider<Groups> groupRepository) {
     this.groupRepository = groupRepository.getObject();
@@ -92,11 +95,17 @@ class GroupManagement implements GroupService {
     if (actorUsernames != null && !actorUsernames.isEmpty()) {
       var actors = groupMembersRepository.findByGroupIdAndActorUsernameIn(gid, actorUsernames);
       actors.forEach(groupMembersRepository::delete);
+      if (authorizationBridge != null) {
+        authorizationBridge.removeActorsFromGroup(gid.toString(), actorUsernames);
+      }
     }
     if (nestedGroupIds != null && !nestedGroupIds.isEmpty()) {
       var nestedUUIDs = nestedGroupIds.stream().map(this::decodeRequired).toList();
       var nested = groupMembersRepository.findByGroupIdAndMemberGroupIdIn(gid, nestedUUIDs);
       nested.forEach(groupMembersRepository::delete);
+      if (authorizationBridge != null) {
+        authorizationBridge.removeGroupsFromGroup(gid.toString(), nestedUUIDs.stream().map(UUID::toString).toList());
+      }
     }
     return groupRepository.findById(gid).map(this::toDto).orElseThrow();
   }
@@ -107,12 +116,28 @@ class GroupManagement implements GroupService {
     var gid = decodeRequired(groupId);
     if (authorizationBridge != null && !productIds.isEmpty()) {
       var relation = switch (permission) {
-        case CREATE_AND_EDIT_PRODUCTS, EDIT_PRODUCT_COSTS, EDIT_PRODUCT_PRICES -> "editors";
-        case VIEW_PRODUCTS, VIEW_PRODUCT_COSTS, EXPORT_PRODUCTS -> "viewers";
-        case DELETE_PRODUCTS -> "owners";
-        case VIEW_DASHBOARD -> "viewers"; // not product-specific, fallback
+        case CREATE_AND_EDIT_PRODUCTS, EDIT_PRODUCT_COSTS, EDIT_PRODUCT_PRICES -> EDITORS_RELATION;
+        case VIEW_PRODUCTS, VIEW_PRODUCT_COSTS, EXPORT_PRODUCTS -> VIEWERS_RELATION;
+        case DELETE_PRODUCTS -> OWNERS_RELATION;
+        case VIEW_DASHBOARD -> VIEWERS_RELATION; // not product-specific, fallback
       };
       authorizationBridge.assignGroupPermissionOnProducts(gid.toString(), productIds, relation);
+    }
+    return groupRepository.findById(gid).map(this::toDto).orElseThrow();
+  }
+
+  @Transactional
+  @Override
+  public Group revokeGroupProductPermissions(String groupId, List<String> productIds, BasePermissions permission) {
+    var gid = decodeRequired(groupId);
+    if (authorizationBridge != null && !productIds.isEmpty()) {
+      var relation = switch (permission) {
+        case CREATE_AND_EDIT_PRODUCTS, EDIT_PRODUCT_COSTS, EDIT_PRODUCT_PRICES -> EDITORS_RELATION;
+        case VIEW_PRODUCTS, VIEW_PRODUCT_COSTS, EXPORT_PRODUCTS -> VIEWERS_RELATION;
+        case DELETE_PRODUCTS -> OWNERS_RELATION;
+        case VIEW_DASHBOARD -> VIEWERS_RELATION;
+      };
+      authorizationBridge.revokeGroupPermissionOnProducts(gid.toString(), productIds, relation);
     }
     return groupRepository.findById(gid).map(this::toDto).orElseThrow();
   }

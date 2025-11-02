@@ -8,6 +8,9 @@ import java.util.List;
 public interface AuthorizationBridge {
   void addActorsToGroup(String groupId, List<String> actorUsernames);
   void addGroupsToGroup(String parentGroupId, List<String> nestedGroupIds);
+  void removeActorsFromGroup(String groupId, List<String> actorUsernames);
+  void removeGroupsFromGroup(String parentGroupId, List<String> nestedGroupIds);
   void assignGroupPermissionOnProducts(String groupId, List<String> productIds, String relation);
+  void revokeGroupPermissionOnProducts(String groupId, List<String> productIds, String relation);
   void purgeGroupRelations(String groupId);
 }
