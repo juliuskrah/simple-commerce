@@ -1,13 +1,17 @@
 package com.simplecommerce.group;
 
+import com.simplecommerce.group.GroupEvent.GroupEventType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.util.Objects;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
+import org.springframework.data.domain.AbstractAggregateRoot;
 
 /**
  * Represents either an actor username or a nested group membership for a given group.
@@ -16,7 +20,7 @@ import java.util.UUID;
 @Table(name = "group_members", indexes = {
     @Index(name = "idx_group_members_group_id", columnList = "groupId")
 })
-class GroupMemberEntity {
+class GroupMemberEntity extends AbstractAggregateRoot<GroupMemberEntity> {
   @Id
   @GeneratedValue
   private UUID id;
@@ -25,8 +29,8 @@ class GroupMemberEntity {
   private UUID groupId;
 
   // One of actorUsername or memberGroupId must be set
-  private String actorUsername;
-  private UUID memberGroupId;
+  private @Nullable String actorUsername;
+  private @Nullable UUID memberGroupId;
 
   protected GroupMemberEntity() {}
 
@@ -50,6 +54,11 @@ class GroupMemberEntity {
   public UUID getGroupId() { return groupId; }
   public String getActorUsername() { return actorUsername; }
   public UUID getMemberGroupId() { return memberGroupId; }
+
+  @PrePersist
+  void publishGroupMembershipAddedEvent() {
+    registerEvent(new GroupEvent<>(this, GroupEventType.ADDED));
+  }
 
   @Override
   public boolean equals(Object o) {

@@ -1,5 +1,6 @@
 package com.simplecommerce.group;
 
+import com.simplecommerce.group.GroupEvent.GroupEventType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,7 +22,7 @@ import org.springframework.data.domain.Auditable;
  */
 @Entity(name = "Group")
 @Table(name = "groups")
-class GroupEntity extends AbstractAggregateRoot<GroupEntity> implements Auditable<String, UUID, OffsetDateTime> {
+public class GroupEntity extends AbstractAggregateRoot<GroupEntity> implements Auditable<String, UUID, OffsetDateTime> {
 
   @Id
   @GeneratedValue
@@ -121,7 +122,7 @@ class GroupEntity extends AbstractAggregateRoot<GroupEntity> implements Auditabl
 
   @PrePersist
   void publishGroupCreatedEvent() {
-    // publish group created event. @see ProductEntity#publishProductCreatedEvent
+    registerEvent(new GroupEvent<>(this, GroupEventType.CREATED));
   }
 
   @Override

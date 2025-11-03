@@ -18,4 +18,5 @@ interface Groups extends Repository<GroupEntity, UUID> {
   GroupEntity saveAndFlush(GroupEntity group);
   Window<GroupEntity> findBy(Limit limit, Sort sort, ScrollPosition scroll);
   List<GroupEntity> findBy(Limit limit);
+  void deleteById(UUID id);
 }
