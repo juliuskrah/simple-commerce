@@ -1,5 +1,6 @@
 package com.simplecommerce.actor.user;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.repository.Repository;
@@ -15,6 +16,8 @@ public interface Users extends Repository<UserEntity, UUID> {
   Optional<UserEntity> findById(UUID id);
 
   Optional<UserEntity> findByUsername(String username);
+
+  List<UserEntity> findByUsernameIn(List<String> usernames);
 
   UserEntity saveAndFlush(UserEntity user);
 }

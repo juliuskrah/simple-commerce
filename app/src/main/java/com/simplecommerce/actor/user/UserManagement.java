@@ -9,6 +9,7 @@ import com.simplecommerce.shared.authentication.DexIdpService;
 import com.simplecommerce.shared.exceptions.NotFoundException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.jspecify.annotations.NonNull;
@@ -58,6 +59,11 @@ public class UserManagement implements UserService {
   @Override
   public User findUser(String username) {
     return callInScope(() -> userRepository.findByUsername(username).map(this::fromEntity).orElseThrow(NotFoundException::new));
+  }
+
+  @Override
+  public List<User> findUsers(List<String> usernames) {
+    return userRepository.findByUsernameIn(usernames).stream().map(this::fromEntity).toList();
   }
 
   @Permit(namespace = ROLE_NAMESPACE, object = "'Administrator'", relation = "assignees")

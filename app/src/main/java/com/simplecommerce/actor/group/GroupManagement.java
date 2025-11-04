@@ -1,20 +1,27 @@
-package com.simplecommerce.group;
+package com.simplecommerce.actor.group;
 
+import com.simplecommerce.actor.Group;
+import com.simplecommerce.actor.GroupMember;
+import com.simplecommerce.actor.user.UserManagement;
+import com.simplecommerce.actor.user.UserService;
 import com.simplecommerce.shared.GlobalId;
-import com.simplecommerce.shared.authorization.BasePermissions;
 import com.simplecommerce.shared.authorization.AuthorizationBridge;
+import com.simplecommerce.shared.authorization.BasePermissions;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.data.domain.ScrollPosition;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Window;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.data.domain.Limit;
+import org.springframework.data.domain.ScrollPosition;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Window;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -28,6 +35,7 @@ class GroupManagement implements GroupService {
   private GroupMembers groupMembersRepository;
   @Nullable
   private AuthorizationBridge authorizationBridge; // may be null when keto-authz profile not active
+  private final UserService userService = new UserManagement();
   private static final String EDITORS_RELATION = "editors";
   private static final String VIEWERS_RELATION = "viewers";
   private static final String OWNERS_RELATION = "owners";
@@ -72,22 +80,27 @@ class GroupManagement implements GroupService {
 
   @Transactional
   @Override
-  public Group addMembers(String groupId, @Nullable List<String> actorUsernames, @Nullable List<String> nestedGroupIds) {
+  public List<? extends GroupMember> addMembers(String groupId, @Nullable List<String> actorUsernames, @Nullable List<String> nestedGroupIds) {
     var gid = decodeRequired(groupId);
     // Basic cycle prevention for direct nesting only (deep cycle detection deferred)
     var nestedUUIDs = nestedGroupIds == null ? List.<UUID>of() : nestedGroupIds.stream().map(this::decodeRequired).toList();
     var users = actorUsernames == null ? List.<String>of() : actorUsernames;
+    List<GroupMemberEntity> entities = new ArrayList<>(users.size());
     for (String username : users) {
       var entity = GroupMemberEntity.forActor(gid, username);
-      groupMembersRepository.saveAndFlush(entity);
+      entities.add(entity);
     }
+    groupMembersRepository.saveAll(entities);
+
+    List<GroupMemberEntity> nestGroupEntities = new ArrayList<>(nestedUUIDs.size());
     for (UUID nested : nestedUUIDs) {
       boolean skip = nested.equals(gid) || wouldCreateCycle(gid, nested);
       if (!skip) {
         var entity = GroupMemberEntity.forNestedGroup(gid, nested);
-        groupMembersRepository.saveAndFlush(entity);
+        nestGroupEntities.add(entity);
       }
     }
+    groupMembersRepository.saveAll(nestGroupEntities);
     if (authorizationBridge != null) {
       if (!users.isEmpty()) {
         authorizationBridge.addActorsToGroup(gid.toString(), users);
@@ -96,12 +109,17 @@ class GroupManagement implements GroupService {
         authorizationBridge.addGroupsToGroup(gid.toString(), nestedUUIDs.stream().map(UUID::toString).toList());
       }
     }
-    return groupRepository.findById(gid).map(this::toDto).orElseThrow();
+
+    if (users.isEmpty()) {
+      return groupRepository.findByIdIn(nestedUUIDs).stream().map(this::toDto).toList();
+    } else {
+      return userService.findUsers(users);
+    }
   }
 
   @Transactional
   @Override
-  public Group removeMembers(String groupId, @Nullable List<String> actorUsernames, @Nullable List<String> nestedGroupIds) {
+  public List<? extends GroupMember> removeMembers(String groupId, List<String> actorUsernames, List<String> nestedGroupIds) {
     var gid = decodeRequired(groupId);
     if (actorUsernames != null && !actorUsernames.isEmpty()) {
       var actors = groupMembersRepository.findByGroupIdAndActorUsernameIn(gid, actorUsernames);
@@ -110,15 +128,20 @@ class GroupManagement implements GroupService {
         authorizationBridge.removeActorsFromGroup(gid.toString(), actorUsernames);
       }
     }
+    List<UUID> nestedUUIDs = null;
     if (nestedGroupIds != null && !nestedGroupIds.isEmpty()) {
-      var nestedUUIDs = nestedGroupIds.stream().map(this::decodeRequired).toList();
+      nestedUUIDs = nestedGroupIds.stream().map(this::decodeRequired).toList();
       var nested = groupMembersRepository.findByGroupIdAndMemberGroupIdIn(gid, nestedUUIDs);
       nested.forEach(groupMembersRepository::delete);
       if (authorizationBridge != null) {
         authorizationBridge.removeGroupsFromGroup(gid.toString(), nestedUUIDs.stream().map(UUID::toString).toList());
       }
     }
-    return groupRepository.findById(gid).map(this::toDto).orElseThrow();
+    if (actorUsernames.isEmpty()) {
+      return groupRepository.findByIdIn(nestedUUIDs).stream().map(this::toDto).toList();
+    } else {
+      return userService.findUsers(actorUsernames);
+    }
   }
 
   @Transactional
@@ -176,18 +199,24 @@ class GroupManagement implements GroupService {
    * Performs a DFS from candidate following existing nested group relationships.
    */
   private boolean wouldCreateCycle(UUID parent, UUID candidate) {
-    if (parent.equals(candidate)) return true;
-    var visited = new java.util.HashSet<UUID>();
-    var stack = new java.util.ArrayDeque<UUID>();
+    if (parent.equals(candidate)) {
+      return true;
+    }
+    var stack = new ArrayDeque<UUID>();
     stack.push(candidate);
+    var visited = new HashSet<UUID>();
     while (!stack.isEmpty()) {
       var current = stack.pop();
-      if (!visited.add(current)) continue;
-      if (current.equals(parent)) return true; // cycle detected
+      if (!visited.add(current)) {
+        continue;
+      }
+      if (current.equals(parent)) {
+        return true; // cycle detected
+      }
       var members = groupMembersRepository.findByGroupId(current);
       for (var nested : members.stream()
           .map(GroupMemberEntity::getMemberGroupId)
-          .filter(java.util.Objects::nonNull)
+          .filter(Objects::nonNull)
           .toList()) {
         stack.push(nested);
       }

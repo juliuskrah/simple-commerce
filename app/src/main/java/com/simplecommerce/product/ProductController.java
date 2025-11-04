@@ -8,6 +8,7 @@ import com.simplecommerce.product.category.Category;
 import com.simplecommerce.product.pricing.PriceResolutionService;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.exceptions.NotFoundException;
+import com.simplecommerce.shared.utils.SecurityUtils;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;

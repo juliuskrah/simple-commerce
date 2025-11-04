@@ -1,6 +1,7 @@
 package com.simplecommerce.actor;
 
 import static java.time.ZoneOffset.UTC;
+import static java.util.Objects.requireNonNull;
 
 import com.simplecommerce.actor.user.UserEntity;
 import com.simplecommerce.shared.types.UserType;
@@ -45,7 +46,7 @@ public class ActorEventListener {
     entity.setEmail(jwt.getToken().getClaimAsString("email"));
     entity.setExternalId(jwt.getToken().getSubject());
     if (Objects.nonNull(jwt.getToken().getIssuedAt()) && entity instanceof UserEntity userEntity) {
-      userEntity.setLastLogin(jwt.getToken().getIssuedAt().atOffset(UTC));
+      userEntity.setLastLogin(requireNonNull(jwt.getToken().getIssuedAt()).atOffset(UTC));
     }
   }
 

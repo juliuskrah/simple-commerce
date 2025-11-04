@@ -1,5 +1,7 @@
-package com.simplecommerce.group;
+package com.simplecommerce.actor.group;
 
+import com.simplecommerce.actor.Group;
+import com.simplecommerce.actor.GroupMember;
 import com.simplecommerce.shared.authorization.BasePermissions;
 import java.util.List;
 import java.util.Optional;
@@ -16,8 +18,8 @@ public interface GroupService {
   List<Group> findGroups(int limit);
   Window<Group> findGroups(int limit, Sort sort, ScrollPosition scroll);
   Group addGroup(String name, @Nullable String description);
-  Group addMembers(String groupId, @Nullable List<String> actorUsernames, @Nullable List<String> nestedGroupIds);
-  Group removeMembers(String groupId, @Nullable List<String> actorUsernames, @Nullable List<String> nestedGroupIds);
+  List<? extends GroupMember> addMembers(String groupId, @Nullable List<String> actorUsernames, @Nullable List<String> nestedGroupIds);
+  List<? extends GroupMember> removeMembers(String groupId, @Nullable List<String> actorUsernames, @Nullable List<String> nestedGroupIds);
   Group assignGroupProductPermissions(String groupId, List<String> productIds, BasePermissions permission);
   Group revokeGroupProductPermissions(String groupId, List<String> productIds, BasePermissions permission);
 }

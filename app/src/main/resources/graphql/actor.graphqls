@@ -4,7 +4,7 @@ extend type Query {
     roles: [Role!]!
     permissions: [Permission!]!
     group(id: ID!): Group
-    groupsWindow(first: Int @Positive, after: String, last: Int @Positive, before: String,):
+    groups(first: Int @Positive, after: String, last: Int @Positive, before: String,):
         GroupConnection! @Expression(value : "${args.containsOneOf('first','last')}")
 }
 
@@ -17,16 +17,19 @@ extend type Mutation {
     assignRolesToSubject(roles: [String!]! @ContainerSize( min : 1, max : 100), subject: SubjectRoleInput!): AssignRolesToSubjectPayload
     "Revoke the given roles from a subject"
     revokeRolesFromSubject(roles: [String!]!, subject: SubjectRoleInput!): RevokeRolesFromSubjectPayload
+    addMembersToGroup(groupId: ID!, input: AddGroupMembersInput!): [GroupMember]
+    removeMembersFromGroup(groupId: ID!, input: AddGroupMembersInput!): [GroupMember]
+    assignProductPermissionsToGroup(input: AssignGroupProductPermissionsInput!): Group
+    revokeProductPermissionsFromGroup(input: AssignGroupProductPermissionsInput!): Group
     "Create a new human actor"
     addUser(input: CreateUserInput!): User
     "Create a new bot actor"
     addBot(input: CreateBotInput!): Bot
-    addGroup(name: String!, description: JsonString): Group
-    assignMembersToGroup(groupId: ID!, input: AddGroupMembersInput!): Group
-    revokeMembersFromGroup(groupId: ID!, input: AddGroupMembersInput!): Group
-    assignProductPermissionsToGroup(input: AssignGroupProductPermissionsInput!): Group
-    revokeProductPermissionsFromGroup(input: AssignGroupProductPermissionsInput!): Group
+    "Create a new group"
+    addGroup(name: String! @NotBlank, description: JsonString): Group
 }
+
+union GroupMember = User | Group
 
 "An `Actor` is an entity that can perform actions in the system."
 interface Actor implements Node {
@@ -98,21 +101,6 @@ type Group implements Node {
     roles: [Role]
 }
 
-input AddGroupMembersInput {
-    subject: SubjectGroupInput!
-}
-
-input SubjectGroupInput @oneOf {
-    actors: [String!] @ContainerSize( min : 1, max : 100)
-    groups: [ID!] @ContainerSize( min : 1, max : 100)
-}
-
-input AssignGroupProductPermissionsInput {
-    groupId: ID! @NotBlank
-    productIds: [ID!]! @ContainerSize( min : 1, max : 100)
-    permission: Permission!
-}
-
 type AssignPermissionsToSubjectPayload {
     actor: Actor
     role: Role
@@ -135,21 +123,35 @@ type RevokeRolesFromSubjectPayload {
     group: Group
 }
 
-enum Permission {
-    VIEW_PRODUCTS
-    VIEW_PRODUCT_COSTS
-    CREATE_AND_EDIT_PRODUCTS
-    EDIT_PRODUCT_COSTS
-    EDIT_PRODUCT_PRICES
-    EXPORT_PRODUCTS
-    DELETE_PRODUCTS
-    VIEW_DASHBOARD
+input AddGroupMembersInput {
+    subject: SubjectGroupInput!
 }
 
-enum UserType {
-    STAFF
-    COLLABORATOR
-    CUSTOMER
+input SubjectGroupInput @oneOf {
+    actors: [String!] @ContainerSize( min : 1, max : 100)
+    groups: [ID!] @ContainerSize( min : 1, max : 100)
+}
+
+input SubjectRoleInput @oneOf {
+    "The username of an actor (user or bot)"
+    actor: String @NotBlank
+    "The ID of a group"
+    group: ID @NotBlank
+}
+
+input SubjectInput @oneOf {
+    "The username of an actor (user or bot)."
+    actor: String
+    "The ID of a group"
+    group: ID
+    "The name of a role"
+    role: String
+}
+
+input AssignGroupProductPermissionsInput {
+    groupId: ID! @NotBlank
+    productIds: [ID!]! @ContainerSize( min : 1, max : 100)
+    permission: Permission!
 }
 
 input CreateUserInput {
@@ -165,18 +167,19 @@ input CreateBotInput {
     permissions: [Permission!]
 }
 
-input SubjectInput @oneOf {
-    "The username of an actor (user or bot)."
-    actor: String
-    "The ID of a group"
-    group: ID
-    "The name of a role"
-    role: String
+enum Permission {
+    VIEW_PRODUCTS
+    VIEW_PRODUCT_COSTS
+    CREATE_AND_EDIT_PRODUCTS
+    EDIT_PRODUCT_COSTS
+    EDIT_PRODUCT_PRICES
+    EXPORT_PRODUCTS
+    DELETE_PRODUCTS
+    VIEW_DASHBOARD
 }
 
-input SubjectRoleInput @oneOf {
-    "The username of an actor (user or bot)"
-    actor: String @NotBlank
-    "The ID of a group"
-    group: ID @NotBlank
+enum UserType {
+    STAFF
+    COLLABORATOR
+    CUSTOMER
 }

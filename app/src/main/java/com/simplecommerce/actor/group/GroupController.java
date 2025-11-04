@@ -1,7 +1,9 @@
-package com.simplecommerce.group;
+package com.simplecommerce.actor.group;
 
 import static com.simplecommerce.shared.types.Types.NODE_GROUP;
 
+import com.simplecommerce.actor.Group;
+import com.simplecommerce.actor.GroupMember;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.authorization.BasePermissions;
 import com.simplecommerce.shared.authorization.BuiltIns;
@@ -62,14 +64,14 @@ class GroupController {
   }
 
   @MutationMapping
-  Group assignMembersToGroup(@Argument String groupId, @Argument AddGroupMembersInput input) {
+  List<? extends GroupMember> addMembersToGroup(@Argument String groupId, @Argument AddGroupMembersInput input) {
     var actors = input.subject().actors() == null ? Collections.<String>emptyList() : input.subject().actors();
     var groups = input.subject().groups() == null ? Collections.<String>emptyList() : input.subject().groups();
     return groupService.getIfAvailable(groupServiceSupplier).addMembers(groupId, actors, groups);
   }
 
   @MutationMapping
-  Group revokeMembersFromGroup(@Argument String groupId, @Argument AddGroupMembersInput input) {
+  List<? extends GroupMember> removeMembersFromGroup(@Argument String groupId, @Argument AddGroupMembersInput input) {
     var actors = input.subject().actors() == null ? Collections.<String>emptyList() : input.subject().actors();
     var groups = input.subject().groups() == null ? Collections.<String>emptyList() : input.subject().groups();
     return groupService.getIfAvailable(groupServiceSupplier).removeMembers(groupId, actors, groups);

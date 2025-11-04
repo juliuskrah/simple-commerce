@@ -1,6 +1,5 @@
 @NullMarked
 @ApplicationModule(id = "actor", displayName = "User Module", allowedDependencies = {
-    "group",
     "shared",
     "shared :: exceptions",
     "shared :: authorization",

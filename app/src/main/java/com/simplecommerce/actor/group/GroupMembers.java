@@ -1,4 +1,4 @@
-package com.simplecommerce.group;
+package com.simplecommerce.actor.group;
 
 import java.util.List;
 import java.util.Optional;
@@ -8,8 +8,9 @@ import org.springframework.data.repository.Repository;
 /**
  * Repository for group members. Stores both actor usernames and nested group relationships.
  */
-interface GroupMembers extends Repository<GroupMemberEntity, UUID> {
+public interface GroupMembers extends Repository<GroupMemberEntity, UUID> {
   GroupMemberEntity saveAndFlush(GroupMemberEntity entity);
+  List<GroupMemberEntity> saveAll(Iterable<GroupMemberEntity> entities);
   void delete(GroupMemberEntity entity);
   Optional<GroupMemberEntity> findById(UUID id);
   List<GroupMemberEntity> findByGroupId(UUID groupId);

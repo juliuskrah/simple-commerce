@@ -1,9 +1,9 @@
-package com.simplecommerce.group;
+package com.simplecommerce.actor.group;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.simplecommerce.DataPostgresTest;
-import com.simplecommerce.group.GroupEvent.GroupEventType;
+import com.simplecommerce.actor.group.GroupEvent.GroupEventType;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;

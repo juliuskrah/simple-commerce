@@ -1,8 +1,10 @@
 package com.simplecommerce.shared.authorization;
 
+import static com.simplecommerce.shared.utils.VirtualThreadHelper.callInScope;
+import static com.simplecommerce.shared.utils.VirtualThreadHelper.runInScope;
+
 import com.google.protobuf.ByteString;
 import com.simplecommerce.shared.types.ProductStatus;
-import java.io.IOException;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -57,7 +59,7 @@ public class KetoAuthorizationService {
    */
   public List<String> listNamespaces() {
     LOG.info("Listing all namespaces");
-    var namespaceResponse = namespacesService.listNamespaces(ListNamespacesRequest.newBuilder().build());
+    var namespaceResponse = callInScope(() -> namespacesService.listNamespaces(ListNamespacesRequest.newBuilder().build()));
     return namespaceResponse.getNamespacesList().stream()
         .map(Namespace::getName).toList();
     }
@@ -68,11 +70,12 @@ public class KetoAuthorizationService {
      * @param resource The OPL policy file to validate
      * @return List of ParseError if any syntax errors are found
      */
-    public List<ParseError> checkSyntax(Resource resource) throws IOException {
+    public List<ParseError> checkSyntax(Resource resource) {
       LOG.info("Validating OPL syntax: {}", resource);
-      var checkResponse = syntaxService.check(CheckRequest.newBuilder()
+      var checkResponse = callInScope(() -> syntaxService.check(CheckRequest.newBuilder()
           .setContent(ByteString.readFrom(resource.getInputStream()))
-          .build());
+          .build())
+      );
       return checkResponse.getParseErrorsList();
     }
 
@@ -87,14 +90,15 @@ public class KetoAuthorizationService {
      */
     public boolean checkPermission(String namespace, @Nullable String object, String relation, String subject) {
         LOG.debug("Checking permission: {}:{}#{} for subject {}", namespace, object, relation, subject);
-        var checkResponse = checkService.check(sh.ory.keto.read.v1alpha2.CheckRequest.newBuilder()
+      var checkResponse = callInScope(() -> checkService.check(sh.ory.keto.read.v1alpha2.CheckRequest.newBuilder()
                 .setTuple(RelationTuple.newBuilder()
                     .setNamespace(namespace)
                     .setObject(object)
                     .setRelation(relation)
                     .setSubject(Subject.newBuilder().setId(subject)))
                 .setMaxDepth(DEFAULT_MAX_CHECK_DEPTH)
-                .build());
+          .build())
+      );
         return checkResponse.getAllowed();
     }
 
@@ -113,13 +117,13 @@ public class KetoAuthorizationService {
    */
     public void transactRelationship(TransactRelationTuplesRequest transactionRequest) {
         LOG.debug("Creating/Deleting {} relationship tuples within transaction", transactionRequest.getRelationTupleDeltasCount());
-        var transactionResponse = writeService.transactRelationTuples(transactionRequest);
+      var transactionResponse = callInScope(() -> writeService.transactRelationTuples(transactionRequest));
         LOG.debug("Transaction completed with {} relation tuples", transactionResponse.getSnaptokensCount());
     }
 
     public void deleteRelationship(DeleteRelationTuplesRequest transactionRequest) {
       LOG.debug("Deleting relationship tuple for query: '{}'", transactionRequest.getRelationQuery());
-      writeService.deleteRelationTuples(transactionRequest);
+      runInScope(() -> writeService.deleteRelationTuples(transactionRequest));
       LOG.debug("Relation deleted");
     }
 

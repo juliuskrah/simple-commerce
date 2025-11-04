@@ -41,7 +41,7 @@ public class MigrateCommand implements Runnable {
     // Set profiles for migration mode
     var springBuilder = new SpringApplicationBuilder(applicationClass).profiles("migrate");
     if (exclusive != null && exclusive.seed) {
-      springBuilder.profiles("seed", "keto-authz");
+      springBuilder.profiles("seed");
       System.setProperty("simple-commerce.seeder.enabled", "true");
     }
 

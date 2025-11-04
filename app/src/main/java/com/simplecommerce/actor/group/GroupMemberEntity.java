@@ -1,6 +1,6 @@
-package com.simplecommerce.group;
+package com.simplecommerce.actor.group;
 
-import com.simplecommerce.group.GroupEvent.GroupEventType;
+import com.simplecommerce.actor.group.GroupEvent.GroupEventType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,7 +20,7 @@ import org.springframework.data.domain.AbstractAggregateRoot;
 @Table(name = "group_members", indexes = {
     @Index(name = "idx_group_members_group_id", columnList = "groupId")
 })
-class GroupMemberEntity extends AbstractAggregateRoot<GroupMemberEntity> {
+public class GroupMemberEntity extends AbstractAggregateRoot<GroupMemberEntity> {
   @Id
   @GeneratedValue
   private UUID id;

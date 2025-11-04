@@ -1,6 +1,5 @@
 package com.simplecommerce.actor;
 
-import com.simplecommerce.group.Group;
 import com.simplecommerce.shared.types.Role;
 import org.jspecify.annotations.Nullable;
 

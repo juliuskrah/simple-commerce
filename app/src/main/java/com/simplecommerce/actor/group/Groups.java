@@ -1,4 +1,4 @@
-package com.simplecommerce.group;
+package com.simplecommerce.actor.group;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +14,7 @@ import org.springframework.data.repository.Repository;
  */
 interface Groups extends Repository<GroupEntity, UUID> {
   Optional<GroupEntity> findById(UUID id);
+  List<GroupEntity> findByIdIn(List<UUID> ids);
   Optional<GroupEntity> findByName(String name);
   GroupEntity saveAndFlush(GroupEntity group);
   Window<GroupEntity> findBy(Limit limit, Sort sort, ScrollPosition scroll);
