@@ -53,7 +53,7 @@ class ActorController {
   }
 
   @MutationMapping
-  PermissionAssignmentPayload assignRolesToSubject(@Argument List<String> roles, @Argument SubjectInput subject) {
+  RoleAssignable assignRolesToSubject(@Argument List<String> roles, @Argument SubjectInput subject) {
     return actorService.getIfAvailable(actorServiceSupplier).addRolesToSubject(roles, subject);
   }
 }

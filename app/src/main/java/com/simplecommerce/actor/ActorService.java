@@ -16,7 +16,9 @@ public interface ActorService {
 
   Optional<Actor> findActor(String username);
 
-  PermissionAssignmentPayload addRolesToSubject(List<String> roles, SubjectInput subject);
+  RoleAssignable addRolesToSubject(List<String> roles, SubjectInput subject);
+
+  RoleAssignable revokeRolesFromSubject(List<String> roles, SubjectInput subject);
 
   PermissionAssignmentPayload removeRolesFromSubject(List<String> roles, SubjectInput subject);
 

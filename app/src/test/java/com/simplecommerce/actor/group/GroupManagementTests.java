@@ -91,9 +91,9 @@ class GroupManagementTests {
     when(groups.findById(id)).thenReturn(Optional.of(entity));
     // gid://SimpleCommerce/Group/d5f701e7-afd0-43cd-aad9-646a9b4da1ef
     var gid = "Z2lkOi8vU2ltcGxlQ29tbWVyY2UvR3JvdXAvZDVmNzAxZTctYWZkMC00M2NkLWFhZDktNjQ2YTliNGRhMWVm";
-    var dto = service.assignGroupProductPermissions(gid, List.of("p1"), BasePermissions.VIEW_PRODUCTS);
+    var dto = service.assignGroupProductsPermission(gid, List.of("p1"), BasePermissions.VIEW_PRODUCTS);
     assertThat(dto.id()).isEqualTo(id.toString());
-    dto = service.revokeGroupProductPermissions(gid, List.of("p1"), BasePermissions.VIEW_PRODUCTS);
+    dto = service.revokeGroupProductsPermission(gid, List.of("p1"), BasePermissions.VIEW_PRODUCTS);
     assertThat(dto.id()).isEqualTo(id.toString());
     // No authorization bridge means no external tuple writes
   }

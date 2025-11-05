@@ -9,5 +9,6 @@ public record GroupEvent<T>(T source, GroupEventType eventType) implements Domai
     CREATED,
     DELETED,
     ADDED,
+    REMOVED,
   }
 }

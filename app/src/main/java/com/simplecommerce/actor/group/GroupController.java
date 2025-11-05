@@ -78,13 +78,13 @@ class GroupController {
   }
 
   @MutationMapping
-  Group assignProductPermissionsToGroup(@Argument AssignGroupProductPermissionsInput input) {
-    return groupService.getIfAvailable(groupServiceSupplier).assignGroupProductPermissions(input.groupId(), input.productIds(), input.permission());
+  Group assignProductsPermissionToGroup(@Argument AssignGroupProductPermissionsInput input) {
+    return groupService.getIfAvailable(groupServiceSupplier).assignGroupProductsPermission(input.groupId(), input.productIds(), input.permission());
   }
 
   @MutationMapping
-  Group revokeProductPermissionsFromGroup(@Argument AssignGroupProductPermissionsInput input) {
-    return groupService.getIfAvailable(groupServiceSupplier).revokeGroupProductPermissions(input.groupId(), input.productIds(), input.permission());
+  Group revokeProductsPermissionFromGroup(@Argument AssignGroupProductPermissionsInput input) {
+    return groupService.getIfAvailable(groupServiceSupplier).revokeGroupProductsPermission(input.groupId(), input.productIds(), input.permission());
   }
 
   @SchemaMapping(typeName = "Group")

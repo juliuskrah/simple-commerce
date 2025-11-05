@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional(readOnly = true)
 @Configurable(autowire = Autowire.BY_TYPE)
-class GroupManagement implements GroupService {
+public class GroupManagement implements GroupService {
 
   private Groups groupRepository;
   private GroupMembers groupMembersRepository;
@@ -101,14 +101,6 @@ class GroupManagement implements GroupService {
       }
     }
     groupMembersRepository.saveAll(nestGroupEntities);
-    if (authorizationBridge != null) {
-      if (!users.isEmpty()) {
-        authorizationBridge.addActorsToGroup(gid.toString(), users);
-      }
-      if (!nestedUUIDs.isEmpty()) {
-        authorizationBridge.addGroupsToGroup(gid.toString(), nestedUUIDs.stream().map(UUID::toString).toList());
-      }
-    }
 
     if (users.isEmpty()) {
       return groupRepository.findByIdIn(nestedUUIDs).stream().map(this::toDto).toList();
@@ -121,21 +113,15 @@ class GroupManagement implements GroupService {
   @Override
   public List<? extends GroupMember> removeMembers(String groupId, List<String> actorUsernames, List<String> nestedGroupIds) {
     var gid = decodeRequired(groupId);
-    if (actorUsernames != null && !actorUsernames.isEmpty()) {
+    if (!actorUsernames.isEmpty()) {
       var actors = groupMembersRepository.findByGroupIdAndActorUsernameIn(gid, actorUsernames);
-      actors.forEach(groupMembersRepository::delete);
-      if (authorizationBridge != null) {
-        authorizationBridge.removeActorsFromGroup(gid.toString(), actorUsernames);
-      }
+      groupMembersRepository.deleteAll(actors);
     }
     List<UUID> nestedUUIDs = null;
     if (nestedGroupIds != null && !nestedGroupIds.isEmpty()) {
       nestedUUIDs = nestedGroupIds.stream().map(this::decodeRequired).toList();
       var nested = groupMembersRepository.findByGroupIdAndMemberGroupIdIn(gid, nestedUUIDs);
-      nested.forEach(groupMembersRepository::delete);
-      if (authorizationBridge != null) {
-        authorizationBridge.removeGroupsFromGroup(gid.toString(), nestedUUIDs.stream().map(UUID::toString).toList());
-      }
+      groupMembersRepository.deleteAll(nested);
     }
     if (actorUsernames.isEmpty()) {
       return groupRepository.findByIdIn(nestedUUIDs).stream().map(this::toDto).toList();
@@ -146,7 +132,7 @@ class GroupManagement implements GroupService {
 
   @Transactional
   @Override
-  public Group assignGroupProductPermissions(String groupId, List<String> productIds, BasePermissions permission) {
+  public Group assignGroupProductsPermission(String groupId, List<String> productIds, BasePermissions permission) {
     var gid = decodeRequired(groupId);
     if (authorizationBridge != null && !productIds.isEmpty()) {
       var relation = switch (permission) {
@@ -162,7 +148,7 @@ class GroupManagement implements GroupService {
 
   @Transactional
   @Override
-  public Group revokeGroupProductPermissions(String groupId, List<String> productIds, BasePermissions permission) {
+  public Group revokeGroupProductsPermission(String groupId, List<String> productIds, BasePermissions permission) {
     var gid = decodeRequired(groupId);
     if (authorizationBridge != null && !productIds.isEmpty()) {
       var relation = switch (permission) {

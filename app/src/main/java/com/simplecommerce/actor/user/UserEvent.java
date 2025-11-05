@@ -7,7 +7,7 @@ package com.simplecommerce.actor.user;
  *   <li>{@link UserEventType#UPDATED User update}</li>
  * </ul>
  * @author julius.krah
- * @see UserEntity#publishProductCreatedEvent()
+ * @see UserEntity#publishUserCreatedEvent()
  */
 public record UserEvent(UserEntity source, UserEventType eventType) {
   enum UserEventType {

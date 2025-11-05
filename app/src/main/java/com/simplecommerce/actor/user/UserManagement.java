@@ -2,6 +2,7 @@ package com.simplecommerce.actor.user;
 
 import static com.simplecommerce.shared.authorization.BasePermissions.Namespaces.ROLE_NAMESPACE;
 import static com.simplecommerce.shared.utils.VirtualThreadHelper.callInScope;
+import static java.util.Objects.requireNonNull;
 
 import com.simplecommerce.actor.User;
 import com.simplecommerce.security.aspects.Permit;
@@ -13,7 +14,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,14 +31,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserManagement implements UserService {
 
   private Users userRepository;
+  @Nullable
   private DexIdpService oidcService;
 
   public void setUserRepository(ObjectFactory<Users> userRepository) {
     this.userRepository = userRepository.getObject();
   }
 
-  public void setDexIdpService(ObjectFactory<DexIdpService> dexIdpService) {
-    this.oidcService = dexIdpService.getObject();
+  public void setDexIdpService(ObjectProvider<DexIdpService> dexIdpService) {
+    this.oidcService = dexIdpService.getIfAvailable();
   }
 
   private User fromEntity(UserEntity entity) {
@@ -46,7 +50,7 @@ public class UserManagement implements UserService {
   public static User getUser(UserEntity entity) {
     Supplier<OffsetDateTime> epoch = () -> OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
     return new User(
-        entity.getId().toString(),
+        requireNonNull(entity.getId()).toString(),
         entity.getUsername(),
         entity.getUserType(),
         entity.getLastModifiedDate().orElseGet(epoch),

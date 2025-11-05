@@ -302,5 +302,184 @@ class GroupMembersTest {
     assertThat(member.getActorUsername()).isEqualTo("john.doe");
     assertThat(member.getGroupId()).isEqualTo(groupId);
   }
+
+  @Test
+  void shouldSaveAllMembers(ApplicationEvents events) {
+    var groupId = UUID.fromString("d5f701e7-afd0-43cd-aad9-646a9b4da1ef"); // Operations
+
+    var member1 = GroupMemberEntity.forActor(groupId, "batch.user1");
+    var member2 = GroupMemberEntity.forActor(groupId, "batch.user2");
+    var member3 = GroupMemberEntity.forNestedGroup(groupId,
+        UUID.fromString("a1234567-89ab-cdef-0123-456789abcdef")); // Marketing
+
+    var entities = groupMemberRepository.saveAll(List.of(member1, member2, member3));
+    em.flush();
+
+    assertThat(entities).hasSize(3)
+        .allSatisfy(e -> {
+          assertThat(e.getId()).isNotNull();
+          assertThat(e.getGroupId()).isEqualTo(groupId);
+        });
+
+    // Verify all members were saved
+    var savedMembers = groupMemberRepository.findByGroupId(groupId);
+    var batchMembers = savedMembers.stream()
+        .filter(m -> m.getActorUsername() != null && m.getActorUsername().startsWith("batch."))
+        .toList();
+    assertThat(batchMembers).hasSize(2);
+
+    // Verify events were published for all members
+    var addedEvents = events.stream(GroupEvent.class)
+        .filter(e -> e.eventType() == GroupEventType.ADDED)
+        .toList();
+    assertThat(addedEvents).hasSizeGreaterThanOrEqualTo(3);
+  }
+
+  @Test
+  void shouldDeleteMemberAndPublishEvent(ApplicationEvents events) {
+    var groupId = UUID.fromString("d5f701e7-afd0-43cd-aad9-646a9b4da1ef"); // Operations
+    var member = GroupMemberEntity.forActor(groupId, "delete.me");
+
+    var entity = em.persistAndFlush(member);
+    assertThat(entity.getId()).isNotNull();
+
+    var entityId = entity.getId();
+
+    // Delete entity and verify event
+    groupMemberRepository.delete(entity);
+    em.flush();
+
+    var removedEvent = events.stream(GroupEvent.class)
+        .filter(e -> e.eventType() == GroupEventType.REMOVED)
+        .map(GroupEvent::source)
+        .findFirst();
+    assertThat(removedEvent).isPresent()
+        .get().isSameAs(entity);
+
+    var none = em.find(GroupMemberEntity.class, entityId);
+    assertThat(none).isNull();
+  }
+
+  @Test
+  void shouldDeleteAllMembersAndPublishEvents(ApplicationEvents events) {
+    var groupId = UUID.fromString("d5f701e7-afd0-43cd-aad9-646a9b4da1ef"); // Operations
+
+    var member1 = GroupMemberEntity.forActor(groupId, "batch.delete1");
+    var member2 = GroupMemberEntity.forActor(groupId, "batch.delete2");
+    var member3 = GroupMemberEntity.forNestedGroup(groupId,
+        UUID.fromString("b2345678-9abc-def0-1234-56789abcdef0")); // Sales
+
+    var entity1 = em.persistAndFlush(member1);
+    var entity2 = em.persistAndFlush(member2);
+    var entity3 = em.persistAndFlush(member3);
+
+    var ids = List.of(entity1.getId(), entity2.getId(), entity3.getId());
+    assertThat(ids).allSatisfy(id -> assertThat(id).isNotNull());
+
+
+    // Delete all entities
+    groupMemberRepository.deleteAll(List.of(entity1, entity2, entity3));
+    em.flush();
+
+    // Verify events were published for all deletions
+    var removedEvents = events.stream(GroupEvent.class)
+        .filter(e -> e.eventType() == GroupEventType.REMOVED)
+        .toList();
+    assertThat(removedEvents).hasSizeGreaterThanOrEqualTo(3);
+
+    // Verify all entities were deleted
+    ids.forEach(id -> {
+      var none = em.find(GroupMemberEntity.class, id);
+      assertThat(none).isNull();
+    });
+  }
+
+  @Test
+  void shouldPublishEventOnNestedGroupDeletion(ApplicationEvents events) {
+    var groupId = UUID.fromString("32779848-78b5-4ba2-bdc3-fc97fc7f0c8a"); // Administrators
+    var memberGroupId = UUID.fromString("588c8c76-9815-45fe-8f03-dec1dd5b9254"); // Product Management
+    var member = GroupMemberEntity.forNestedGroup(groupId, memberGroupId);
+
+    var entity = em.persistAndFlush(member);
+    assertThat(entity.getId()).isNotNull();
+
+
+    // Delete and verify event
+    groupMemberRepository.delete(entity);
+    em.flush();
+
+    var removedEvent = events.stream(GroupEvent.class)
+        .filter(e -> e.eventType() == GroupEventType.REMOVED)
+        .map(GroupEvent::source)
+        .findFirst();
+    assertThat(removedEvent).isPresent()
+        .get()
+        .isSameAs(entity);
+    assertThat(entity.getMemberGroupId()).isEqualTo(memberGroupId);
+  }
+
+  @Test
+  void shouldSaveAllMixedMemberTypes(ApplicationEvents events) {
+    var groupId = UUID.fromString("32779848-78b5-4ba2-bdc3-fc97fc7f0c8a"); // Administrators
+
+    var actorMember1 = GroupMemberEntity.forActor(groupId, "mixed.actor1");
+    var actorMember2 = GroupMemberEntity.forActor(groupId, "mixed.actor2");
+    var nestedGroup1 = GroupMemberEntity.forNestedGroup(groupId,
+        UUID.fromString("a1234567-89ab-cdef-0123-456789abcdef")); // Marketing
+    var nestedGroup2 = GroupMemberEntity.forNestedGroup(groupId,
+        UUID.fromString("b2345678-9abc-def0-1234-56789abcdef0")); // Sales
+
+    var entities = groupMemberRepository.saveAll(
+        List.of(actorMember1, actorMember2, nestedGroup1, nestedGroup2)
+    );
+    em.flush();
+
+    assertThat(entities).hasSize(4);
+
+    // Verify actor members
+    var actors = entities.stream()
+        .filter(e -> e.getActorUsername() != null)
+        .toList();
+    assertThat(actors).hasSize(2)
+        .extracting(GroupMemberEntity::getActorUsername)
+        .containsExactlyInAnyOrder("mixed.actor1", "mixed.actor2");
+
+    // Verify nested group members
+    var nestedGroups = entities.stream()
+        .filter(e -> e.getMemberGroupId() != null)
+        .toList();
+    assertThat(nestedGroups).hasSize(2)
+        .extracting(GroupMemberEntity::getMemberGroupId)
+        .containsExactlyInAnyOrder(
+            UUID.fromString("a1234567-89ab-cdef-0123-456789abcdef"),
+            UUID.fromString("b2345678-9abc-def0-1234-56789abcdef0")
+        );
+
+    // Verify events for all saves
+    var addedEvents = events.stream(GroupEvent.class)
+        .filter(e -> e.eventType() == GroupEventType.ADDED)
+        .toList();
+    assertThat(addedEvents).hasSizeGreaterThanOrEqualTo(4);
+  }
+
+  @Test
+  void shouldHandleSaveAllWithEmptyList() {
+    var entities = groupMemberRepository.saveAll(List.of());
+
+    assertThat(entities).isEmpty();
+  }
+
+  @Test
+  void shouldHandleDeleteAllWithEmptyList() {
+    // Should not throw exception
+    groupMemberRepository.deleteAll(List.of());
+    em.flush();
+
+    // Verify no unexpected side effects
+    var allMembers = groupMemberRepository.findByGroupId(
+        UUID.fromString("8393296b-32f2-4429-bb8f-2b8e8687ee1f")
+    );
+    assertThat(allMembers).isNotEmpty(); // Original data still exists
+  }
 }
 

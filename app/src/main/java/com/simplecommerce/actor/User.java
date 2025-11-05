@@ -11,6 +11,6 @@ public record User(
     OffsetDateTime createdAt,
     OffsetDateTime lastLogin,
     String email
-) implements Actor, GroupMember {
+) implements Actor, GroupMember, RoleAssignable {
 
 }

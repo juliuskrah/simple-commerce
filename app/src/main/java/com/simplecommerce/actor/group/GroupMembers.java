@@ -10,10 +10,17 @@ import org.springframework.data.repository.Repository;
  */
 public interface GroupMembers extends Repository<GroupMemberEntity, UUID> {
   GroupMemberEntity saveAndFlush(GroupMemberEntity entity);
+
   List<GroupMemberEntity> saveAll(Iterable<GroupMemberEntity> entities);
+
   void delete(GroupMemberEntity entity);
+
+  void deleteAll(Iterable<GroupMemberEntity> entities);
   Optional<GroupMemberEntity> findById(UUID id);
+
   List<GroupMemberEntity> findByGroupId(UUID groupId);
+
   List<GroupMemberEntity> findByGroupIdAndActorUsernameIn(UUID groupId, List<String> usernames);
+
   List<GroupMemberEntity> findByGroupIdAndMemberGroupIdIn(UUID groupId, List<UUID> groupIds);
 }

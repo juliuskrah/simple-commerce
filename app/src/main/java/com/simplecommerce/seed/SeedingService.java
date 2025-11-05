@@ -225,6 +225,21 @@ public class SeedingService {
     seedProductVariants(products);
   }
 
+  @NonNull
+  private Mono<String> createdGroup(String groupName) {
+    @Language("GraphQL") var createGroup = """
+        mutation createGroup($name: String!, $description: JsonString) {
+            addGroup(name: $name, description: $description) {
+                id
+            }
+        }
+        """;
+    var variables = Map.<String, Object>of("name", groupName);
+    return executionService.execute(new DefaultExecutionGraphQlRequest(
+            createGroup, null, variables, null, id(), null))
+        .mapNotNull(response -> response.field("addGroup.id").getValue());
+  }
+
   private Mono<ExecutionGraphQlResponse> assignRolesToSubject(List<@NonNull String> roles, Subject subject) {
     var subjectMap = new HashMap<String, String>();
     if (subject.actor != null) {
@@ -239,11 +254,13 @@ public class SeedingService {
     @Language("GraphQL") var addRolesForSubject = """
         mutation addRolesForSubject($roles: [String!]!, $subject: SubjectRoleInput!) {
             assignRolesToSubject(roles: $roles, subject: $subject) {
-                actor {
+                ... on User {
+                    __typename
                     id
                     username
                 }
-                group {
+                ... on Group {
+                __typename
                     id
                     name
                 }
@@ -265,25 +282,28 @@ public class SeedingService {
   }
 
   @EventListener(ApplicationReadyEvent.class)
-  Mono<Void> assignAdministratorRoleToOwnerGroup() {
-    var group = "Owners";
+  void assignAdministratorRoleToOwnerGroup() {
     var roles = List.of(ADMINISTRATOR.getName());
-    LOG.info("Assigning Store owner roles:{} to group:{}", roles, group);
-    return assignRolesToSubject(roles, new Subject(null, group))
-        .doOnNext(response -> LOG.debug("Store owner assignment result:{}", response.getExecutionResult()))
-        .doOnError(throwable -> LOG.error("Error assigning owner roles", throwable))
-        .then();
+    createdGroup("Owners").flatMap(groupId -> {
+          LOG.info("Assigning Store owner roles:{} to group:{}", roles, groupId);
+          return assignRolesToSubject(roles, new Subject(null, groupId))
+              .doOnNext(response -> LOG.info("Store owner assignment result:{}", response.getExecutionResult()))
+              .doOnError(throwable -> LOG.error("Error assigning owner roles", throwable))
+              .then();
+        }
+    ).block();
   }
 
   @EventListener(ApplicationReadyEvent.class)
-  Mono<Void> assignMerchandiserRoleToMerchandiseGroup() {
-    var group = "Merchandising Operations";
+  void assignMerchandiserRoleToMerchandiseGroup() {
     var roles = List.of(MERCHANDISER.getName());
-    LOG.info("Assigning Staff roles:{} to group:{}", roles, group);
-    return assignRolesToSubject(roles, new Subject(null, group))
-        .doOnNext(response -> LOG.debug("Staff assignment result:{}", response.getExecutionResult()))
-        .doOnError(throwable -> LOG.error("Error assigning staff roles", throwable))
-        .then();
+    createdGroup("Merchandising Operations").flatMap(groupId -> {
+      LOG.info("Assigning Staff roles:{} to group:{}", roles, groupId);
+      return assignRolesToSubject(roles, new Subject(null, groupId))
+          .doOnNext(response -> LOG.info("Staff assignment result:{}", response.getExecutionResult()))
+          .doOnError(throwable -> LOG.error("Error assigning staff roles", throwable))
+          .then();
+    }).block();
   }
 
   @EventListener(ApplicationReadyEvent.class)

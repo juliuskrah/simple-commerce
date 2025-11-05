@@ -40,7 +40,7 @@ SPRING_PROFILES_ACTIVE=oidc-authn,keto-authz ./gradlew bootRun --args="serve"
 ./gradlew bootRun --args="migrate --clean"
 
 # Run migrations and seed the database (runs clean first)
-./gradlew bootRun --args="migrate --seed"
+SPRING_PROFILES_ACTIVE=keto-authz ./gradlew bootRun --args="migrate --seed"
 ```
 
 #### Using JAR directly

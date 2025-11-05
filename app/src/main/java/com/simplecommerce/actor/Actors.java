@@ -10,7 +10,7 @@ import org.springframework.data.repository.Repository;
  * @since 1.0
  * @author julius.krah
  */
-interface Actors extends Repository<ActorEntity, UUID> {
+public interface Actors extends Repository<ActorEntity, UUID> {
 
   Optional<ActorEntity> findById(UUID id);
 

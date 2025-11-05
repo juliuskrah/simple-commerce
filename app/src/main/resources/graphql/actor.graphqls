@@ -14,13 +14,13 @@ extend type Mutation {
     "Revoke the given permissions from a subject"
     revokePermissionsFromSubject(permissions: [Permission!]!, subject: SubjectInput!): RevokePermissionsFromSubjectPayload
     "Assign the given roles to a subject"
-    assignRolesToSubject(roles: [String!]! @ContainerSize( min : 1, max : 100), subject: SubjectRoleInput!): AssignRolesToSubjectPayload
+    assignRolesToSubject(roles: [String!]! @ContainerSize( min : 1, max : 100), subject: SubjectRoleInput!): RoleAssignable
     "Revoke the given roles from a subject"
-    revokeRolesFromSubject(roles: [String!]!, subject: SubjectRoleInput!): RevokeRolesFromSubjectPayload
+    revokeRolesFromSubject(roles: [String!]! @ContainerSize( min : 1, max : 100), subject: SubjectRoleInput!): RoleAssignable
     addMembersToGroup(groupId: ID!, input: AddGroupMembersInput!): [GroupMember]
     removeMembersFromGroup(groupId: ID!, input: AddGroupMembersInput!): [GroupMember]
-    assignProductPermissionsToGroup(input: AssignGroupProductPermissionsInput!): Group
-    revokeProductPermissionsFromGroup(input: AssignGroupProductPermissionsInput!): Group
+    assignProductsPermissionToGroup(input: AssignGroupProductPermissionsInput!): Group
+    revokeProductsPermissionFromGroup(input: AssignGroupProductPermissionsInput!): Group
     "Create a new human actor"
     addUser(input: CreateUserInput!): User
     "Create a new bot actor"
@@ -30,6 +30,7 @@ extend type Mutation {
 }
 
 union GroupMember = User | Group
+union RoleAssignable = User | Group
 
 "An `Actor` is an entity that can perform actions in the system."
 interface Actor implements Node {

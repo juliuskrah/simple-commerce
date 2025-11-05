@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreRemove;
 import jakarta.persistence.Table;
 import java.util.Objects;
 import java.util.UUID;
@@ -60,6 +61,11 @@ public class GroupMemberEntity extends AbstractAggregateRoot<GroupMemberEntity> 
     registerEvent(new GroupEvent<>(this, GroupEventType.ADDED));
   }
 
+  @PreRemove
+  void publishGroupMembershipRemovedEvent() {
+    registerEvent(new GroupEvent<>(this, GroupEventType.REMOVED));
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -69,4 +75,14 @@ public class GroupMemberEntity extends AbstractAggregateRoot<GroupMemberEntity> 
 
   @Override
   public int hashCode() { return Objects.hashCode(id); }
+
+  @Override
+  public String toString() {
+    return "GroupMemberEntity{" +
+        "id=" + id +
+        ", groupId=" + groupId +
+        ", actorUsername='" + actorUsername + '\'' +
+        ", memberGroupId=" + memberGroupId +
+        '}';
+  }
 }
