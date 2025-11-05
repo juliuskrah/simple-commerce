@@ -3,10 +3,10 @@ package com.simplecommerce.actor.user;
 import com.simplecommerce.actor.ActorEvent;
 import com.simplecommerce.actor.User;
 import com.simplecommerce.shared.authorization.AuthorizationBridge;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.event.EventListener;
 import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Component;
 
@@ -45,7 +45,7 @@ class UserEventHandler {
     }
   }
 
-  @ApplicationModuleListener(condition = "#event.eventType == T(com.simplecommerce.actor.ActorEvent.ActorEventType).USER_ROLE_ASSIGNED")
+  @EventListener(condition = "#event.eventType == T(com.simplecommerce.actor.ActorEvent.ActorEventType).USER_ROLE_ASSIGNED")
   void onRoleAssignedToUser(ActorEvent<?> event) {
     if (event.source() instanceof User user) {
       authorizationBridge.assignRolesToActor(user.username(), event.roles());

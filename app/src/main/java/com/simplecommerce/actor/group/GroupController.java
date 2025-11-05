@@ -9,6 +9,7 @@ import com.simplecommerce.shared.authorization.BasePermissions;
 import com.simplecommerce.shared.authorization.BuiltIns;
 import com.simplecommerce.shared.authorization.KetoAuthorizationService;
 import com.simplecommerce.shared.types.Role;
+import com.simplecommerce.shared.types.SubjectGroupInput;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -64,16 +65,16 @@ class GroupController {
   }
 
   @MutationMapping
-  List<? extends GroupMember> addMembersToGroup(@Argument String groupId, @Argument AddGroupMembersInput input) {
-    var actors = input.subject().actors() == null ? Collections.<String>emptyList() : input.subject().actors();
-    var groups = input.subject().groups() == null ? Collections.<String>emptyList() : input.subject().groups();
+  List<? extends GroupMember> addMembersToGroup(@Argument String groupId, @Argument SubjectGroupInput subject) {
+    var actors = subject.actors() == null ? Collections.<String>emptyList() : subject.actors();
+    var groups = subject.groups() == null ? Collections.<String>emptyList() : subject.groups();
     return groupService.getIfAvailable(groupServiceSupplier).addMembers(groupId, actors, groups);
   }
 
   @MutationMapping
-  List<? extends GroupMember> removeMembersFromGroup(@Argument String groupId, @Argument AddGroupMembersInput input) {
-    var actors = input.subject().actors() == null ? Collections.<String>emptyList() : input.subject().actors();
-    var groups = input.subject().groups() == null ? Collections.<String>emptyList() : input.subject().groups();
+  List<? extends GroupMember> removeMembersFromGroup(@Argument String groupId, @Argument SubjectGroupInput subject) {
+    var actors = subject.actors() == null ? Collections.<String>emptyList() : subject.actors();
+    var groups = subject.groups() == null ? Collections.<String>emptyList() : subject.groups();
     return groupService.getIfAvailable(groupServiceSupplier).removeMembers(groupId, actors, groups);
   }
 
@@ -100,10 +101,5 @@ class GroupController {
         .toList();
   }
 }
-
-record AddGroupMembersInput(SubjectGroupInput subject) {}
-
-record SubjectGroupInput(@Nullable List<String> actors,
-                         @Nullable List<String> groups) {}
 
 record AssignGroupProductPermissionsInput(String groupId, List<String> productIds, BasePermissions permission) {}

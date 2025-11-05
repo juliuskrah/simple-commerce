@@ -240,7 +240,39 @@ public class SeedingService {
         .mapNotNull(response -> response.field("addGroup.id").getValue());
   }
 
-  private Mono<ExecutionGraphQlResponse> assignRolesToSubject(List<@NonNull String> roles, Subject subject) {
+  private Mono<ExecutionGraphQlResponse> addMembersToGroup(String groupId, GroupSubject subject) {
+    var subjectMap = new HashMap<String, Object>();
+    if (subject.actors != null) {
+      subjectMap.put("actors", subject.actors);
+    } else if (subject.groups != null) {
+      subjectMap.put("groups", subject.groups);
+    }
+    var variables = Map.<String, Object>of(
+        "groupId", groupId,
+        "subject", subjectMap
+    );
+
+    @Language("GraphQL") var addMembersToGroup = """
+        mutation addMembersToGroup($groupId: ID!, $subject: SubjectGroupInput!) {
+            addMembersToGroup(groupId: $groupId, subject: $subject) {
+                ... on User {
+                    __typename
+                    id
+                    username
+                }
+                ... on Group {
+                    __typename
+                    id
+                    name
+                }
+            }
+        }
+        """;
+    return executionService.execute(new DefaultExecutionGraphQlRequest(
+        addMembersToGroup, null, variables, null, id(), null));
+  }
+
+  private Mono<ExecutionGraphQlResponse> assignRolesToSubject(List<@NonNull String> roles, RoleSubject subject) {
     var subjectMap = new HashMap<String, String>();
     if (subject.actor != null) {
       subjectMap.put("actor", subject.actor);
@@ -272,45 +304,48 @@ public class SeedingService {
   }
 
   @EventListener(ApplicationReadyEvent.class)
-  void assignOwnerGroupToStoreOwner() {
-    LOG.info("Assigning group:{} to subject:{}", "Owners", "simple_commerce");
-  }
-
-  @EventListener(ApplicationReadyEvent.class)
-  void assignMerchandiseGroupToStaff() {
-    LOG.info("Assigning group:{} to subject:{}", "Merchandising Operations", "trinity");
-  }
-
-  @EventListener(ApplicationReadyEvent.class)
   void assignAdministratorRoleToOwnerGroup() {
     var roles = List.of(ADMINISTRATOR.getName());
+    var storeOwner = "simple_commerce";
     createdGroup("Owners").flatMap(groupId -> {
           LOG.info("Assigning Store owner roles:{} to group:{}", roles, groupId);
-          return assignRolesToSubject(roles, new Subject(null, groupId))
+          return assignRolesToSubject(roles, new RoleSubject(null, groupId))
               .doOnNext(response -> LOG.info("Store owner assignment result:{}", response.getExecutionResult()))
               .doOnError(throwable -> LOG.error("Error assigning owner roles", throwable))
-              .then();
-        }
-    ).block();
+              .mapNotNull(response -> response.field("assignRolesToSubject.id").<String>getValue());
+        }).flatMap(groupId -> {
+          LOG.info("Assigning Store owner to Group:{}", groupId);
+          return addMembersToGroup(groupId, new GroupSubject(List.of(storeOwner), null))
+              .doOnNext(response -> LOG.info("Store owner group membership result:{}", response.getExecutionResult()))
+              .doOnError(throwable -> LOG.error("Error adding owner to group", throwable));
+        })
+        .block();
   }
 
   @EventListener(ApplicationReadyEvent.class)
   void assignMerchandiserRoleToMerchandiseGroup() {
     var roles = List.of(MERCHANDISER.getName());
+    var staff = "trinity";
     createdGroup("Merchandising Operations").flatMap(groupId -> {
       LOG.info("Assigning Staff roles:{} to group:{}", roles, groupId);
-      return assignRolesToSubject(roles, new Subject(null, groupId))
-          .doOnNext(response -> LOG.info("Staff assignment result:{}", response.getExecutionResult()))
-          .doOnError(throwable -> LOG.error("Error assigning staff roles", throwable))
-          .then();
-    }).block();
+          return assignRolesToSubject(roles, new RoleSubject(null, groupId))
+              .doOnNext(response -> LOG.info("Staff assignment result:{}", response.getExecutionResult()))
+              .doOnError(throwable -> LOG.error("Error assigning staff roles", throwable))
+              .mapNotNull(response -> response.field("assignRolesToSubject.id").<String>getValue());
+        }).flatMap(groupId -> {
+          LOG.info("Assigning Staff to Group:{}", groupId);
+          return addMembersToGroup(groupId, new GroupSubject(List.of(staff), null))
+              .doOnNext(response -> LOG.info("Staff group membership result:{}", response.getExecutionResult()))
+              .doOnError(throwable -> LOG.error("Error adding staff to group", throwable));
+        })
+        .block();
   }
 
   @EventListener(ApplicationReadyEvent.class)
   void assignPermissionsToRole() {
     // Assign basic product permissions to roles (Administrator, Merchandiser)
-    // 1. list products
-    // 2. create products
+    // 1. list products   (__LIST__)
+    // 2. create products (__CREATE__)
   }
 
   record Product(String syntheticId, String naturalId) {
@@ -319,7 +354,11 @@ public class SeedingService {
     }
   }
 
-  record Subject(@Nullable String actor, @Nullable String group) {
+  record RoleSubject(@Nullable String actor, @Nullable String group) {
+
+  }
+
+  record GroupSubject(@Nullable List<@NonNull String> actors, @Nullable List<@NonNull String> groups) {
 
   }
 }

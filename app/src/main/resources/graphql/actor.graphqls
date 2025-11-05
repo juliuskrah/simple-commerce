@@ -17,8 +17,8 @@ extend type Mutation {
     assignRolesToSubject(roles: [String!]! @ContainerSize( min : 1, max : 100), subject: SubjectRoleInput!): RoleAssignable
     "Revoke the given roles from a subject"
     revokeRolesFromSubject(roles: [String!]! @ContainerSize( min : 1, max : 100), subject: SubjectRoleInput!): RoleAssignable
-    addMembersToGroup(groupId: ID!, input: AddGroupMembersInput!): [GroupMember]
-    removeMembersFromGroup(groupId: ID!, input: AddGroupMembersInput!): [GroupMember]
+    addMembersToGroup(groupId: ID!, subject: SubjectGroupInput!): [GroupMember]
+    removeMembersFromGroup(groupId: ID!, subject: SubjectGroupInput!): [GroupMember]
     assignProductsPermissionToGroup(input: AssignGroupProductPermissionsInput!): Group
     revokeProductsPermissionFromGroup(input: AssignGroupProductPermissionsInput!): Group
     "Create a new human actor"
@@ -122,10 +122,6 @@ type AssignRolesToSubjectPayload {
 type RevokeRolesFromSubjectPayload {
     actor: Actor
     group: Group
-}
-
-input AddGroupMembersInput {
-    subject: SubjectGroupInput!
 }
 
 input SubjectGroupInput @oneOf {

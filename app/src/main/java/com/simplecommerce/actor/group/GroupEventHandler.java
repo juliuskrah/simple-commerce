@@ -53,7 +53,7 @@ class GroupEventHandler {
   void onRoleAssignedToGroup(ActorEvent<?> event) {
     if (event.source() instanceof Group group) {
       authorizationBridge.assignRolesToGroup(group.id(),  event.roles());
-      LOG.debug("Role assigned to group: {}", group);
+      LOG.debug("{} role(s) assigned to group: {}", event.roles().size(), group);
     }
   }
 }

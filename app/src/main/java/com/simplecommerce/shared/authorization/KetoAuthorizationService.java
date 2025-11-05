@@ -116,9 +116,9 @@ public class KetoAuthorizationService {
    * @param transactionRequest The transaction request containing relation tuple deltas
    */
     public void transactRelationship(TransactRelationTuplesRequest transactionRequest) {
-        LOG.debug("Creating/Deleting {} relationship tuples within transaction", transactionRequest.getRelationTupleDeltasCount());
+        LOG.debug("Creating/Deleting {} relationship tuple(s) within transaction", transactionRequest.getRelationTupleDeltasCount());
       var transactionResponse = callInScope(() -> writeService.transactRelationTuples(transactionRequest));
-        LOG.debug("Transaction completed with {} snap-token count", transactionResponse.getSnaptokensCount());
+        LOG.debug("Transaction completed with {} snap-token(s)", transactionResponse.getSnaptokensCount());
     }
 
     public void deleteRelationship(DeleteRelationTuplesRequest transactionRequest) {

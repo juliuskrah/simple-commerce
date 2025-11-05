@@ -85,7 +85,7 @@ class KetoAuthorizationBridge implements AuthorizationBridge, ApplicationEventPu
     for (var username : actorUsernames) {
       publishAuditEvent(PERMISSION_ASSIGNED, GROUP_NAMESPACE, groupId, MEMBERS_RELATION, username);
     }
-    LOG.debug("Added {} actor members to Group:{}", actorUsernames.size(), groupId);
+    LOG.debug("Added {} actor(s) as member(s) of Group:{}", actorUsernames.size(), groupId);
   }
 
 
@@ -201,7 +201,7 @@ class KetoAuthorizationBridge implements AuthorizationBridge, ApplicationEventPu
     for (var role : roles) {
       publishAuditEvent(PERMISSION_ASSIGNED, ROLE_NAMESPACE, role, ASSIGNEES_RELATION, GROUP_NAMESPACE + ":" + groupId + "#" + MEMBERS_RELATION);
     }
-    LOG.debug("Assigned relation '{}' on {} roles to Group:{}#members", ASSIGNEES_RELATION, roles.size(), groupId);
+    LOG.debug("Assigned relation '{}' on {} role(s) to Group:{}#members", ASSIGNEES_RELATION, roles.size(), groupId);
   }
 
   @Override

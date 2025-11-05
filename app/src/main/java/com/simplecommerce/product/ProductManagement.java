@@ -160,7 +160,7 @@ class ProductManagement implements ProductService, NodeService {
     boolean hasPermission = false;
     var authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication != null) {
-      hasPermission = ketoAuthorizationService.checkPermission(Namespaces.PRODUCT_NAMESPACE, "__ALL__", VIEW_PRODUCTS.getPermission(), authentication.getName());
+      hasPermission = ketoAuthorizationService.checkPermission(Namespaces.PRODUCT_NAMESPACE, "__LIST__", VIEW_PRODUCTS.getPermission(), authentication.getName());
     }
     // Limit to published products if no permission
     Specification<ProductEntity> spec = hasPermission ? Specification.unrestricted() : (root, _, cb) ->
@@ -232,6 +232,7 @@ class ProductManagement implements ProductService, NodeService {
   /**
    * {@inheritDoc}
    */
+  @Permit(namespace = Namespaces.PRODUCT_NAMESPACE, relation = "edit", object = "'__CREATE__'")
   @Override
   public Product createProduct(ProductInput product) {
     var productEntity = toEntity(product);
