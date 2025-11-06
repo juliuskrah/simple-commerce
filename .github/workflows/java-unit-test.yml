@@ -8,7 +8,6 @@ on:
 
 jobs:
   "unit-test":
-    if: false # AspectJ compiler does not yet support Java 25
     runs-on: ubuntu-latest
     permissions:
       contents: read

@@ -6,7 +6,6 @@ on:
 
 jobs:
   docker:
-    if: false # Disabled until needed aspectj supports Java 25
     runs-on: ubuntu-latest
     permissions:
       packages: write
