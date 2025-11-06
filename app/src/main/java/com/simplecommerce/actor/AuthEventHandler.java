@@ -27,10 +27,10 @@ import org.springframework.stereotype.Component;
  */
 @Async
 @Component
-public class ActorEventListener {
+public class AuthEventHandler {
   @PersistenceUnit
   private EntityManagerFactory emf;
-  private static final Logger LOG = LoggerFactory.getLogger(ActorEventListener.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AuthEventHandler.class);
 
 
   private UserEntity mapToUserEntity(JwtAuthenticationToken jwt) {

@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.authorization.BasePermissions;
-import com.simplecommerce.shared.types.Role;
 import com.simplecommerce.shared.types.Types;
 import com.simplecommerce.shared.types.UserType;
 import java.time.OffsetDateTime;
@@ -44,7 +43,7 @@ class ActorControllerTest {
   @DisplayName("Should return correct global ID for Bot")
   void shouldReturnCorrectGlobalIdForBot() {
     String botId = "28e35762-6980-5666-9257-6277gfd08d4g";
-    Bot bot = new Bot(botId, "testbot", now, now);
+    Bot bot = new Bot(botId, "testbot", now, now, "", List.of());
     when(actorService.findActor("testbot")).thenReturn(Optional.of(bot));
 
     String expectedGlobalId = new GlobalId(Types.NODE_BOT, botId).encode();
@@ -103,7 +102,7 @@ class ActorControllerTest {
   @Test
   @DisplayName("Should show custom and built-in roles in the system")
   void shouldShowAllRoles() {
-    var roles = List.of(new Role("Administrator", List.of(BasePermissions.DELETE_PRODUCTS)));
+    var roles = List.of(new Role("Administrator", null, List.of(BasePermissions.DELETE_PRODUCTS)));
     when(actorService.findRoles()).thenReturn(roles);
 
     graphQlTester.documentName("actorDetails")

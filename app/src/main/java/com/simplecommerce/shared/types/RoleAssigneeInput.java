@@ -4,8 +4,7 @@ import org.jspecify.annotations.Nullable;
 
 /// @param actor username of actor
 /// @param group ID of group
-/// @param role name of role
 /// @author julius.krah
-public record SubjectInput(@Nullable String actor, @Nullable String group, @Nullable String role) {
+public record RoleAssigneeInput(@Nullable String actor, @Nullable String group) {
 
 }

@@ -4,12 +4,11 @@ import static com.simplecommerce.shared.types.Types.NODE_GROUP;
 
 import com.simplecommerce.actor.Group;
 import com.simplecommerce.actor.GroupMember;
+import com.simplecommerce.actor.Role;
 import com.simplecommerce.shared.GlobalId;
-import com.simplecommerce.shared.authorization.BasePermissions;
 import com.simplecommerce.shared.authorization.BuiltIns;
 import com.simplecommerce.shared.authorization.KetoAuthorizationService;
-import com.simplecommerce.shared.types.Role;
-import com.simplecommerce.shared.types.SubjectGroupInput;
+import com.simplecommerce.shared.types.GroupMemberInput;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -65,27 +64,17 @@ class GroupController {
   }
 
   @MutationMapping
-  List<? extends GroupMember> addMembersToGroup(@Argument String groupId, @Argument SubjectGroupInput subject) {
-    var actors = subject.actors() == null ? Collections.<String>emptyList() : subject.actors();
-    var groups = subject.groups() == null ? Collections.<String>emptyList() : subject.groups();
+  List<? extends GroupMember> addMembersToGroup(@Argument String groupId, @Argument GroupMemberInput members) {
+    var actors = members.actors() == null ? Collections.<String>emptyList() : members.actors();
+    var groups = members.groups() == null ? Collections.<String>emptyList() : members.groups();
     return groupService.getIfAvailable(groupServiceSupplier).addMembers(groupId, actors, groups);
   }
 
   @MutationMapping
-  List<? extends GroupMember> removeMembersFromGroup(@Argument String groupId, @Argument SubjectGroupInput subject) {
-    var actors = subject.actors() == null ? Collections.<String>emptyList() : subject.actors();
-    var groups = subject.groups() == null ? Collections.<String>emptyList() : subject.groups();
+  List<? extends GroupMember> removeMembersFromGroup(@Argument String groupId, @Argument GroupMemberInput members) {
+    var actors = members.actors() == null ? Collections.<String>emptyList() : members.actors();
+    var groups = members.groups() == null ? Collections.<String>emptyList() : members.groups();
     return groupService.getIfAvailable(groupServiceSupplier).removeMembers(groupId, actors, groups);
-  }
-
-  @MutationMapping
-  Group assignProductsPermissionToGroup(@Argument AssignGroupProductPermissionsInput input) {
-    return groupService.getIfAvailable(groupServiceSupplier).assignGroupProductsPermission(input.groupId(), input.productIds(), input.permission());
-  }
-
-  @MutationMapping
-  Group revokeProductsPermissionFromGroup(@Argument AssignGroupProductPermissionsInput input) {
-    return groupService.getIfAvailable(groupServiceSupplier).revokeGroupProductsPermission(input.groupId(), input.productIds(), input.permission());
   }
 
   @SchemaMapping(typeName = "Group")
@@ -97,9 +86,8 @@ class GroupController {
     var gid = source.id();
     return Arrays.stream(BuiltIns.DEFAULT_ROLES)
         .filter(r -> ketoService.checkPermission("Role", r.getName(), "assignees", gid))
-        .map(r -> new Role(r.getName(), Arrays.asList(r.getPermissions())))
+        .map(r -> new Role(r.getName(), null, Arrays.asList(r.getPermissions())))
         .toList();
   }
 }
 
-record AssignGroupProductPermissionsInput(String groupId, List<String> productIds, BasePermissions permission) {}

@@ -6,7 +6,9 @@ import static org.mockito.Mockito.when;
 
 import com.simplecommerce.actor.bot.BotEntity;
 import com.simplecommerce.actor.user.UserEntity;
+import com.simplecommerce.shared.authorization.BasePermissions;
 import com.simplecommerce.shared.authorization.KetoAuthorizationService;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -85,5 +87,62 @@ class ActorManagementTest {
 
     // Then
     assertThat(actor).isEmpty();
+  }
+
+  @Test
+  void shouldFindRoleByName() {
+    // When
+    var role = actorManagement.findRoleByName("Administrator");
+
+    // Then
+    assertThat(role).isPresent()
+        .get()
+        .hasFieldOrPropertyWithValue("name", "Administrator")
+        .extracting(Role::permissions)
+        .satisfies(permissions -> assertThat((List<?>) permissions).isEmpty());
+  }
+
+  @Test
+  void shouldFindRoleWithPermissions() {
+    // When
+    var role = actorManagement.findRoleByName("Merchandiser");
+
+    // Then
+    assertThat(role).isPresent()
+        .get()
+        .hasFieldOrPropertyWithValue("name", "Merchandiser")
+        .satisfies(r -> {
+          assertThat(r.permissions()).hasSize(2);
+          assertThat(r.permissions()).contains(
+              BasePermissions.DELETE_PRODUCTS,
+              BasePermissions.VIEW_DASHBOARD
+          );
+        });
+  }
+
+  @Test
+  void shouldReturnEmptyOptionalWhenRoleNotFound() {
+    // When
+    var role = actorManagement.findRoleByName("NonExistentRole");
+
+    // Then
+    assertThat(role).isEmpty();
+  }
+
+  @Test
+  void shouldFindAllBuiltInRoles() {
+    // When
+    var role1 = actorManagement.findRoleByName("Administrator");
+    var role2 = actorManagement.findRoleByName("Online store editor");
+    var role3 = actorManagement.findRoleByName("Customer support");
+    var role4 = actorManagement.findRoleByName("Merchandiser");
+    var role5 = actorManagement.findRoleByName("Marketer");
+
+    // Then
+    assertThat(role1).isPresent();
+    assertThat(role2).isPresent();
+    assertThat(role3).isPresent();
+    assertThat(role4).isPresent();
+    assertThat(role5).isPresent();
   }
 }

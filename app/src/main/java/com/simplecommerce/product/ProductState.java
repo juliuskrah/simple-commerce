@@ -2,7 +2,6 @@ package com.simplecommerce.product;
 
 /**
  * States for the Product lifecycle state machine.
- * 
  * Product Lifecycle:
  * DRAFT → PUBLISHED → ARCHIVED
  * 

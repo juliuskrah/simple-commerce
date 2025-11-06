@@ -6,7 +6,6 @@ import com.simplecommerce.actor.user.UserManagement;
 import com.simplecommerce.actor.user.UserService;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.authorization.AuthorizationBridge;
-import com.simplecommerce.shared.authorization.BasePermissions;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -55,11 +54,6 @@ public class GroupManagement implements GroupService {
   @Override
   public Optional<Group> findGroup(String id) {
     return decode(id).flatMap(groupRepository::findById).map(this::toDto);
-  }
-
-  @Override
-  public List<Group> findGroups(int limit) {
-    return groupRepository.findBy(Limit.of(limit)).stream().map(this::toDto).toList();
   }
 
   @Override
@@ -128,38 +122,6 @@ public class GroupManagement implements GroupService {
     } else {
       return userService.findUsers(actorUsernames);
     }
-  }
-
-  @Transactional
-  @Override
-  public Group assignGroupProductsPermission(String groupId, List<String> productIds, BasePermissions permission) {
-    var gid = decodeRequired(groupId);
-    if (authorizationBridge != null && !productIds.isEmpty()) {
-      var relation = switch (permission) {
-        case CREATE_AND_EDIT_PRODUCTS, EDIT_PRODUCT_COSTS, EDIT_PRODUCT_PRICES -> EDITORS_RELATION;
-        case VIEW_PRODUCTS, VIEW_PRODUCT_COSTS, EXPORT_PRODUCTS -> VIEWERS_RELATION;
-        case DELETE_PRODUCTS -> OWNERS_RELATION;
-        case VIEW_DASHBOARD -> VIEWERS_RELATION; // not product-specific, fallback
-      };
-      authorizationBridge.assignGroupPermissionOnProducts(gid.toString(), productIds, relation);
-    }
-    return groupRepository.findById(gid).map(this::toDto).orElseThrow();
-  }
-
-  @Transactional
-  @Override
-  public Group revokeGroupProductsPermission(String groupId, List<String> productIds, BasePermissions permission) {
-    var gid = decodeRequired(groupId);
-    if (authorizationBridge != null && !productIds.isEmpty()) {
-      var relation = switch (permission) {
-        case CREATE_AND_EDIT_PRODUCTS, EDIT_PRODUCT_COSTS, EDIT_PRODUCT_PRICES -> EDITORS_RELATION;
-        case VIEW_PRODUCTS, VIEW_PRODUCT_COSTS, EXPORT_PRODUCTS -> VIEWERS_RELATION;
-        case DELETE_PRODUCTS -> OWNERS_RELATION;
-        case VIEW_DASHBOARD -> VIEWERS_RELATION;
-      };
-      authorizationBridge.revokeGroupPermissionOnProducts(gid.toString(), productIds, relation);
-    }
-    return groupRepository.findById(gid).map(this::toDto).orElseThrow();
   }
 
   private Group toDto(GroupEntity entity) {

@@ -5,13 +5,17 @@ import static com.simplecommerce.shared.utils.VirtualThreadHelper.callInScope;
 import static java.util.Objects.requireNonNull;
 
 import com.simplecommerce.actor.User;
+import com.simplecommerce.node.Node;
+import com.simplecommerce.node.NodeService;
 import com.simplecommerce.security.aspects.Permit;
+import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.authentication.DexIdpService;
 import com.simplecommerce.shared.exceptions.NotFoundException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Supplier;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -28,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional
 @Configurable(autowire = Autowire.BY_TYPE)
-public class UserManagement implements UserService {
+public class UserManagement implements UserService, NodeService {
 
   private Users userRepository;
   @Nullable
@@ -84,5 +88,11 @@ public class UserManagement implements UserService {
     entity.setUserType(user.userType());
     userRepository.saveAndFlush(entity);
     return Optional.of(fromEntity(entity));
+  }
+
+  @Override
+  public User node(String id) {
+    var gid = GlobalId.decode(id);
+    return callInScope(() -> userRepository.findById(UUID.fromString(gid.id())).map(this::fromEntity).orElseThrow(NotFoundException::new));
   }
 }

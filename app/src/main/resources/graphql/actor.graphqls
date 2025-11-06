@@ -10,17 +10,17 @@ extend type Query {
 
 extend type Mutation {
     "Assign the given permissions to a subject"
-    assignPermissionsToSubject(permissions: [Permission!]!, subject: SubjectInput!): AssignPermissionsToSubjectPayload
+    assignProductPermissionToSubject(input: ProductPermissionForSubjectInput!): ResourcePermissible
     "Revoke the given permissions from a subject"
-    revokePermissionsFromSubject(permissions: [Permission!]!, subject: SubjectInput!): RevokePermissionsFromSubjectPayload
-    "Assign the given roles to a subject"
-    assignRolesToSubject(roles: [String!]! @ContainerSize( min : 1, max : 100), subject: SubjectRoleInput!): RoleAssignable
-    "Revoke the given roles from a subject"
-    revokeRolesFromSubject(roles: [String!]! @ContainerSize( min : 1, max : 100), subject: SubjectRoleInput!): RoleAssignable
-    addMembersToGroup(groupId: ID!, subject: SubjectGroupInput!): [GroupMember]
-    removeMembersFromGroup(groupId: ID!, subject: SubjectGroupInput!): [GroupMember]
-    assignProductsPermissionToGroup(input: AssignGroupProductPermissionsInput!): Group
-    revokeProductsPermissionFromGroup(input: AssignGroupProductPermissionsInput!): Group
+    revokeProductPermissionFromSubject(input: ProductPermissionForSubjectInput!): ResourcePermissible
+    "Assign the given roles to either a user or group"
+    addAssigneesToRoles(roles: [String!]! @ContainerSize( min : 1, max : 100), assignees: RoleAssigneeInput!): RoleAssignable
+    "Revoke the given roles from either a user or group"
+    removeAssigneesFromRoles(roles: [String!]! @ContainerSize( min : 1, max : 100), assignees: RoleAssigneeInput!): RoleAssignable
+    "Add members to a group. A group member can be either a user or another group."
+    addMembersToGroup(groupId: ID!, members: GroupMemberInput!): [GroupMember]
+    "Remove members from a group. A group member can be either a user or another group."
+    removeMembersFromGroup(groupId: ID!, members: GroupMemberInput!): [GroupMember]
     "Create a new human actor"
     addUser(input: CreateUserInput!): User
     "Create a new bot actor"
@@ -31,6 +31,7 @@ extend type Mutation {
 
 union GroupMember = User | Group
 union RoleAssignable = User | Group
+union ResourcePermissible = User  | Bot | Group | Role
 
 "An `Actor` is an entity that can perform actions in the system."
 interface Actor implements Node {
@@ -82,7 +83,6 @@ type CustomerUser implements Node & Actor {
 type Bot implements Node & Actor {
     id: ID!
     username: String!
-    email: String
     appId: String
     permissions: [Permission!]!
     createdAt: DateTime!
@@ -102,41 +102,21 @@ type Group implements Node {
     roles: [Role]
 }
 
-type AssignPermissionsToSubjectPayload {
-    actor: Actor
-    role: Role
-    group: Group
-}
-
-type RevokePermissionsFromSubjectPayload {
-    actor: Actor
-    role: Role
-    group: Group
-}
-
-type AssignRolesToSubjectPayload {
-    actor: Actor
-    group: Group
-}
-
-type RevokeRolesFromSubjectPayload {
-    actor: Actor
-    group: Group
-}
-
-input SubjectGroupInput @oneOf {
+"Group members can be either users or other groups."
+input GroupMemberInput @oneOf {
     actors: [String!] @ContainerSize( min : 1, max : 100)
     groups: [ID!] @ContainerSize( min : 1, max : 100)
 }
 
-input SubjectRoleInput @oneOf {
+"Roles can be assigned to either users or groups."
+input RoleAssigneeInput @oneOf {
     "The username of an actor (user or bot)"
     actor: String @NotBlank
     "The ID of a group"
     group: ID @NotBlank
 }
 
-input SubjectInput @oneOf {
+input ResourcePermittedInput @oneOf {
     "The username of an actor (user or bot)."
     actor: String
     "The ID of a group"
@@ -145,8 +125,8 @@ input SubjectInput @oneOf {
     role: String
 }
 
-input AssignGroupProductPermissionsInput {
-    groupId: ID! @NotBlank
+input ProductPermissionForSubjectInput {
+    subject: ResourcePermittedInput!
     productIds: [ID!]! @ContainerSize( min : 1, max : 100)
     permission: Permission!
 }

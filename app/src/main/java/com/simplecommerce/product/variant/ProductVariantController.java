@@ -6,10 +6,13 @@ import com.simplecommerce.actor.Actor;
 import com.simplecommerce.product.Product;
 import com.simplecommerce.product.pricing.PriceContextInput;
 import com.simplecommerce.product.pricing.PriceResolutionService;
+import com.simplecommerce.product.pricing.PriceSet;
+import com.simplecommerce.product.pricing.PriceSetInput;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.types.Money;
 import com.simplecommerce.shared.types.ProductStatus;
 import com.simplecommerce.shared.utils.MonetaryUtils;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -93,6 +96,11 @@ class ProductVariantController {
     return priceResolutionService.resolvePrice(variant, context, locale);
   }
 
+  @SchemaMapping(typeName = "ProductVariant")
+  List<PriceSet> priceSets() {
+    throw new UnsupportedOperationException("PriceSets not implemented yet");
+  }
+
   @MutationMapping
   ProductVariant addProductVariant(@Argument String productId, @Argument ProductVariantInput input) {
     return variantService.getIfAvailable(variantServiceSupplier).createVariant(productId, input);
@@ -107,5 +115,20 @@ class ProductVariantController {
   String deleteProductVariant(@Argument String id) {
     var deletedId = variantService.getIfAvailable(variantServiceSupplier).deleteVariant(id);
     return new GlobalId(NODE_PRODUCT_VARIANT, deletedId).encode();
+  }
+
+  @MutationMapping
+  PriceSet addPriceSet(@Argument PriceSetInput input) {
+    throw new UnsupportedOperationException("Add PriceSet not implemented yet");
+  }
+
+  @MutationMapping
+  PriceSet updatePriceSet(@Argument String id, @Argument PriceSetInput input) {
+    throw new UnsupportedOperationException("Add PriceSet not implemented yet");
+  }
+
+  @MutationMapping
+  String deletePriceSet(@Argument String id) {
+    throw new UnsupportedOperationException("Add PriceSet not implemented yet");
   }
 }

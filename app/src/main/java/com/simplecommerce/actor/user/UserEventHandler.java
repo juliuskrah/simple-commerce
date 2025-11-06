@@ -3,6 +3,8 @@ package com.simplecommerce.actor.user;
 import com.simplecommerce.actor.ActorEvent;
 import com.simplecommerce.actor.User;
 import com.simplecommerce.shared.authorization.AuthorizationBridge;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -48,8 +50,9 @@ class UserEventHandler {
   @EventListener(condition = "#event.eventType == T(com.simplecommerce.actor.ActorEvent.ActorEventType).USER_ROLE_ASSIGNED")
   void onRoleAssignedToUser(ActorEvent<?> event) {
     if (event.source() instanceof User user) {
-      authorizationBridge.assignRolesToActor(user.username(), event.roles());
-      LOG.debug("Role assigned to user: {}", user);
+      Map<String, Object> data = event.data();
+      authorizationBridge.assignRolesToActor(user.username(), (List) data.get("roles"));
+      LOG.debug("{} role(s) assigned to user: {}", ((List) data.get("roles")).size(), user);
     }
   }
 }

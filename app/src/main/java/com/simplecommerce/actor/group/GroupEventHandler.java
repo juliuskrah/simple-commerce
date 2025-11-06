@@ -4,6 +4,7 @@ import com.simplecommerce.actor.ActorEvent;
 import com.simplecommerce.actor.Group;
 import com.simplecommerce.shared.authorization.AuthorizationBridge;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 @Profile("keto-authz")
 class GroupEventHandler {
   private final AuthorizationBridge authorizationBridge;
+  private static final Logger LOG = LoggerFactory.getLogger(GroupEventHandler.class);
 
   GroupEventHandler(AuthorizationBridge authorizationBridge) {
     this.authorizationBridge = authorizationBridge;
@@ -34,7 +36,6 @@ class GroupEventHandler {
     }
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(GroupEventHandler.class);
 
   @ApplicationModuleListener(condition = "#event.eventType == T(com.simplecommerce.actor.group.GroupEvent.GroupEventType).REMOVED")
   void onRemoveGroupMember(GroupEvent<?> event) {
@@ -52,8 +53,9 @@ class GroupEventHandler {
   @EventListener(condition = "#event.eventType == T(com.simplecommerce.actor.ActorEvent.ActorEventType).GROUP_ROLE_ASSIGNED")
   void onRoleAssignedToGroup(ActorEvent<?> event) {
     if (event.source() instanceof Group group) {
-      authorizationBridge.assignRolesToGroup(group.id(),  event.roles());
-      LOG.debug("{} role(s) assigned to group: {}", event.roles().size(), group);
+      Map<String, Object> data = event.data();
+      authorizationBridge.assignRolesToGroup(group.id(), (List) data.get("roles"));
+      LOG.debug("{} role(s) assigned to group: {}", ((List) data.get("roles")).size(), group);
     }
   }
 }

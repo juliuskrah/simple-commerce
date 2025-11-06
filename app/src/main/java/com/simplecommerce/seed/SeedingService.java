@@ -253,8 +253,8 @@ public class SeedingService {
     );
 
     @Language("GraphQL") var addMembersToGroup = """
-        mutation addMembersToGroup($groupId: ID!, $subject: SubjectGroupInput!) {
-            addMembersToGroup(groupId: $groupId, subject: $subject) {
+        mutation addMembersToGroup($groupId: ID!, $subject: GroupMemberInput!) {
+            addMembersToGroup(groupId: $groupId, members: $subject) {
                 ... on User {
                     __typename
                     id
@@ -284,8 +284,8 @@ public class SeedingService {
         "subject", subjectMap
     );
     @Language("GraphQL") var addRolesForSubject = """
-        mutation addRolesForSubject($roles: [String!]!, $subject: SubjectRoleInput!) {
-            assignRolesToSubject(roles: $roles, subject: $subject) {
+        mutation addRolesForSubject($roles: [String!]!, $subject: RoleAssigneeInput!) {
+            addAssigneesToRoles(roles: $roles, assignees: $subject) {
                 ... on User {
                     __typename
                     id
@@ -312,7 +312,7 @@ public class SeedingService {
           return assignRolesToSubject(roles, new RoleSubject(null, groupId))
               .doOnNext(response -> LOG.info("Store owner assignment result:{}", response.getExecutionResult()))
               .doOnError(throwable -> LOG.error("Error assigning owner roles", throwable))
-              .mapNotNull(response -> response.field("assignRolesToSubject.id").<String>getValue());
+              .mapNotNull(response -> response.field("addAssigneesToRoles.id").<String>getValue());
         }).flatMap(groupId -> {
           LOG.info("Assigning Store owner to Group:{}", groupId);
           return addMembersToGroup(groupId, new GroupSubject(List.of(storeOwner), null))
@@ -331,7 +331,7 @@ public class SeedingService {
           return assignRolesToSubject(roles, new RoleSubject(null, groupId))
               .doOnNext(response -> LOG.info("Staff assignment result:{}", response.getExecutionResult()))
               .doOnError(throwable -> LOG.error("Error assigning staff roles", throwable))
-              .mapNotNull(response -> response.field("assignRolesToSubject.id").<String>getValue());
+              .mapNotNull(response -> response.field("addAssigneesToRoles.id").<String>getValue());
         }).flatMap(groupId -> {
           LOG.info("Assigning Staff to Group:{}", groupId);
           return addMembersToGroup(groupId, new GroupSubject(List.of(staff), null))

@@ -4,8 +4,7 @@ import static com.simplecommerce.shared.types.Types.NODE_BOT;
 
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.authorization.BasePermissions;
-import com.simplecommerce.shared.types.Role;
-import com.simplecommerce.shared.types.SubjectInput;
+import com.simplecommerce.shared.types.RoleAssigneeInput;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -53,7 +52,22 @@ class ActorController {
   }
 
   @MutationMapping
-  RoleAssignable assignRolesToSubject(@Argument List<String> roles, @Argument SubjectInput subject) {
-    return actorService.getIfAvailable(actorServiceSupplier).addRolesToSubject(roles, subject);
+  RoleAssignable addAssigneesToRoles(@Argument List<String> roles, @Argument RoleAssigneeInput assignees) {
+    return actorService.getIfAvailable(actorServiceSupplier).addRolesToSubject(roles, assignees);
+  }
+
+  @MutationMapping
+  RoleAssignable removeAssigneesFromRoles(@Argument List<String> roles, @Argument RoleAssigneeInput assignees) {
+    return actorService.getIfAvailable(actorServiceSupplier).removeRolesFromSubject(roles, assignees);
+  }
+
+  @MutationMapping
+  ResourcePermissible assignProductPermissionToSubject(@Argument ProductPermissionForSubjectInput input) {
+    return actorService.getIfAvailable(actorServiceSupplier).assignProductPermission(input.subject(), input.productIds(), input.permission());
+  }
+
+  @MutationMapping
+  ResourcePermissible revokeProductPermissionFromSubject(@Argument ProductPermissionForSubjectInput input) {
+    return actorService.getIfAvailable(actorServiceSupplier).revokeProductPermission(input.subject(), input.productIds(), input.permission());
   }
 }
