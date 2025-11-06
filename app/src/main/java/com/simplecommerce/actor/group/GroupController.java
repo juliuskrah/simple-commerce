@@ -38,7 +38,7 @@ class GroupController {
 
   GroupController(ObjectProvider<GroupService> groupService, ObjectProvider<KetoAuthorizationService> ketoService) {
     this.groupService = groupService;
-    this.ketoService = ketoService.getObject();
+    this.ketoService = ketoService.getIfAvailable();
   }
 
   @SchemaMapping(typeName = "Group")

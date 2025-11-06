@@ -5,6 +5,9 @@ import static com.simplecommerce.shared.authorization.BaseRoles.MERCHANDISER;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.simplecommerce.shared.GlobalId;
+import com.simplecommerce.shared.authorization.BasePermissions;
+import com.simplecommerce.shared.types.Types;
 import graphql.execution.ExecutionId;
 import java.io.IOException;
 import java.net.URI;
@@ -272,6 +275,27 @@ public class SeedingService {
         addMembersToGroup, null, variables, null, id(), null));
   }
 
+  Mono<ExecutionGraphQlResponse> assignProductPermissionToSubject(String role, BasePermissions permission, List<String> productIds) {
+    LOG.debug("Assigning permission:{} to role:{} for products:{}", permission.getPermission(), role, productIds);
+    @Language("GraphQL") var assignPermissionMutation = """
+        mutation assignPermission($input: ProductPermissionForSubjectInput!) {
+            assignProductPermissionToSubject(input: $input) {
+                    __typename
+                    ... on Role {
+                        name
+                    }
+                }
+        }
+        """;
+    return executionService.execute(new DefaultExecutionGraphQlRequest(
+            assignPermissionMutation, null, Map.of("input", Map.of(
+            "permission", permission,
+            "productIds", productIds,
+            "subject", Map.of("role", role)
+        )), null, id(), null))
+        .doOnNext(response -> LOG.info("Product permission assignment result:{}", response.getExecutionResult()));
+  }
+
   private Mono<ExecutionGraphQlResponse> assignRolesToSubject(List<@NonNull String> roles, RoleSubject subject) {
     var subjectMap = new HashMap<String, String>();
     if (subject.actor != null) {
@@ -313,12 +337,9 @@ public class SeedingService {
               .doOnNext(response -> LOG.info("Store owner assignment result:{}", response.getExecutionResult()))
               .doOnError(throwable -> LOG.error("Error assigning owner roles", throwable))
               .mapNotNull(response -> response.field("addAssigneesToRoles.id").<String>getValue());
-        }).flatMap(groupId -> {
-          LOG.info("Assigning Store owner to Group:{}", groupId);
-          return addMembersToGroup(groupId, new GroupSubject(List.of(storeOwner), null))
-              .doOnNext(response -> LOG.info("Store owner group membership result:{}", response.getExecutionResult()))
-              .doOnError(throwable -> LOG.error("Error adding owner to group", throwable));
-        })
+        }).flatMap(groupId -> addMembersToGroup(groupId, new GroupSubject(List.of(storeOwner), null))
+            .doOnNext(response -> LOG.info("Store owner group membership result:{}", response.getExecutionResult()))
+            .doOnError(throwable -> LOG.error("Error adding owner to group", throwable)))
         .block();
   }
 
@@ -332,12 +353,9 @@ public class SeedingService {
               .doOnNext(response -> LOG.info("Staff assignment result:{}", response.getExecutionResult()))
               .doOnError(throwable -> LOG.error("Error assigning staff roles", throwable))
               .mapNotNull(response -> response.field("addAssigneesToRoles.id").<String>getValue());
-        }).flatMap(groupId -> {
-          LOG.info("Assigning Staff to Group:{}", groupId);
-          return addMembersToGroup(groupId, new GroupSubject(List.of(staff), null))
-              .doOnNext(response -> LOG.info("Staff group membership result:{}", response.getExecutionResult()))
-              .doOnError(throwable -> LOG.error("Error adding staff to group", throwable));
-        })
+        }).flatMap(groupId -> addMembersToGroup(groupId, new GroupSubject(List.of(staff), null))
+            .doOnNext(response -> LOG.info("Staff group membership result:{}", response.getExecutionResult()))
+            .doOnError(throwable -> LOG.error("Error adding staff to group", throwable)))
         .block();
   }
 
@@ -346,6 +364,14 @@ public class SeedingService {
     // Assign basic product permissions to roles (Administrator, Merchandiser)
     // 1. list products   (__LIST__)
     // 2. create products (__CREATE__)
+    var listProduct = new GlobalId(Types.NODE_PRODUCT, "__LIST__").encode();
+    var createProduct = new GlobalId(Types.NODE_PRODUCT, "__CREATE__").encode();
+    Flux.merge(
+        assignProductPermissionToSubject(ADMINISTRATOR.getName(), BasePermissions.VIEW_PRODUCTS, List.of(listProduct)),
+        assignProductPermissionToSubject(ADMINISTRATOR.getName(), BasePermissions.CREATE_AND_EDIT_PRODUCTS, List.of(createProduct)),
+        assignProductPermissionToSubject(MERCHANDISER.getName(), BasePermissions.VIEW_PRODUCTS, List.of(listProduct)),
+        assignProductPermissionToSubject(MERCHANDISER.getName(), BasePermissions.CREATE_AND_EDIT_PRODUCTS, List.of(createProduct))
+    ).blockLast();
   }
 
   record Product(String syntheticId, String naturalId) {

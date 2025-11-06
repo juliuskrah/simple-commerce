@@ -7,8 +7,6 @@ import com.simplecommerce.actor.Actor;
 import com.simplecommerce.product.category.Category;
 import com.simplecommerce.product.pricing.PriceResolutionService;
 import com.simplecommerce.shared.GlobalId;
-import com.simplecommerce.shared.exceptions.NotFoundException;
-import com.simplecommerce.shared.utils.SecurityUtils;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -44,7 +42,6 @@ class ProductController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProductController.class);
     private final ObjectProvider<ProductService> productService;
-    private final ProductStateMachineService stateMachineService;
     private final PriceResolutionService priceResolutionService;
     // Defer creation of the ProductService to avoid early initialization of aspectj proxy
     private final Supplier<ProductService> productServiceSupplier = SingletonSupplier.of(ProductManagement::new);
@@ -53,7 +50,6 @@ class ProductController {
                       PriceResolutionService priceResolutionService, ProductStateMachineService stateMachineService) {
       this.productService = productService;
       this.priceResolutionService = priceResolutionService;
-      this.stateMachineService = stateMachineService;
       registry.<String, List<String>>forName("tagsDataLoader")
           .registerMappedBatchLoader((productIds, env) -> {
               var keyContext = env.getKeyContextsList().getFirst();
@@ -142,77 +138,18 @@ class ProductController {
     }
 
     @MutationMapping
-    Product publishProduct(@Argument String id) {
-        LOG.info("Publishing product: {}", id);
-        
-        var service = productService.getIfAvailable(productServiceSupplier);
-        var productEntity = service.findProductEntity(id);
-        
-        if (productEntity == null) {
-            throw new NotFoundException("Product not found: " + id);
-        }
-        
-        // Validate business rules before attempting state transition
-        if (!stateMachineService.canPublish(productEntity)) {
-            throw new IllegalStateException("Product cannot be published: validation failed");
-        }
-        
-        boolean success = stateMachineService.publishProduct(productEntity);
-        if (!success) {
-            throw new IllegalStateException("Failed to publish product: state transition rejected");
-        }
-        
-        // Save the updated product status
-        productEntity = service.saveProductEntity(productEntity);
-        
-        LOG.info("Successfully published product: {}", id);
-        return service.mapToProduct(productEntity);
+    Mono<Product> publishProduct(@Argument String id) {
+      return productService.getIfAvailable(productServiceSupplier).publishProduct(id);
     }
 
     @MutationMapping
-    Product archiveProduct(@Argument String id) {
-        LOG.info("Archiving product: {}", id);
-        
-        var service = productService.getIfAvailable(productServiceSupplier);
-        var productEntity = service.findProductEntity(id);
-        
-        if (productEntity == null) {
-            throw new IllegalArgumentException("Product not found: " + id);
-        }
-        
-        boolean success = stateMachineService.archiveProduct(productEntity);
-        if (!success) {
-            throw new IllegalStateException("Failed to archive product: state transition rejected");
-        }
-        
-        // Save the updated product status
-        productEntity = service.saveProductEntity(productEntity);
-        
-        LOG.info("Successfully archived product: {}", id);
-        return service.mapToProduct(productEntity);
+    Mono<Product> archiveProduct(@Argument String id) {
+      return productService.getIfAvailable(productServiceSupplier).archiveProduct(id);
     }
 
     @MutationMapping
-    Product reactivateProduct(@Argument String id) {
-        LOG.info("Reactivating product: {}", id);
-        
-        var service = productService.getIfAvailable(productServiceSupplier);
-        var productEntity = service.findProductEntity(id);
-        
-        if (productEntity == null) {
-            throw new IllegalArgumentException("Product not found: " + id);
-        }
-        
-        boolean success = stateMachineService.reactivateProduct(productEntity);
-        if (!success) {
-            throw new IllegalStateException("Failed to reactivate product: state transition rejected");
-        }
-        
-        // Save the updated product status
-        productEntity = service.saveProductEntity(productEntity);
-        
-        LOG.info("Successfully reactivated product: {}", id);
-        return service.mapToProduct(productEntity);
+    Mono<Product> reactivateProduct(@Argument String id) {
+      return productService.getIfAvailable(productServiceSupplier).reactivateProduct(id);
     }
 
 }

@@ -3,6 +3,7 @@ package com.simplecommerce.product;
 import static com.simplecommerce.shared.authorization.BasePermissions.VIEW_PRODUCTS;
 import static com.simplecommerce.shared.utils.VirtualThreadHelper.callInScope;
 import static com.simplecommerce.shared.utils.VirtualThreadHelper.runInScope;
+import static java.util.Objects.requireNonNull;
 
 import com.simplecommerce.node.NodeService;
 import com.simplecommerce.product.ProductEvent.ProductEventType;
@@ -16,9 +17,9 @@ import com.simplecommerce.security.aspects.Permit;
 import com.simplecommerce.shared.Event;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.authorization.BasePermissions.Namespaces;
-import com.simplecommerce.shared.authorization.BaseRoles;
 import com.simplecommerce.shared.authorization.KetoAuthorizationService;
 import com.simplecommerce.shared.exceptions.NotFoundException;
+import com.simplecommerce.shared.exceptions.OperationNotAllowedException;
 import com.simplecommerce.shared.types.ProductStatus;
 import com.simplecommerce.shared.utils.Slug;
 import java.time.OffsetDateTime;
@@ -42,6 +43,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * @author julius.krah
@@ -71,12 +74,17 @@ class ProductManagement implements ProductService, NodeService {
     this.ketoAuthorizationService = ketoAuthorizationService.getObject();
   }
 
+  public void setStateMachineService(ObjectFactory<ProductStateMachineService> stateMachineService) {
+    this.stateMachineService = stateMachineService.getObject();
+  }
+
   private Products productRepository;
   private Event<ProductEvent> event;
   private ProductVariants variantRepository;
   private SearchQueryParser searchQueryParser;
   private SearchQueryTranslator searchQueryTranslator;
   private KetoAuthorizationService ketoAuthorizationService;
+  private ProductStateMachineService stateMachineService;
 
   private ProductEntity toEntity(ProductInput product) {
     var category = new CategoryEntity();
@@ -93,7 +101,7 @@ class ProductManagement implements ProductService, NodeService {
   private Product fromEntity(ProductEntity entity) {
     Supplier<OffsetDateTime> epoch = () -> OffsetDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
     return new Product(
-        entity.getId() !=null ? entity.getId().toString() : null,
+        requireNonNull(entity.getId()).toString(),
         entity.getTitle(),
         entity.getSlug(),
         entity.getCreatedDate().orElseGet(epoch),
@@ -299,8 +307,90 @@ class ProductManagement implements ProductService, NodeService {
   /**
    * {@inheritDoc}
    */
+  @Permit(namespace = Namespaces.PRODUCT_NAMESPACE, relation = "edit", object = "T(com.simplecommerce.shared.GlobalId).decode(#id).id")
   @Override
-  public Product mapToProduct(ProductEntity productEntity) {
-    return fromEntity(productEntity);
+  public Mono<Product> publishProduct(String id) {
+    LOG.info("Publishing product: {}", id);
+
+    var productEntity = findProductEntity(id);
+
+    if (productEntity == null) {
+      throw new NotFoundException("Product not found: " + id);
+    }
+
+    return stateMachineService.publishProduct(productEntity)
+        .flatMap(accepted -> {
+          if (accepted) {
+            return Mono.just(accepted);
+          } else {
+            return Mono.error(new OperationNotAllowedException("Product state transition to PUBLISHED was rejected"));
+          }
+        })
+        .publishOn(Schedulers.boundedElastic())
+        .map(_ -> saveProductEntity(productEntity))
+        .map(_ -> {
+          LOG.info("Successfully published product: {}", id);
+          return fromEntity(productEntity);
+        });
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Permit(namespace = Namespaces.PRODUCT_NAMESPACE, relation = "edit", object = "T(com.simplecommerce.shared.GlobalId).decode(#id).id")
+  @Override
+  public Mono<Product> archiveProduct(String id) {
+    LOG.info("Archiving product: {}", id);
+
+    var productEntity = findProductEntity(id);
+
+    if (productEntity == null) {
+      throw new NotFoundException("Product not found: " + id);
+    }
+
+    return stateMachineService.archiveProduct(productEntity)
+        .flatMap(accepted -> {
+          if (accepted) {
+            return Mono.just(accepted);
+          } else {
+            return Mono.error(new OperationNotAllowedException("Product state transition to ARCHIVED was rejected"));
+          }
+        })
+        .publishOn(Schedulers.boundedElastic())
+        .map(_ -> saveProductEntity(productEntity))
+        .map(entity -> {
+          LOG.info("Successfully archived product: {}", id);
+          return fromEntity(entity);
+        });
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Permit(namespace = Namespaces.PRODUCT_NAMESPACE, relation = "edit", object = "T(com.simplecommerce.shared.GlobalId).decode(#id).id")
+  @Override
+  public Mono<Product> reactivateProduct(String id) {
+    LOG.info("Reactivating product: {}", id);
+
+    var productEntity = findProductEntity(id);
+
+    if (productEntity == null) {
+      throw new IllegalArgumentException("Product not found: " + id);
+    }
+
+    return stateMachineService.reactivateProduct(productEntity)
+        .flatMap(accepted -> {
+          if (accepted) {
+            return Mono.just(accepted);
+          } else {
+            return Mono.error(new OperationNotAllowedException("Product state transition to DRAFT was rejected"));
+          }
+        })
+        .publishOn(Schedulers.boundedElastic())
+        .map(_ -> saveProductEntity(productEntity))
+        .map(entity -> {
+          LOG.info("Successfully reactivated product: {}", id);
+          return fromEntity(entity);
+        });
   }
 }

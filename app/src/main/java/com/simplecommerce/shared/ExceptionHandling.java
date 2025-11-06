@@ -1,6 +1,7 @@
 package com.simplecommerce.shared;
 
 import com.simplecommerce.shared.exceptions.NotFoundException;
+import com.simplecommerce.shared.exceptions.OperationNotAllowedException;
 import graphql.ErrorClassification;
 import graphql.GraphQLError;
 import graphql.schema.DataFetchingEnvironment;
@@ -22,6 +23,15 @@ public class ExceptionHandling {
   GraphQLError handleNotFound(DataFetchingEnvironment env) {
     return GraphQLError.newError().message("Cannot be found")
         .errorType(ErrorType.NOT_FOUND)
+        .path(env.getExecutionStepInfo().getPath())
+        .location(env.getMergedField().getSingleField().getSourceLocation())
+        .build();
+  }
+
+  @GraphQlExceptionHandler
+  GraphQLError handleOperationNotAllowed(OperationNotAllowedException ex, DataFetchingEnvironment env) {
+    return GraphQLError.newError().message(ex.getMessage())
+        .errorType(ErrorType.BAD_REQUEST)
         .path(env.getExecutionStepInfo().getPath())
         .location(env.getMergedField().getSingleField().getSourceLocation())
         .build();

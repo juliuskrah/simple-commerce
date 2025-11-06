@@ -39,8 +39,7 @@ public class ProductStateMachineConfiguration {
 
     builder.configureConfiguration()
         .withConfiguration()
-        .autoStartup(false)  // We'll start it manually when needed
-        .listener(new ProductStateMachineListener());
+        .autoStartup(false);  // We'll start it manually when needed
 
     builder.configureStates()
         .withStates()

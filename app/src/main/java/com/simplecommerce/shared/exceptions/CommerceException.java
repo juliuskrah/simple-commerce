@@ -9,6 +9,10 @@ public class CommerceException extends RuntimeException {
     super(message, cause);
   }
 
+  public CommerceException(String message) {
+    super(message);
+  }
+
   public CommerceException(Throwable cause) {
     super(cause);
   }

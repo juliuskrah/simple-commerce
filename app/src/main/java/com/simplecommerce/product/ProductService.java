@@ -5,6 +5,7 @@ import java.util.Set;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
+import reactor.core.publisher.Mono;
 
 /**
  * @author julius.krah
@@ -106,10 +107,15 @@ interface ProductService {
    */
   ProductEntity saveProductEntity(ProductEntity productEntity);
 
-  /**
-   * Map a product entity to a product record.
-   * @param productEntity The product entity.
-   * @return The product record.
-   */
-  Product mapToProduct(ProductEntity productEntity);
+  /// @param id The ID of the product.
+  /// @return The published product.
+  Mono<Product> publishProduct(String id);
+
+  /// @param id The ID of the product.
+  /// @return The archived product.
+  Mono<Product> archiveProduct(String id);
+
+  /// @param id The ID of the product.
+  /// @return The reactivated product.
+  Mono<Product> reactivateProduct(String id);
 }
