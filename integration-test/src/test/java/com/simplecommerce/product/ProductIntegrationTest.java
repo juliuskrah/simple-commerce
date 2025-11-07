@@ -44,7 +44,7 @@ class ProductIntegrationTest extends BaseDockerComposeTest {
   }
 
   @Test
-  void testAddProduct(@Actor("simple_commerce") String accessToken) {
+  void testAddProduct(@Actor("owner") String accessToken) {
     var tester = http.mutate().headers(headers -> headers.setBearerAuth(accessToken)).build();
     tester.documentName("product").operationName("createProduct")
         .variables(Map.of("input", Map.of("title", "House of Cards", "tags", List.of("drama", "politics"))))

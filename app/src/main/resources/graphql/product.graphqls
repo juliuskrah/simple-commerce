@@ -15,7 +15,7 @@ type Mutation {
     "Create a new product."
     addProduct(input: ProductInput!): Product
     "Update an existing product."
-    updateProduct("Product ID" id: ID!, input: ProductInput!): Product
+    updateProduct("Product ID" id: ID!, input: UpdateProductInput!): Product
     "Delete a product."
     deleteProduct("Product ID" id: ID!): ID!
     "Create a new product variant."
@@ -156,6 +156,13 @@ input ProductInput {
     tags: [String!]
     title: String!
     status: ProductStatus = DRAFT
+}
+
+input UpdateProductInput {
+    description: String
+    price: Decimal
+    tags: [String!]
+    title: String!
 }
 
 input ProductVariantInput {

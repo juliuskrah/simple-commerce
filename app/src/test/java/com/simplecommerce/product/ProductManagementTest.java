@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.simplecommerce.product.variant.ProductVariants;
 import com.simplecommerce.shared.Event;
 import com.simplecommerce.shared.authorization.KetoAuthorizationService;
+import com.simplecommerce.shared.types.Product;
 import com.simplecommerce.shared.types.ProductStatus;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -81,7 +82,7 @@ class ProductManagementTest {
         .thenReturn(Window.from(List.of(entity), ignored -> null));
     var products = productService.findProducts(1, Sort.unsorted(), ScrollPosition.keyset());
 
-    var expected = new Product(null, "Opti Core", null, null, null, null, ProductStatus.DRAFT);
+    var expected = new Product(null, "Opti Core", null, null, null, null, null, null, ProductStatus.DRAFT);
     assertThat(products).isNotEmpty().hasSize(1)
         .usingRecursiveComparison().comparingOnlyFields("title")
         .isEqualTo(Window.from(List.of(expected), ignored -> null));
@@ -96,7 +97,7 @@ class ProductManagementTest {
         .thenReturn(Window.from(List.of(entity), ignored -> ScrollPosition.keyset()));
     var products = productService.findProductsByCategory(UUID.randomUUID().toString(), 1, Sort.unsorted(), ScrollPosition.keyset());
 
-    var expected = new Product(null, "Opti Core", null, null, null, null, ProductStatus.DRAFT);
+    var expected = new Product(null, "Opti Core", null, null, null, null, null, null, ProductStatus.DRAFT);
     assertThat(products).isNotEmpty().hasSize(1)
         .usingRecursiveComparison().comparingOnlyFields("title")
         .isEqualTo(Window.from(List.of(expected), ignored -> ScrollPosition.keyset()));

@@ -5,7 +5,6 @@ import static com.simplecommerce.shared.utils.VirtualThreadHelper.callInScope;
 import static java.util.Objects.requireNonNull;
 
 import com.simplecommerce.actor.User;
-import com.simplecommerce.node.Node;
 import com.simplecommerce.node.NodeService;
 import com.simplecommerce.security.aspects.Permit;
 import com.simplecommerce.shared.GlobalId;

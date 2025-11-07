@@ -4,9 +4,13 @@ import static com.simplecommerce.shared.types.Types.NODE_PRODUCT;
 import static java.util.stream.Collectors.toMap;
 
 import com.simplecommerce.actor.Actor;
+import com.simplecommerce.actor.ActorManagement;
+import com.simplecommerce.actor.ActorService;
 import com.simplecommerce.product.category.Category;
+import com.simplecommerce.product.category.CategoryService;
 import com.simplecommerce.product.pricing.PriceResolutionService;
 import com.simplecommerce.shared.GlobalId;
+import com.simplecommerce.shared.types.Product;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -42,14 +46,18 @@ class ProductController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProductController.class);
     private final ObjectProvider<ProductService> productService;
+    private final ObjectProvider<ActorService> actorService;
     private final PriceResolutionService priceResolutionService;
     // Defer creation of the ProductService to avoid early initialization of aspectj proxy
     private final Supplier<ProductService> productServiceSupplier = SingletonSupplier.of(ProductManagement::new);
+    private final Supplier<ActorService> actorServiceSupplier = SingletonSupplier.of(ActorManagement::new);
 
-    ProductController(BatchLoaderRegistry registry, ObjectProvider<ProductService> productService, 
-                      PriceResolutionService priceResolutionService, ProductStateMachineService stateMachineService) {
+    ProductController(BatchLoaderRegistry registry, ObjectProvider<ProductService> productService,
+        PriceResolutionService priceResolutionService,
+        ObjectProvider<ActorService> actorService) {
       this.productService = productService;
       this.priceResolutionService = priceResolutionService;
+      this.actorService = actorService;
       registry.<String, List<String>>forName("tagsDataLoader")
           .registerMappedBatchLoader((productIds, env) -> {
               var keyContext = env.getKeyContextsList().getFirst();
@@ -110,14 +118,14 @@ class ProductController {
         }
     }
 
-    @SchemaMapping(typeName = "Product")
-    Optional<Actor> createdBy() {
-        return Optional.empty();
+    @SchemaMapping
+    Optional<Actor> createdBy(Product source) {
+        return actorService.getIfAvailable(actorServiceSupplier).findActor(source.createdBy());
     }
 
-    @SchemaMapping(typeName = "Product")
-    Optional<Actor> updatedBy() {
-        return Optional.empty();
+    @SchemaMapping
+    Optional<Actor> updatedBy(Product source) {
+      return actorService.getIfAvailable(actorServiceSupplier).findActor(source.updatedBy());
     }
 
     @MutationMapping

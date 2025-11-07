@@ -1,14 +1,18 @@
 {
-  "simple_commerce": {
-    "email": "julius.krah@example.com",
+  "owner": {
+    "email": "storeowner@simple-commerce.com",
     "password": "simple_commerce"
   },
-  "customer": {
-    "password": "customer123",
-    "email": "customer@simple-commerce.com"
+  "staff": {
+    "email": "trinity@simple-commerce.com",
+    "password": "trinity123"
   },
-  "vendor": {
-    "password": "vendor123",
-    "email": "vendor@simple-commerce.com"
+  "collaborator": {
+    "email": "tank.ext@simple-commerce.com",
+    "password": "tank123"
+  },
+  "customer": {
+    "email": "naomi@example.com",
+    "password": "naomi123"
   }
 }

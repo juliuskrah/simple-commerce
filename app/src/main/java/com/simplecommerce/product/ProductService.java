@@ -1,5 +1,6 @@
 package com.simplecommerce.product;
 
+import com.simplecommerce.shared.types.Product;
 import java.util.List;
 import java.util.Set;
 import org.springframework.data.domain.ScrollPosition;

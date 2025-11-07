@@ -1,4 +1,4 @@
-package com.simplecommerce.product;
+package com.simplecommerce.shared.types;
 
 /**
  * Events that trigger state transitions in the Product lifecycle state machine.

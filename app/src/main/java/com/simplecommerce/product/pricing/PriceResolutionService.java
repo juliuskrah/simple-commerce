@@ -1,7 +1,7 @@
 package com.simplecommerce.product.pricing;
 
 import com.simplecommerce.product.PriceRange;
-import com.simplecommerce.product.Product;
+import com.simplecommerce.shared.types.Product;
 import com.simplecommerce.product.ProductEntity;
 import com.simplecommerce.product.variant.ProductVariantEntity;
 import com.simplecommerce.product.variant.ProductVariants;

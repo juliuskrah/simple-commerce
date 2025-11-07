@@ -4,7 +4,7 @@ import static com.simplecommerce.shared.types.Types.NODE_CATEGORY;
 import static java.util.stream.Collectors.toSet;
 
 import com.simplecommerce.actor.Actor;
-import com.simplecommerce.product.Product;
+import com.simplecommerce.shared.types.Product;
 import com.simplecommerce.shared.GlobalId;
 import java.util.List;
 import java.util.Optional;

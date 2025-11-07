@@ -1,6 +1,6 @@
 package com.simplecommerce.product.variant;
 
-import com.simplecommerce.node.Node;
+import com.simplecommerce.shared.types.Node;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 

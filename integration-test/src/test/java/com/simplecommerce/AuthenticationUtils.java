@@ -74,7 +74,7 @@ public final class AuthenticationUtils {
       String authUrl = UriComponentsBuilder.fromUri(baseUrl).path("/dex/auth")
           .queryParam("client_id", authContext.clientId())
           .queryParam("response_type", "code")
-          .queryParam("scope", "openid email offline_access")
+          .queryParam("scope", "openid email offline_access profile")
           .queryParam("redirect_uri", redirectUri)
           .queryParam("audience", "simple_commerce")
           .queryParam("state", state)

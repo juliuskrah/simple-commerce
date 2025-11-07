@@ -20,6 +20,7 @@ import com.simplecommerce.shared.authorization.BasePermissions.Namespaces;
 import com.simplecommerce.shared.authorization.KetoAuthorizationService;
 import com.simplecommerce.shared.exceptions.NotFoundException;
 import com.simplecommerce.shared.exceptions.OperationNotAllowedException;
+import com.simplecommerce.shared.types.Product;
 import com.simplecommerce.shared.types.ProductStatus;
 import com.simplecommerce.shared.utils.Slug;
 import java.time.OffsetDateTime;
@@ -73,7 +74,6 @@ class ProductManagement implements ProductService, NodeService {
   public void setKetoAuthorizationService(ObjectFactory<KetoAuthorizationService> ketoAuthorizationService) {
     this.ketoAuthorizationService = ketoAuthorizationService.getObject();
   }
-
   public void setStateMachineService(ObjectFactory<ProductStateMachineService> stateMachineService) {
     this.stateMachineService = stateMachineService.getObject();
   }
@@ -105,8 +105,10 @@ class ProductManagement implements ProductService, NodeService {
         entity.getTitle(),
         entity.getSlug(),
         entity.getCreatedDate().orElseGet(epoch),
+        entity.getCreatedBy().orElse("system"),
         entity.getDescription(),
         entity.getLastModifiedDate().orElseGet(epoch),
+        entity.getLastModifiedBy().orElse("system"),
         entity.getStatus() != null ? entity.getStatus() : ProductStatus.DRAFT
     );
   }
@@ -271,6 +273,7 @@ class ProductManagement implements ProductService, NodeService {
   /**
    * {@inheritDoc}
    */
+  @Permit(namespace = Namespaces.PRODUCT_NAMESPACE, relation = "edit", object = "T(com.simplecommerce.shared.GlobalId).decode(#productId).id")
   @Override
   public Product updateProduct(String productId, ProductInput product) {
     return callInScope(() -> updateProduct(product, productId))
@@ -312,26 +315,20 @@ class ProductManagement implements ProductService, NodeService {
   public Mono<Product> publishProduct(String id) {
     LOG.info("Publishing product: {}", id);
 
-    var productEntity = findProductEntity(id);
+    var product = findProduct(id);
 
-    if (productEntity == null) {
-      throw new NotFoundException("Product not found: " + id);
-    }
-
-    return stateMachineService.publishProduct(productEntity)
-        .flatMap(accepted -> {
-          if (accepted) {
-            return Mono.just(accepted);
-          } else {
-            return Mono.error(new OperationNotAllowedException("Product state transition to PUBLISHED was rejected"));
-          }
-        })
+    return stateMachineService.publishProduct(product)
+        .switchIfEmpty(Mono.error(new OperationNotAllowedException("Product state transition to PUBLISHED was rejected")))
         .publishOn(Schedulers.boundedElastic())
-        .map(_ -> saveProductEntity(productEntity))
-        .map(_ -> {
+        .map(newStatus -> {
+          var productEntity = findProductEntity(id);
+          productEntity.setStatus(newStatus);
+          return productEntity;
+        }).<ProductEntity>handle((entity, sink) -> sink.next(productRepository.saveAndFlush(entity)))
+        .map(entity -> {
           LOG.info("Successfully published product: {}", id);
-          return fromEntity(productEntity);
-        });
+          return fromEntity(entity);
+        }).contextCapture();
   }
 
   /**
@@ -342,26 +339,20 @@ class ProductManagement implements ProductService, NodeService {
   public Mono<Product> archiveProduct(String id) {
     LOG.info("Archiving product: {}", id);
 
-    var productEntity = findProductEntity(id);
+    var product = findProduct(id);
 
-    if (productEntity == null) {
-      throw new NotFoundException("Product not found: " + id);
-    }
-
-    return stateMachineService.archiveProduct(productEntity)
-        .flatMap(accepted -> {
-          if (accepted) {
-            return Mono.just(accepted);
-          } else {
-            return Mono.error(new OperationNotAllowedException("Product state transition to ARCHIVED was rejected"));
-          }
-        })
+    return stateMachineService.archiveProduct(product)
+        .switchIfEmpty(Mono.error(new OperationNotAllowedException("Product state transition to ARCHIVED was rejected")))
         .publishOn(Schedulers.boundedElastic())
-        .map(_ -> saveProductEntity(productEntity))
+        .map(newStatus -> {
+          var productEntity = findProductEntity(id);
+          productEntity.setStatus(newStatus);
+          return productEntity;
+        }).<ProductEntity>handle((entity, sink) -> sink.next(productRepository.saveAndFlush(entity)))
         .map(entity -> {
           LOG.info("Successfully archived product: {}", id);
           return fromEntity(entity);
-        });
+        }).contextCapture();
   }
 
   /**
@@ -372,22 +363,16 @@ class ProductManagement implements ProductService, NodeService {
   public Mono<Product> reactivateProduct(String id) {
     LOG.info("Reactivating product: {}", id);
 
-    var productEntity = findProductEntity(id);
+    var product = findProduct(id);
 
-    if (productEntity == null) {
-      throw new IllegalArgumentException("Product not found: " + id);
-    }
-
-    return stateMachineService.reactivateProduct(productEntity)
-        .flatMap(accepted -> {
-          if (accepted) {
-            return Mono.just(accepted);
-          } else {
-            return Mono.error(new OperationNotAllowedException("Product state transition to DRAFT was rejected"));
-          }
-        })
+    return stateMachineService.reactivateProduct(product)
+        .switchIfEmpty(Mono.error(new OperationNotAllowedException("Product state transition to DRAFT was rejected")))
         .publishOn(Schedulers.boundedElastic())
-        .map(_ -> saveProductEntity(productEntity))
+        .map(newStatus -> {
+          var productEntity = findProductEntity(id);
+          productEntity.setStatus(newStatus);
+          return productEntity;
+        }).<ProductEntity>handle((entity, sink) -> sink.next(productRepository.saveAndFlush(entity)))
         .map(entity -> {
           LOG.info("Successfully reactivated product: {}", id);
           return fromEntity(entity);

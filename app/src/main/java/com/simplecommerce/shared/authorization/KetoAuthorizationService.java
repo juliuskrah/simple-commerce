@@ -90,7 +90,7 @@ public class KetoAuthorizationService {
      */
     public boolean checkPermission(String namespace, @Nullable String object, String relation, String subject) {
         LOG.debug("Checking permission: {}:{}#{} for subject {}", namespace, object, relation, subject);
-      var checkResponse = callInScope(() -> checkService.check(sh.ory.keto.read.v1alpha2.CheckRequest.newBuilder()
+        var checkResponse = callInScope(() -> checkService.check(sh.ory.keto.read.v1alpha2.CheckRequest.newBuilder()
                 .setTuple(RelationTuple.newBuilder()
                     .setNamespace(namespace)
                     .setObject(object)
@@ -104,10 +104,10 @@ public class KetoAuthorizationService {
 
     public boolean checkPermission(String namespace, String object, String relation, String subject, Object returnObject) {
         var hasPermission = checkPermission(namespace, object, relation, subject);
-      return switch (returnObject) {
-        case ProductStatus status -> hasPermission || status == ProductStatus.PUBLISHED;
-        default -> hasPermission;
-      };
+        return switch (returnObject) {
+          case ProductStatus status -> hasPermission || status == ProductStatus.PUBLISHED;
+          default -> hasPermission;
+        };
     }
 
   /**
@@ -117,7 +117,7 @@ public class KetoAuthorizationService {
    */
     public void transactRelationship(TransactRelationTuplesRequest transactionRequest) {
         LOG.debug("Creating/Deleting {} relationship tuple(s) within transaction", transactionRequest.getRelationTupleDeltasCount());
-      var transactionResponse = callInScope(() -> writeService.transactRelationTuples(transactionRequest));
+        var transactionResponse = callInScope(() -> writeService.transactRelationTuples(transactionRequest));
         LOG.debug("Transaction completed with {} snap-token(s)", transactionResponse.getSnaptokensCount());
     }
 

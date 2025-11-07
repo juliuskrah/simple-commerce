@@ -1,5 +1,8 @@
 package com.simplecommerce.product;
 
+import com.simplecommerce.shared.types.Product;
+import com.simplecommerce.shared.types.ProductState;
+import com.simplecommerce.shared.types.ProductStateMachineEvent;
 import com.simplecommerce.shared.types.ProductStatus;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -35,10 +38,10 @@ public class ProductStateMachineService {
    * Publishes a product by transitioning from DRAFT to PUBLISHED state.
    * 
    * @param product the product to publish
-   * @return emit true if the transition was successful, false otherwise
+   * @return emit new status if the transition was successful, old status otherwise
    */
-  public Mono<Boolean> publishProduct(ProductEntity product) {
-    LOG.info("Attempting to publish product {}: {}", product.getId(), product.getTitle());
+  public Mono<ProductStatus> publishProduct(Product product) {
+    LOG.info("Attempting to publish product {}: {}", product.id(), product.title());
     return executeTransition(product, ProductStateMachineEvent.PUBLISH);
   }
 
@@ -46,10 +49,10 @@ public class ProductStateMachineService {
    * Archives a product by transitioning from PUBLISHED to ARCHIVED state.
    * 
    * @param product the product to archive
-   * @return true if the transition was successful, false otherwise
+   * @return emit new status if the transition was successful, old status otherwise
    */
-  public Mono<Boolean> archiveProduct(ProductEntity product) {
-    LOG.info("Attempting to archive product {}: {}", product.getId(), product.getTitle());
+  public Mono<ProductStatus> archiveProduct(Product product) {
+    LOG.info("Attempting to archive product {}: {}", product.id(), product.title());
     return executeTransition(product, ProductStateMachineEvent.ARCHIVE);
   }
 
@@ -57,16 +60,16 @@ public class ProductStateMachineService {
    * Reactivates a product by transitioning from ARCHIVED to DRAFT state.
    * 
    * @param product the product to reactivate
-   * @return true if the transition was successful, false otherwise
+   * @return emit new status if the transition was successful, old status otherwise
    */
-  public Mono<Boolean> reactivateProduct(ProductEntity product) {
-    LOG.info("Attempting to reactivate product {}: {}", product.getId(), product.getTitle());
+  public Mono<ProductStatus> reactivateProduct(Product product) {
+    LOG.info("Attempting to reactivate product {}: {}", product.id(), product.title());
     return executeTransition(product, ProductStateMachineEvent.REACTIVATE);
   }
 
-  private Mono<Boolean> executeTransition(ProductEntity product, ProductStateMachineEvent event) {
+  private Mono<ProductStatus> executeTransition(Product product, ProductStateMachineEvent event) {
 
-    var currentState = mapStatusToState(product.getStatus());
+    var currentState = mapStatusToState(product.status());
     var context = new DefaultStateMachineContext<>(currentState, event, Map.of(), null);
 
     stateMachine.getStateMachineAccessor()
@@ -83,14 +86,13 @@ public class ProductStateMachineService {
         .map(_ -> {
           var newState = stateMachine.getState().getId();
           var newStatus = mapStateToStatus(newState);
-          product.setStatus(newStatus);
-          LOG.info("Product {} successfully transitioned to state: {}", product.getId(), newState);
-          return true;
-        }).switchIfEmpty(Mono.just(false))
+          LOG.info("Product {} successfully transitioned to state: {}", product.id(), newState);
+          return newStatus;
+        })
         .onErrorReturn(ex -> {
-          LOG.error("Error executing state transition for product {}", product.getId(), ex);
+          LOG.error("Error executing state transition for product {}. Old state maintained", product.id(), ex);
           return ex instanceof Exception;
-        }, false)
+        }, product.status())
         .publishOn(Schedulers.boundedElastic())
         .doFinally(_ -> stateMachine.stopReactively().subscribe());
   }

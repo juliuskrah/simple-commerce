@@ -1,7 +1,5 @@
-package com.simplecommerce.product;
+package com.simplecommerce.shared.types;
 
-import com.simplecommerce.node.Node;
-import com.simplecommerce.shared.types.ProductStatus;
 import java.time.OffsetDateTime;
 
 /**
@@ -13,8 +11,10 @@ public record Product(
     String title,
     String slug,
     OffsetDateTime createdAt,
+    String createdBy,
     String description,
     OffsetDateTime updatedAt,
+    String updatedBy,
     ProductStatus status
 ) implements Node {
 

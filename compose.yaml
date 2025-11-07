@@ -5,12 +5,16 @@ services:
     image: juliuskrah/simple-commerce:latest
     build:
       dockerfile: ./Dockerfile
-    command: ["migrate"]
+    command: ["migrate --seed"]
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/simple_commerce
       SPRING_DATASOURCE_USERNAME: simple_commerce
       SPRING_DATASOURCE_PASSWORD: simple_commerce
       MINIO_ENDPOINT: http://object-store:9000
+      SPRING_PROFILES_ACTIVE: keto-authz
+      KETO_READ: keto:4466
+      KETO_WRITE: keto:4467
+      KETO_OPL: keto:4469
     depends_on:
       postgres:
         condition: service_healthy

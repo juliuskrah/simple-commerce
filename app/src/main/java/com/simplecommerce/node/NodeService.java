@@ -1,5 +1,7 @@
 package com.simplecommerce.node;
 
+import com.simplecommerce.shared.types.Node;
+
 /**
  * Implementations of this interface are represented managed node types that participate in
  * a relay connection.

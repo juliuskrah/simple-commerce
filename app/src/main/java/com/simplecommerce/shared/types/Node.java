@@ -1,4 +1,4 @@
-package com.simplecommerce.node;
+package com.simplecommerce.shared.types;
 
 /**
  * Base type for all Connection types.

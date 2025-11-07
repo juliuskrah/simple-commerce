@@ -1,5 +1,8 @@
-package com.simplecommerce.product;
+package com.simplecommerce.config.fsm;
 
+import com.simplecommerce.shared.types.Product;
+import com.simplecommerce.shared.types.ProductState;
+import com.simplecommerce.shared.types.ProductStateMachineEvent;
 import java.util.EnumSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,18 +84,18 @@ public class ProductStateMachineConfiguration {
   public Guard<ProductState, ProductStateMachineEvent> publishGuard() {
     return context -> {
       // Get the product from the state machine context
-      ProductEntity product = context.getExtendedState().get("product", ProductEntity.class);
+      Product product = context.getExtendedState().get("product", Product.class);
       
       if (product == null) {
         LOG.warn("No product found in state machine context");
         return false;
       }
 
-      LOG.debug("Validating product {} for publishing", product.getId());
+      LOG.debug("Validating product {} for publishing", product.id());
 
       // Validation 1: Product must have title
-      if (product.getTitle() == null || product.getTitle().trim().isEmpty()) {
-        LOG.warn("Product {} cannot be published: missing title", product.getId());
+      if (product.title() == null || product.title().isBlank()) {
+        LOG.warn("Product {} cannot be published: missing title", product.id());
         return false;
       }
 
@@ -100,7 +103,7 @@ public class ProductStateMachineConfiguration {
       // This would need to be implemented to check variants from database
       // For now, we'll assume this validation passes
       
-      LOG.info("Product {} passed validation for publishing", product.getId());
+      LOG.info("Product {} passed validation for publishing", product.id());
       return true;
     };
   }
@@ -110,9 +113,9 @@ public class ProductStateMachineConfiguration {
    */
   public Action<ProductState, ProductStateMachineEvent> publishAction() {
     return context -> {
-      ProductEntity product = context.getExtendedState().get("product", ProductEntity.class);
+      Product product = context.getExtendedState().get("product", Product.class);
       if (product != null) {
-        LOG.info("Publishing product {}: {}", product.getId(), product.getTitle());
+        LOG.info("Publishing product {}: {}", product.id(), product.title());
         // Here you could trigger additional business logic like:
         // - Indexing in search engine
         // - Notifying marketing team
@@ -127,9 +130,9 @@ public class ProductStateMachineConfiguration {
    */
   public Action<ProductState, ProductStateMachineEvent> archiveAction() {
     return context -> {
-      ProductEntity product = context.getExtendedState().get("product", ProductEntity.class);
+      Product product = context.getExtendedState().get("product", Product.class);
       if (product != null) {
-        LOG.info("Archiving product {}: {}", product.getId(), product.getTitle());
+        LOG.info("Archiving product {}: {}", product.id(), product.title());
         // Here you could trigger additional business logic like:
         // - Removing from search indices
         // - Handling active orders
@@ -144,9 +147,9 @@ public class ProductStateMachineConfiguration {
    */
   public Action<ProductState, ProductStateMachineEvent> reactivateAction() {
     return context -> {
-      ProductEntity product = context.getExtendedState().get("product", ProductEntity.class);
+      Product product = context.getExtendedState().get("product", Product.class);
       if (product != null) {
-        LOG.info("Reactivating product {}: {}", product.getId(), product.getTitle());
+        LOG.info("Reactivating product {}: {}", product.id(), product.title());
         // Reset product to draft state for re-validation
         // Could trigger review workflow
       }

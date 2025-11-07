@@ -3,13 +3,13 @@ package com.simplecommerce.product.variant;
 import static com.simplecommerce.shared.types.Types.NODE_PRODUCT_VARIANT;
 
 import com.simplecommerce.actor.Actor;
-import com.simplecommerce.product.Product;
 import com.simplecommerce.product.pricing.PriceContextInput;
 import com.simplecommerce.product.pricing.PriceResolutionService;
 import com.simplecommerce.product.pricing.PriceSet;
 import com.simplecommerce.product.pricing.PriceSetInput;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.types.Money;
+import com.simplecommerce.shared.types.Product;
 import com.simplecommerce.shared.types.ProductStatus;
 import com.simplecommerce.shared.utils.MonetaryUtils;
 import java.util.List;
@@ -67,7 +67,7 @@ class ProductVariantController {
   @SchemaMapping(typeName = "ProductVariant")
   Product product(ProductVariant source) {
     // TODO: Return a minimal Product record for the variant's product
-    return new Product(source.productId(), null, null, null, null, null, ProductStatus.DRAFT);
+    return new Product(source.productId(), null, null, null, null, null, null, null, ProductStatus.DRAFT);
   }
 
   @SchemaMapping(typeName = "ProductVariant")

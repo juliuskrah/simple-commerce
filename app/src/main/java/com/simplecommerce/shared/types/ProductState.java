@@ -1,4 +1,4 @@
-package com.simplecommerce.product;
+package com.simplecommerce.shared.types;
 
 /**
  * States for the Product lifecycle state machine.
