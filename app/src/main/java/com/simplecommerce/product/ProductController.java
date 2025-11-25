@@ -7,7 +7,6 @@ import com.simplecommerce.actor.Actor;
 import com.simplecommerce.actor.ActorManagement;
 import com.simplecommerce.actor.ActorService;
 import com.simplecommerce.product.category.Category;
-import com.simplecommerce.product.category.CategoryService;
 import com.simplecommerce.product.pricing.PriceResolutionService;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.types.Product;
@@ -88,7 +87,7 @@ class ProductController {
     }
 
     @SchemaMapping
-    Window<Product> products(Category source, ScrollSubrange subrange, Sort sort, @Argument Boolean includeSubcategories) {
+    Window<Product> products(Category source, ScrollSubrange subrange, Sort sort) {
         var limit = subrange.count().orElse(100);
         var scroll = subrange.position().orElse(ScrollPosition.keyset());
         return productService.getIfAvailable(productServiceSupplier).findProductsByCategory(source.id(), limit, sort, scroll);

@@ -81,7 +81,7 @@ public final class AuthenticationUtils {
           .toUriString();
       page.navigate(authUrl);
 
-      page.getByRole(AriaRole.TEXTBOX, new GetByRoleOptions().setName("email address")).fill(authContext.username());
+      page.getByPlaceholder("email address").fill(authContext.username());
       page.getByRole(AriaRole.TEXTBOX, new GetByRoleOptions().setName("Password")).fill(authContext.password());
       page.getByRole(AriaRole.BUTTON, new GetByRoleOptions().setName("Login")).click();
 

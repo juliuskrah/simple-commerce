@@ -5,7 +5,7 @@ services:
     image: juliuskrah/simple-commerce:latest
     build:
       dockerfile: ./Dockerfile
-    command: ["migrate --seed"]
+    command: ["migrate", "--seed"]
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/simple_commerce
       SPRING_DATASOURCE_USERNAME: simple_commerce
@@ -19,6 +19,8 @@ services:
       postgres:
         condition: service_healthy
       object-store:
+        condition: service_started
+      keto:
         condition: service_started
     profiles:
       - app
