@@ -1,0 +1,80 @@
+extend type Query {
+    "Get the current user's active cart"
+    cart: Cart
+    "Get a cart by its ID (admin only)"
+    cartById(id: ID!): Cart
+}
+
+extend type Mutation {
+    "Add an item to the cart. Creates a new cart if one doesn't exist."
+    addToCart(input: AddToCartInput!): Cart
+    "Update the quantity of an item in the cart"
+    updateCartItem(input: UpdateCartItemInput!): Cart
+    "Remove an item from the cart"
+    removeFromCart(cartItemId: ID!): Cart
+    "Clear all items from the cart"
+    clearCart: Cart
+    "Merge a guest cart with the authenticated user's cart"
+    mergeCart(guestCartId: ID!): Cart
+}
+
+"A shopping cart containing items that a customer intends to purchase."
+type Cart implements Node {
+    id: ID!
+    "The customer who owns this cart. Null for guest carts."
+    customer: CustomerUser
+    "Session ID for guest carts"
+    sessionId: String
+    "Items in the cart"
+    items: [CartItem!]!
+    "Total number of items in the cart"
+    totalQuantity: Int!
+    "Subtotal before taxes and shipping"
+    subtotal: Money!
+    "Estimated tax amount"
+    estimatedTax: Money
+    "Total amount including taxes"
+    total: Money!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    "When the cart expires (for abandoned cart tracking)"
+    expiresAt: DateTime
+}
+
+"An item in a shopping cart."
+type CartItem implements Node {
+    id: ID!
+    "The product variant being purchased"
+    variant: ProductVariant!
+    "Quantity of this variant in the cart"
+    quantity: Int!
+    "Unit price at the time of adding to cart"
+    unitPrice: Money!
+    "Total price for this line item (unitPrice * quantity)"
+    totalPrice: Money!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+}
+
+input AddToCartInput {
+    "Product variant ID to add to cart"
+    variantId: ID!
+    "Quantity to add"
+    quantity: Int! @Positive
+    "Optional session ID for guest carts"
+    sessionId: String
+}
+
+input UpdateCartItemInput {
+    "Cart item ID to update"
+    cartItemId: ID!
+    "New quantity (must be positive)"
+    quantity: Int! @Positive
+}
+
+"Result type for cart operations that may have warnings"
+type CartOperationResult {
+    cart: Cart!
+    "Warnings about stock availability or other issues"
+    warnings: [String!]
+}
