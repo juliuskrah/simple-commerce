@@ -3,6 +3,7 @@ package com.simplecommerce.cart;
 import com.simplecommerce.actor.ActorEntity;
 import com.simplecommerce.actor.Actors;
 import com.simplecommerce.product.pricing.PriceResolutionService;
+import com.simplecommerce.product.variant.ProductVariantManagement;
 import com.simplecommerce.product.variant.ProductVariantService;
 import com.simplecommerce.product.variant.ProductVariants;
 import com.simplecommerce.shared.GlobalId;
@@ -19,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author julius.krah
  */
-@Service
+@Transactional
 @Configurable(autowire = Autowire.BY_TYPE)
 public class CartManagement implements CartService {
 
@@ -46,10 +46,6 @@ public class CartManagement implements CartService {
     this.variantRepository = variantRepository.getObject();
   }
 
-  public void setVariantService(ObjectFactory<ProductVariantService> variantService) {
-    this.variantService = variantService.getObject();
-  }
-
   public void setPriceResolutionService(ObjectFactory<PriceResolutionService> priceResolutionService) {
     this.priceResolutionService = priceResolutionService.getObject();
   }
@@ -61,7 +57,7 @@ public class CartManagement implements CartService {
   private Carts cartRepository;
   private CartItems cartItemRepository;
   private ProductVariants variantRepository;
-  private ProductVariantService variantService;
+  private ProductVariantService variantService = new ProductVariantManagement();
   private PriceResolutionService priceResolutionService;
   private Actors actorRepository;
 
@@ -256,7 +252,7 @@ public class CartManagement implements CartService {
 
   private CartItem toCartItem(CartItemEntity entity) {
     var variant = variantService.findVariant(
-        new GlobalId("ProductVariant", entity.getVariant().getId().toString()).encode()
+        entity.getVariant().getId().toString()
     );
 
     var unitPrice = entity.getUnitPrice();
