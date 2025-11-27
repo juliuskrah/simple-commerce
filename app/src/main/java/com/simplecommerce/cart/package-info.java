@@ -12,5 +12,8 @@
  * @author julius.krah
  * @since 1.0
  */
+@ApplicationModule(id = "cart", displayName = "Cart Module")
 @org.jspecify.annotations.NullMarked
 package com.simplecommerce.cart;
+
+import org.springframework.modulith.ApplicationModule;

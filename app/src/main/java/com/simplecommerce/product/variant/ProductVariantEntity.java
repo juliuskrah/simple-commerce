@@ -45,6 +45,12 @@ public class ProductVariantEntity implements Auditable<String, UUID, OffsetDateT
   private Boolean systemGenerated = true;
   @OneToMany(mappedBy = "variant", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<PriceSetEntity> priceSets = new ArrayList<>();
+  @Column(name = "track_inventory", nullable = false)
+  private Boolean trackInventory = false;
+  @Column(name = "available_quantity")
+  private Integer availableQuantity;
+  @Column(name = "low_stock_threshold")
+  private Integer lowStockThreshold = 10;
   @CreationTimestamp
   @Column(nullable = false)
   private OffsetDateTime createdAt;
@@ -172,6 +178,74 @@ public class ProductVariantEntity implements Auditable<String, UUID, OffsetDateT
   public void removePriceSet(PriceSetEntity priceSet) {
     priceSets.remove(priceSet);
     priceSet.setVariant(null);
+  }
+
+  public Boolean getTrackInventory() {
+    return trackInventory;
+  }
+
+  public void setTrackInventory(Boolean trackInventory) {
+    this.trackInventory = trackInventory;
+  }
+
+  public Integer getAvailableQuantity() {
+    return availableQuantity;
+  }
+
+  public void setAvailableQuantity(Integer availableQuantity) {
+    this.availableQuantity = availableQuantity;
+  }
+
+  public Integer getLowStockThreshold() {
+    return lowStockThreshold;
+  }
+
+  public void setLowStockThreshold(Integer lowStockThreshold) {
+    this.lowStockThreshold = lowStockThreshold;
+  }
+
+  /**
+   * Check if the variant is in stock.
+   * @return true if inventory tracking is disabled or available quantity > 0
+   */
+  public boolean isInStock() {
+    if (!trackInventory) {
+      return true; // Always in stock if not tracking
+    }
+    return availableQuantity != null && availableQuantity > 0;
+  }
+
+  /**
+   * Check if the variant is low in stock.
+   * @return true if tracking is enabled and quantity is below threshold
+   */
+  public boolean isLowStock() {
+    if (!trackInventory || availableQuantity == null) {
+      return false;
+    }
+    int threshold = lowStockThreshold != null ? lowStockThreshold : 10;
+    return availableQuantity > 0 && availableQuantity <= threshold;
+  }
+
+  /**
+   * Adjust the available quantity by the given amount.
+   * @param adjustment the quantity to add (positive) or subtract (negative)
+   * @return the new quantity
+   * @throws IllegalStateException if inventory tracking is not enabled
+   */
+  public int adjustQuantity(int adjustment) {
+    if (!trackInventory) {
+      throw new IllegalStateException("Cannot adjust quantity when inventory tracking is disabled");
+    }
+    if (availableQuantity == null) {
+      availableQuantity = 0;
+    }
+    int newQuantity = availableQuantity + adjustment;
+    if (newQuantity < 0) {
+      throw new IllegalArgumentException("Insufficient inventory: cannot reduce quantity below 0");
+    }
+    availableQuantity = newQuantity;
+    return availableQuantity;
   }
 
   @Override
