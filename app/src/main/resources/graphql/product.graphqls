@@ -38,6 +38,10 @@ type Mutation {
     archiveProduct("Product ID" id: ID!): Product
     "Reactivate an archived product (moves to draft state)."
     reactivateProduct("Product ID" id: ID!): Product
+    "Adjust inventory for a product variant."
+    adjustInventory("Product Variant ID" variantId: ID!, "Quantity adjustment (positive or negative)" adjustment: Int!): ProductVariant
+    "Set inventory tracking for a product variant."
+    setInventoryTracking("Product Variant ID" variantId: ID!, "Enable or disable inventory tracking" trackInventory: Boolean!, "Initial quantity if enabling tracking" initialQuantity: Int): ProductVariant
 }
 
 """
@@ -98,6 +102,16 @@ type ProductVariant implements Node {
     priceSets: [PriceSet!]!
     "Digital content associated with this variant."
     digitalContent: DigitalContent
+    "Whether inventory tracking is enabled for this variant."
+    trackInventory: Boolean!
+    "Current available quantity in stock. Null if inventory tracking is disabled."
+    availableQuantity: Int
+    "Whether the variant is in stock (has available quantity > 0)."
+    inStock: Boolean!
+    "Whether the variant is low in stock (below threshold)."
+    lowStock: Boolean!
+    "Threshold quantity for low stock alerts."
+    lowStockThreshold: Int
 }
 
 extend type Category {
@@ -168,6 +182,12 @@ input ProductVariantInput {
     sku: String!
     title: String!
     price: MoneyInput
+    "Enable or disable inventory tracking for this variant"
+    trackInventory: Boolean
+    "Initial available quantity (only used when creating variant with tracking enabled)"
+    availableQuantity: Int
+    "Low stock threshold for alerts"
+    lowStockThreshold: Int
 }
 
 "Input for creating or updating a price set."

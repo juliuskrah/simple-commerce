@@ -50,4 +50,16 @@ public final class MonetaryUtils {
         .setNumber(amount)
         .create();
   }
+
+  /**
+   * Get monetary amount.
+   *
+   * @param amount amount
+   * @param code currency code
+   * @param locale locale
+   * @return monetary amount
+   */
+  public static MonetaryAmount getMonetaryAmount(BigDecimal amount, String code, Locale locale) {
+    return getMonetaryAmount(amount, getCurrency(code, locale));
+  }
 }

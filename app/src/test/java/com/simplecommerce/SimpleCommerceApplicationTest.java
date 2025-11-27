@@ -11,7 +11,7 @@ class SimpleCommerceApplicationTest {
   @Test
   void verifyModuleStructure() {
     var modules = ApplicationModules.of(SimpleCommerceApplication.class);
-    modules.forEach(System.out::println);
+    modules.forEach(IO::println);
     modules.verify();
   }
 }

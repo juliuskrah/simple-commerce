@@ -12,7 +12,7 @@ extend type Mutation {
     updateCartItem(input: UpdateCartItemInput!): Cart
     "Remove an item from the cart"
     removeFromCart(cartItemId: ID!): Cart
-    "Clear all items from the cart"
+    "Clear all items from the current cart"
     clearCart: Cart
     "Merge a guest cart with the authenticated user's cart"
     mergeCart(guestCartId: ID!): Cart

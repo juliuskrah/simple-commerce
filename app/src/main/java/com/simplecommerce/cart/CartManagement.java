@@ -9,17 +9,20 @@ import com.simplecommerce.product.variant.ProductVariants;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.exceptions.NotFoundException;
 import com.simplecommerce.shared.types.Money;
+import com.simplecommerce.shared.utils.MonetaryUtils;
 import com.simplecommerce.shared.utils.SecurityUtils;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Locale;
 import java.util.UUID;
 import javax.money.MonetaryAmount;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -29,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional
 @Configurable(autowire = Autowire.BY_TYPE)
-public class CartManagement implements CartService {
+class CartManagement implements CartService {
 
   private static final Logger LOG = LoggerFactory.getLogger(CartManagement.class);
   private static final int CART_EXPIRY_DAYS = 30;
@@ -220,7 +223,7 @@ public class CartManagement implements CartService {
     return cartRepository.save(cart);
   }
 
-  private ActorEntity getCurrentUser() {
+  private @Nullable ActorEntity getCurrentUser() {
     return SecurityUtils.getCurrentUserLogin()
         .flatMap(actorRepository::findByUsername)
         .orElse(null);
@@ -283,7 +286,7 @@ public class CartManagement implements CartService {
   }
 
   private MonetaryAmount createZeroAmount() {
-    return org.javamoney.moneta.Money.of(BigDecimal.ZERO, "USD");
+    return MonetaryUtils.getMonetaryAmount(BigDecimal.ZERO, "EUR", LocaleContextHolder.getLocale());
   }
 
   private MonetaryAmount convertMoneyToMonetaryAmount(Money money) {
