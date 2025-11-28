@@ -50,7 +50,8 @@ class ProductVariantManagementTest {
     var input = new ProductVariantInput(
         "TEST-SKU-001",
         "Test Variant",
-        new MoneyInput(new BigDecimal("19.99"), MonetaryUtils.getCurrency("USD", Locale.getDefault())));
+        new MoneyInput(new BigDecimal("19.99"), MonetaryUtils.getCurrency("USD", Locale.getDefault())),
+        true, 0, 0);
     var result = variantManagement.createVariant(globalProductId, input);
 
     // Then
@@ -71,7 +72,7 @@ class ProductVariantManagementTest {
     when(variantRepository.findById(variantId)).thenReturn(Optional.empty());
 
     // When & Then
-    var input = new ProductVariantInput("SKU", "Title", null);
+    var input = new ProductVariantInput("SKU", "Title", null, true, 0, 0);
     assertThatThrownBy(() -> variantManagement.updateVariant(globalVariantId, input))
         .isInstanceOf(NotFoundException.class);
   }

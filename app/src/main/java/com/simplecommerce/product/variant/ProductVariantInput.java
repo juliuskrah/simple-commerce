@@ -10,7 +10,10 @@ import javax.money.CurrencyUnit;
 public record ProductVariantInput(
     String sku,
     String title,
-    MoneyInput price
+    MoneyInput price,
+    Boolean trackInventory,
+    Integer availableQuantity,
+    Integer lowStockThreshold
 ) {
 }
 
