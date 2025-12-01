@@ -1,0 +1,197 @@
+extend type Query {
+    "Get an order by its ID"
+    order(id: ID!): Order
+    "Get an order by its order number"
+    orderByNumber(orderNumber: String!): Order
+    "Get orders for the current customer"
+    myOrders(first: Int @Positive, after: String, last: Int @Positive, before: String):
+        OrderConnection! @Expression(value : "${args.containsOneOf('first','last')}")
+    "Get orders for a specific customer (admin only)"
+    customerOrders(customerId: ID!, first: Int @Positive, after: String, last: Int @Positive, before: String):
+        OrderConnection! @Expression(value : "${args.containsOneOf('first','last')}")
+    "Get all orders (admin only)"
+    orders(first: Int @Positive, after: String, last: Int @Positive, before: String,
+        orderBy: [OrderOrderField], orderDirection: OrderDirection = DESC,
+        statuses: [OrderStatus!]):
+        OrderConnection! @Expression(value : "${args.containsOneOf('first','last')}")
+}
+
+extend type Mutation {
+    "Checkout and create an order from cart"
+    checkout(input: CheckoutInput!): Order
+    "Update order status (admin only)"
+    updateOrderStatus(id: ID!, status: OrderStatus!): Order
+    "Cancel an order"
+    cancelOrder(id: ID!, reason: String): Order
+    "Confirm an order after payment"
+    confirmOrder(id: ID!): Order
+    "Mark an order as fulfilled"
+    fulfillOrder(id: ID!): Order
+}
+
+"An order represents a customer's purchase."
+type Order implements Node {
+    id: ID!
+    "The unique order number"
+    orderNumber: String!
+    "The customer who placed the order"
+    customer: User!
+    "The current status of the order"
+    status: OrderStatus!
+    "Subtotal before tax, shipping, and discounts"
+    subtotal: Money!
+    "Tax amount"
+    tax: Money!
+    "Shipping cost"
+    shipping: Money!
+    "Total discount applied"
+    discount: Money!
+    "Total amount including all charges"
+    total: Money!
+    "Customer's email address"
+    customerEmail: String!
+    "Customer's name"
+    customerName: String
+    "Shipping address"
+    shippingAddress: Address
+    "Billing address"
+    billingAddress: Address
+    "Admin notes"
+    notes: String
+    "Customer notes/instructions"
+    customerNotes: String
+    "Items in the order"
+    items: [OrderItem!]!
+    "When the order was created"
+    createdAt: DateTime!
+    "When the order was last updated"
+    updatedAt: DateTime!
+    "When the order was placed"
+    placedAt: DateTime
+    "When the order was confirmed"
+    confirmedAt: DateTime
+    "When the order was fulfilled"
+    fulfilledAt: DateTime
+    "When the order was cancelled"
+    cancelledAt: DateTime
+}
+
+"An item in an order."
+type OrderItem implements Node {
+    id: ID!
+    "The product variant purchased"
+    variant: ProductVariant
+    "Product title at time of purchase"
+    productTitle: String!
+    "Variant title at time of purchase"
+    variantTitle: String!
+    "SKU at time of purchase"
+    sku: String!
+    "Quantity ordered"
+    quantity: Int!
+    "Unit price at time of purchase"
+    unitPrice: Money!
+    "Total price for this line item"
+    totalPrice: Money!
+    "Tax amount for this item"
+    tax: Money!
+    "Discount amount for this item"
+    discount: Money!
+    "Fulfillment status"
+    fulfillmentStatus: FulfillmentStatus!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+}
+
+"A shipping or billing address."
+type Address {
+    firstName: String
+    lastName: String
+    company: String
+    addressLine1: String
+    addressLine2: String
+    city: String
+    state: String
+    postalCode: String
+    country: String
+    phone: String
+    "Full name (firstName + lastName)"
+    fullName: String!
+}
+
+"Input for checkout process."
+input CheckoutInput {
+    "Cart ID to checkout (optional, uses active cart if not provided)"
+    cartId: ID
+    "Customer email address"
+    customerEmail: String! @NotBlank
+    "Customer name"
+    customerName: String
+    "Shipping address"
+    shippingAddress: AddressInput
+    "Billing address"
+    billingAddress: AddressInput
+    "Shipping method ID"
+    shippingMethodId: ID
+    "Payment method ID"
+    paymentMethodId: ID
+    "Discount code to apply"
+    discountCode: String
+    "Customer notes/instructions"
+    customerNotes: String
+}
+
+"Input for address information."
+input AddressInput {
+    firstName: String
+    lastName: String
+    company: String
+    addressLine1: String! @NotBlank
+    addressLine2: String
+    city: String! @NotBlank
+    state: String
+    postalCode: String! @NotBlank
+    country: String! @NotBlank
+    phone: String
+}
+
+"Order status in its lifecycle."
+enum OrderStatus {
+    "Order created but not confirmed"
+    PENDING
+    "Order confirmed, payment authorized"
+    CONFIRMED
+    "Order is being processed"
+    PROCESSING
+    "Order items have been fulfilled"
+    FULFILLED
+    "Order has been shipped"
+    SHIPPED
+    "Order has been delivered"
+    DELIVERED
+    "Order has been cancelled"
+    CANCELLED
+    "Order payment has been refunded"
+    REFUNDED
+}
+
+"Fulfillment status of an order item."
+enum FulfillmentStatus {
+    "Item not yet fulfilled"
+    UNFULFILLED
+    "Item partially fulfilled"
+    PARTIAL
+    "Item completely fulfilled"
+    FULFILLED
+    "Item returned by customer"
+    RETURNED
+    "Item fulfillment cancelled"
+    CANCELLED
+}
+
+enum OrderOrderField {
+    orderNumber
+    createdAt
+    updatedAt
+    total
+}
