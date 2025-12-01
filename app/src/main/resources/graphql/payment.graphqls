@@ -1,0 +1,83 @@
+extend type Query {
+    "Get a payment by ID"
+    payment(id: ID!): Payment
+    "Get all payments for an order"
+    paymentsByOrder(orderId: ID!): [Payment!]!
+}
+
+extend type Mutation {
+    "Create a payment for an order"
+    createPayment(input: CreatePaymentInput!): Payment
+    "Capture an authorized payment"
+    capturePayment(id: ID!): Payment
+    "Refund a payment"
+    refundPayment(id: ID!, amount: Decimal, reason: String!): Payment
+}
+
+extend type Order {
+    "Payments made for this order"
+    payments: [Payment!]!
+}
+
+"A payment transaction for an order."
+type Payment implements Node {
+    id: ID!
+    "The order this payment is for"
+    orderId: ID!
+    "Payment method used"
+    paymentMethod: PaymentMethod!
+    "Payment provider"
+    paymentProvider: String!
+    "External transaction ID"
+    transactionId: String
+    "Amount paid"
+    amount: Money!
+    "Payment status"
+    status: PaymentStatus!
+    "Last 4 digits of card (if applicable)"
+    cardLastFour: String
+    "Card brand (if applicable)"
+    cardBrand: String
+    "When the payment was created"
+    createdAt: DateTime!
+    "When the payment was captured"
+    capturedAt: DateTime
+}
+
+"Input for creating a payment."
+input CreatePaymentInput {
+    "Order ID to pay for"
+    orderId: ID!
+    "Payment method to use"
+    paymentMethod: PaymentMethod!
+    "Amount to charge"
+    amount: Decimal!
+    "Currency code"
+    currency: Currency!
+    "Payment method token (from payment provider)"
+    paymentMethodToken: String
+    "Customer IP address"
+    customerIp: String
+}
+
+"Payment methods supported."
+enum PaymentMethod {
+    CREDIT_CARD
+    DEBIT_CARD
+    PAYPAL
+    STRIPE
+    BANK_TRANSFER
+    CASH_ON_DELIVERY
+    CRYPTO
+}
+
+"Payment status."
+enum PaymentStatus {
+    PENDING
+    AUTHORIZED
+    CAPTURED
+    PARTIALLY_REFUNDED
+    REFUNDED
+    FAILED
+    CANCELLED
+}

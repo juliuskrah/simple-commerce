@@ -15,7 +15,7 @@
 
 @ApplicationModule(
     displayName = "Order Management",
-    allowedDependencies = {"product", "product :: *", "cart", "actor", "shared", "shared :: *"}
+    allowedDependencies = {"product", "product :: *", "cart", "actor", "shared", "shared :: *", "tax"}
 )
 package com.simplecommerce.order;
 

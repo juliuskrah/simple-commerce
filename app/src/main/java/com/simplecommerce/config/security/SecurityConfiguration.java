@@ -53,6 +53,7 @@ class SecurityConfiguration {
             .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
             .requestMatchers(GRAPHQL_PATH_PATTERNS).permitAll()
             .requestMatchers(HttpMethod.OPTIONS, "/graphql").permitAll()
+            .requestMatchers(HttpMethod.POST, "/graphql").permitAll()
             .anyRequest().authenticated());
     http.oauth2ResourceServer(resourceServer -> resourceServer.jwt(withDefaults()));
     return http.build();

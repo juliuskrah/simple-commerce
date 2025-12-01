@@ -3,11 +3,13 @@ package com.simplecommerce.order;
 import com.simplecommerce.actor.ActorEntity;
 import com.simplecommerce.actor.Actors;
 import com.simplecommerce.actor.User;
+import com.simplecommerce.cart.CartCheckoutService;
 import com.simplecommerce.cart.CartEntity;
 import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.exceptions.NotFoundException;
 import com.simplecommerce.shared.types.UserType;
 import com.simplecommerce.shared.utils.MonetaryUtils;
+import com.simplecommerce.tax.TaxService;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -35,6 +37,8 @@ class OrderManagement implements OrderService {
   private Orders orderRepository;
   private OrderItems orderItemRepository;
   private Actors actorRepository;
+  private CartCheckoutService cartCheckoutService;
+  private TaxService taxService;
 
   public void setOrderRepository(ObjectFactory<Orders> orderRepository) {
     this.orderRepository = orderRepository.getObject();
@@ -48,6 +52,14 @@ class OrderManagement implements OrderService {
     this.actorRepository = actorRepository.getObject();
   }
 
+  public void setCartCheckoutService(ObjectFactory<CartCheckoutService> cartCheckoutService) {
+    this.cartCheckoutService = cartCheckoutService.getObject();
+  }
+
+  public void setTaxService(ObjectFactory<TaxService> taxService) {
+    this.taxService = taxService.getObject();
+  }
+
   @Override
   public Order checkout(CheckoutInput input) {
     LOG.debug("Processing checkout: email={}", input.customerEmail());
@@ -58,9 +70,20 @@ class OrderManagement implements OrderService {
       throw new IllegalStateException("User must be authenticated to checkout");
     }
 
-    // TODO: Implement cart-to-order conversion
-    // For now, create a minimal order without cart items
-    // This will be completed once we can properly access the cart service
+    // Get cart
+    CartEntity cart;
+    if (input.cartId() != null) {
+      var globalId = GlobalId.decode(input.cartId());
+      cart = cartCheckoutService.getCartEntityById(UUID.fromString(globalId.id()))
+          .orElseThrow(() -> new NotFoundException("Cart not found"));
+    } else {
+      cart = cartCheckoutService.getCartEntityByCustomerId(currentUser.getId())
+          .orElseThrow(() -> new IllegalStateException("No active cart found"));
+    }
+
+    if (cart.getItems().isEmpty()) {
+      throw new IllegalStateException("Cannot checkout with an empty cart");
+    }
 
     // Create order entity
     var order = new OrderEntity();
@@ -105,25 +128,79 @@ class OrderManagement implements OrderService {
     order.setCustomerNotes(input.customerNotes());
     order.setPlacedAt(OffsetDateTime.now());
 
-    // Set order financials (placeholder values)
-    String currency = "USD";
+    // Calculate totals
     BigDecimal subtotal = BigDecimal.ZERO;
+    String currency = "USD"; // Default currency
 
+    // Convert cart items to order items
+    for (var cartItem : cart.getItems()) {
+      var orderItem = new OrderItemEntity();
+      orderItem.setVariant(cartItem.getVariant());
+      orderItem.setQuantity(cartItem.getQuantity());
+
+      // Get product and variant details
+      var variant = cartItem.getVariant();
+      var product = variant.getProduct();
+      orderItem.setProductTitle(product.getTitle());
+      orderItem.setVariantTitle(variant.getTitle());
+      orderItem.setSku(variant.getSku());
+
+      // Set pricing from cart item
+      var unitPrice = cartItem.getUnitPrice();
+      currency = unitPrice.getCurrency().getCurrencyCode();
+      var unitAmount = unitPrice.getNumber().numberValue(BigDecimal.class);
+
+      orderItem.setUnitPriceAmount(unitAmount);
+      orderItem.setUnitPriceCurrency(currency);
+
+      var totalPrice = unitAmount.multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+      orderItem.setTotalPriceAmount(totalPrice);
+      orderItem.setTotalPriceCurrency(currency);
+      orderItem.setTaxAmount(BigDecimal.ZERO);
+      orderItem.setTaxCurrency(currency);
+      orderItem.setDiscountAmount(BigDecimal.ZERO);
+      orderItem.setDiscountCurrency(currency);
+
+      order.addItem(orderItem);
+      subtotal = subtotal.add(totalPrice);
+    }
+
+    // Calculate tax
+    BigDecimal taxAmount = BigDecimal.ZERO;
+    if (order.getShippingCountry() != null && taxService != null) {
+      taxAmount = taxService.calculateTax(subtotal, currency,
+          order.getShippingCountry(), order.getShippingState());
+    }
+
+    // TODO: Calculate shipping cost based on selected shipping method
+    BigDecimal shippingAmount = BigDecimal.ZERO;
+
+    // TODO: Apply discount codes
+    BigDecimal discountAmount = BigDecimal.ZERO;
+
+    // Calculate final total
+    BigDecimal total = subtotal.add(taxAmount).add(shippingAmount).subtract(discountAmount);
+
+    // Set order financials
     order.setSubtotalAmount(subtotal);
     order.setSubtotalCurrency(currency);
-    order.setTaxAmount(BigDecimal.ZERO);
+    order.setTaxAmount(taxAmount);
     order.setTaxCurrency(currency);
-    order.setShippingAmount(BigDecimal.ZERO);
+    order.setShippingAmount(shippingAmount);
     order.setShippingCurrency(currency);
-    order.setDiscountAmount(BigDecimal.ZERO);
+    order.setDiscountAmount(discountAmount);
     order.setDiscountCurrency(currency);
-    order.setTotalAmount(subtotal);
+    order.setTotalAmount(total);
     order.setTotalCurrency(currency);
 
     // Save order
     order = orderRepository.save(order);
 
-    LOG.info("Order created: orderNumber={}, orderId={}", order.getOrderNumber(), order.getId());
+    // Clear the cart after successful order creation
+    cartCheckoutService.clearCartAfterCheckout(cart);
+
+    LOG.info("Order created: orderNumber={}, orderId={}, items={}",
+        order.getOrderNumber(), order.getId(), order.getItems().size());
     return toOrder(order);
   }
 
