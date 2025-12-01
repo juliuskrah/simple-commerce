@@ -1,0 +1,22 @@
+query getShippingMethods($country: String!, $state: String, $orderAmount: Decimal!, $currency: Currency!) {
+    availableShippingMethods(
+        country: $country
+        state: $state
+        orderAmount: $orderAmount
+        currency: $currency
+    ) {
+        id
+        name
+        description
+        code
+        carrier
+        price {
+            amount
+            currency {
+                currencyCode
+            }
+        }
+        minDeliveryDays
+        maxDeliveryDays
+    }
+}

@@ -9,6 +9,8 @@ import com.simplecommerce.shared.GlobalId;
 import com.simplecommerce.shared.exceptions.NotFoundException;
 import com.simplecommerce.shared.types.UserType;
 import com.simplecommerce.shared.utils.MonetaryUtils;
+import com.simplecommerce.discount.DiscountService;
+import com.simplecommerce.shipping.ShippingService;
 import com.simplecommerce.tax.TaxService;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -39,6 +41,8 @@ class OrderManagement implements OrderService {
   private Actors actorRepository;
   private CartCheckoutService cartCheckoutService;
   private TaxService taxService;
+  private ShippingService shippingService;
+  private DiscountService discountService;
 
   public void setOrderRepository(ObjectFactory<Orders> orderRepository) {
     this.orderRepository = orderRepository.getObject();
@@ -58,6 +62,14 @@ class OrderManagement implements OrderService {
 
   public void setTaxService(ObjectFactory<TaxService> taxService) {
     this.taxService = taxService.getObject();
+  }
+
+  public void setShippingService(ObjectFactory<ShippingService> shippingService) {
+    this.shippingService = shippingService.getObject();
+  }
+
+  public void setDiscountService(ObjectFactory<DiscountService> discountService) {
+    this.discountService = discountService.getObject();
   }
 
   @Override
@@ -165,18 +177,38 @@ class OrderManagement implements OrderService {
       subtotal = subtotal.add(totalPrice);
     }
 
-    // Calculate tax
-    BigDecimal taxAmount = BigDecimal.ZERO;
-    if (order.getShippingCountry() != null && taxService != null) {
-      taxAmount = taxService.calculateTax(subtotal, currency,
-          order.getShippingCountry(), order.getShippingState());
+    // Calculate shipping cost
+    BigDecimal shippingAmount = BigDecimal.ZERO;
+    if (input.shippingMethodId() != null && shippingService != null) {
+      shippingAmount = shippingService.calculateShippingCost(input.shippingMethodId(), subtotal);
     }
 
-    // TODO: Calculate shipping cost based on selected shipping method
-    BigDecimal shippingAmount = BigDecimal.ZERO;
-
-    // TODO: Apply discount codes
+    // Apply discount code
     BigDecimal discountAmount = BigDecimal.ZERO;
+    if (input.discountCode() != null && discountService != null) {
+      var discountResult = discountService.validateAndApplyDiscount(
+          input.discountCode(),
+          new GlobalId("User", currentUser.getId().toString()).encode(),
+          subtotal
+      );
+
+      if (discountResult.valid()) {
+        discountAmount = discountResult.discountAmount();
+        LOG.debug("Discount applied: code={}, amount={}", input.discountCode(), discountAmount);
+      } else {
+        LOG.warn("Invalid discount code: code={}, reason={}",
+            input.discountCode(), discountResult.errorMessage());
+        // Continue checkout without discount
+      }
+    }
+
+    // Calculate tax (on subtotal + shipping - discount)
+    BigDecimal taxAmount = BigDecimal.ZERO;
+    if (order.getShippingCountry() != null && taxService != null) {
+      BigDecimal taxableAmount = subtotal.add(shippingAmount).subtract(discountAmount);
+      taxAmount = taxService.calculateTax(taxableAmount, currency,
+          order.getShippingCountry(), order.getShippingState());
+    }
 
     // Calculate final total
     BigDecimal total = subtotal.add(taxAmount).add(shippingAmount).subtract(discountAmount);

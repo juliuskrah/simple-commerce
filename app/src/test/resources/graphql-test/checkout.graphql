@@ -1,0 +1,66 @@
+mutation checkout($input: CheckoutInput!) {
+    checkout(input: $input) {
+        id
+        orderNumber
+        status
+        subtotal {
+            amount
+            currency {
+                currencyCode
+            }
+        }
+        tax {
+            amount
+            currency {
+                currencyCode
+            }
+        }
+        shipping {
+            amount
+            currency {
+                currencyCode
+            }
+        }
+        discount {
+            amount
+            currency {
+                currencyCode
+            }
+        }
+        total {
+            amount
+            currency {
+                currencyCode
+            }
+        }
+        customerEmail
+        customerName
+        shippingAddress {
+            firstName
+            lastName
+            address1
+            city
+            province
+            country
+            zip
+        }
+        items {
+            id
+            quantity
+            productTitle
+            variantTitle
+            unitPrice {
+                amount
+                currency {
+                    currencyCode
+                }
+            }
+            totalPrice {
+                amount
+                currency {
+                    currencyCode
+                }
+            }
+        }
+    }
+}

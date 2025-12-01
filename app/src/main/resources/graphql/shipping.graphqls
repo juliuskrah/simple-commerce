@@ -1,0 +1,31 @@
+extend type Query {
+    "Get available shipping methods for a destination"
+    availableShippingMethods(
+        country: String!
+        state: String
+        orderAmount: Decimal!
+        currency: Currency!
+    ): [ShippingMethod!]!
+
+    "Get a shipping method by ID"
+    shippingMethod(id: ID!): ShippingMethod
+}
+
+"A shipping method with pricing and delivery information."
+type ShippingMethod implements Node {
+    id: ID!
+    "Name of the shipping method"
+    name: String!
+    "Description of the service"
+    description: String
+    "Unique code for this method"
+    code: String!
+    "Carrier name (USPS, FedEx, UPS, etc.)"
+    carrier: String
+    "Shipping price"
+    price: Money!
+    "Minimum delivery days"
+    minDeliveryDays: Int
+    "Maximum delivery days"
+    maxDeliveryDays: Int
+}

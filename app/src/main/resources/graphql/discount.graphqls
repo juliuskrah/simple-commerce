@@ -1,0 +1,63 @@
+extend type Query {
+    "Validate a discount code for an order"
+    validateDiscountCode(
+        code: String!
+        orderAmount: Decimal!
+        currency: Currency!
+    ): DiscountValidation!
+}
+
+extend type Order {
+    "Discount code applied to this order (if any)"
+    appliedDiscountCode: String
+}
+
+"Result of discount code validation."
+type DiscountValidation {
+    "Whether the discount code is valid"
+    valid: Boolean!
+    "Discount amount that would be applied"
+    discountAmount: Money
+    "Error message if invalid"
+    errorMessage: String
+    "Discount details"
+    discount: Discount
+}
+
+"A promotional discount code."
+type Discount {
+    "Discount code"
+    code: String!
+    "Display name"
+    name: String!
+    "Description"
+    description: String
+    "Type of discount"
+    discountType: DiscountType!
+    "Percentage value (for PERCENTAGE type)"
+    valuePercentage: Decimal
+    "Fixed amount value (for FIXED_AMOUNT type)"
+    valueAmount: Money
+    "Minimum order amount required"
+    minimumOrderAmount: Money
+    "Current usage count"
+    usageCount: Int!
+    "Maximum total uses (null = unlimited)"
+    usageLimit: Int
+    "Maximum uses per customer (null = unlimited)"
+    perCustomerLimit: Int
+    "When discount becomes active"
+    startsAt: DateTime
+    "When discount expires"
+    endsAt: DateTime
+    "Whether discount is currently active"
+    active: Boolean!
+}
+
+"Types of discounts."
+enum DiscountType {
+    PERCENTAGE
+    FIXED_AMOUNT
+    FREE_SHIPPING
+    BUY_X_GET_Y
+}

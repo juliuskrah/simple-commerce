@@ -1,0 +1,30 @@
+query validateDiscount($code: String!, $orderAmount: Decimal!, $currency: Currency!) {
+    validateDiscountCode(code: $code, orderAmount: $orderAmount, currency: $currency) {
+        valid
+        discountAmount {
+            amount
+            currency {
+                currencyCode
+            }
+        }
+        errorMessage
+        discount {
+            code
+            name
+            discountType
+            valuePercentage
+            valueAmount {
+                amount
+                currency {
+                    currencyCode
+                }
+            }
+            minimumOrderAmount {
+                amount
+                currency {
+                    currencyCode
+                }
+            }
+        }
+    }
+}

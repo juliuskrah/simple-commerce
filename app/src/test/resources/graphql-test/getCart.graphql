@@ -1,0 +1,25 @@
+query getCart {
+    myCart {
+        id
+        items {
+            id
+            quantity
+            variant {
+                id
+                title
+                price {
+                    amount
+                    currency {
+                        currencyCode
+                    }
+                }
+            }
+        }
+        subtotal {
+            amount
+            currency {
+                currencyCode
+            }
+        }
+    }
+}
